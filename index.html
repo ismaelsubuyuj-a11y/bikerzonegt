@@ -5,30 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Biker Zone Guatemala</title>
+<meta name="description" content="Venta de motocicletas en Guatemala, cotiza fácil por WhatsApp.">
 
-<!-- 🔒 SEGURIDAD -->
-<meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta name="referrer" content="no-referrer-when-downgrade">
-
-<!-- 🟢 FAVICON -->
 <link rel="icon" href="logo.png">
 
 <style>
 
 /* VARIABLES */
 :root{
-    --bg:#ffffff;
-    --card:#f2f2f2;
-    --text:#000;
-    --accent:#FFD700;
-}
-
-@media (prefers-color-scheme: dark){
-:root{
     --bg:#0b0b0b;
     --card:#111;
     --text:#fff;
-}
+    --accent:#FFD700;
 }
 
 body{
@@ -45,29 +33,40 @@ body{
 }
 
 .logo{
-    width:160px;
+    width:140px;
 }
 
-/* NAV */
-.nav{
-    display:flex;
-    justify-content:center;
-    flex-wrap:wrap;
-    gap:10px;
-    background:var(--card);
-    padding:10px;
+/* HERO */
+.hero{
+    text-align:center;
+    padding:20px 10px;
 }
 
-.nav a{
+.hero h1{
+    font-size:20px;
+}
+
+.hero p{
+    font-size:14px;
+    color:gray;
+}
+
+/* BOTON */
+.btn-main{
+    display:inline-block;
+    margin-top:10px;
+    background:var(--accent);
+    padding:12px 18px;
+    border-radius:10px;
     text-decoration:none;
-    color:var(--text);
+    color:black;
     font-weight:bold;
 }
 
-/* GRID */
+/* GRID RESPONSIVE REAL */
 .catalogo{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
     gap:12px;
     padding:12px;
 }
@@ -79,6 +78,11 @@ body{
     overflow:hidden;
     cursor:pointer;
     position:relative;
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:scale(1.03);
 }
 
 .card img{
@@ -88,22 +92,29 @@ body{
 }
 
 .info{
-    padding:10px;
+    padding:8px;
+}
+
+.info h3{
+    font-size:14px;
+}
+
+.info p{
+    font-size:13px;
 }
 
 /* VENDIDA */
 .sold{
     position:absolute;
-    top:10px;
-    left:10px;
+    top:8px;
+    left:8px;
     background:red;
-    color:white;
-    padding:5px;
+    padding:5px 8px;
     border-radius:8px;
-    font-size:12px;
+    font-size:11px;
 }
 
-/* MODAL */
+/* MODAL RESPONSIVE */
 .modal{
     position:fixed;
     top:0;
@@ -123,53 +134,75 @@ body{
     max-height:90vh;
     overflow-y:auto;
     background:var(--card);
-    border-radius:15px;
-    padding:15px;
+    border-radius:12px;
+    padding:12px;
 }
 
 /* SLIDER */
 .slider img{
     width:100%;
-    height:220px;
+    height:200px;
     object-fit:cover;
     border-radius:10px;
 }
 
+/* BOTONES */
 .controls{
     display:flex;
 }
 
 .controls button{
     flex:1;
-    margin:5px;
-    padding:10px;
+    margin:4px;
 }
 
-/* BOTON */
-.btn{
-    display:block;
-    background:#25D366;
+/* BENEFICIOS */
+.beneficios{
+    padding:15px;
+}
+
+.beneficios h2{
     text-align:center;
-    padding:12px;
-    border-radius:10px;
-    margin-top:10px;
-    color:white;
-    text-decoration:none;
-    font-weight:bold;
+    font-size:18px;
+}
+
+.beneficios li{
+    font-size:14px;
+    padding:8px;
 }
 
 /* FOOTER */
 .footer{
     text-align:center;
     padding:20px;
-    font-size:13px;
+    font-size:12px;
     color:gray;
-    border-top:1px solid rgba(255,255,255,0.1);
+    border-top:1px solid #222;
 }
 
 .footer a{
     color:#FFD700;
     text-decoration:none;
+}
+
+/* WHATSAPP */
+.whatsapp{
+    position:fixed;
+    bottom:15px;
+    right:15px;
+    background:#25D366;
+    padding:14px;
+    border-radius:50%;
+    color:white;
+    font-size:18px;
+    text-decoration:none;
+}
+
+/* 📱 EXTRA MOBILE */
+@media(max-width:400px){
+    .slider img{
+        height:180px;
+    }
 }
 
 </style>
@@ -178,48 +211,54 @@ body{
 <body>
 
 <div class="header">
-    <img src="logo.png" class="logo">
-    <p>Más que motos, experiencias</p>
+<img src="logo.png" class="logo">
 </div>
 
-<div class="nav">
-    <a href="#">Inicio</a>
-    <a href="#catalogo">Catálogo</a>
-    <a href="#contacto">Contacto</a>
+<div class="hero">
+<h1>Compra tu moto fácil y segura 🏍️</h1>
+<p>Catálogo actualizado • Atención directa por WhatsApp</p>
+<a href="#catalogo" class="btn-main">Ver catálogo</a>
 </div>
 
 <div id="catalogo" class="catalogo"></div>
 
+<div class="beneficios">
+<h2>¿Por qué elegirnos?</h2>
+<ul>
+<li>✔ Motos revisadas</li>
+<li>✔ Entrega inmediata</li>
+<li>✔ Atención personalizada</li>
+<li>✔ Cotización rápida</li>
+</ul>
+</div>
+
 <!-- MODAL -->
 <div class="modal" id="modal">
-    <div class="modal-content">
-        <span onclick="closeModal()" style="cursor:pointer">✖</span>
+<div class="modal-content">
+<span onclick="closeModal()" style="cursor:pointer">✖</span>
 
-        <div class="slider">
-            <img id="slide">
-        </div>
+<div class="slider">
+<img id="slide">
+</div>
 
-        <div class="controls">
-            <button onclick="changeSlide(-1)">⬅</button>
-            <button onclick="changeSlide(1)">➡</button>
-        </div>
+<div class="controls">
+<button onclick="changeSlide(-1)">⬅</button>
+<button onclick="changeSlide(1)">➡</button>
+</div>
 
-        <h3 id="titulo"></h3>
-        <p id="precio"></p>
+<h3 id="titulo"></h3>
+<p id="precio"></p>
 
-        <div id="datos"></div>
+<div id="datos"></div>
 
-        <a id="btnWhats" class="btn" target="_blank" rel="noopener noreferrer">
-            Cotizar por WhatsApp
-        </a>
-    </div>
+<a id="btnWhats" class="btn-main" target="_blank">Cotizar por WhatsApp</a>
+
+</div>
 </div>
 
 <script>
 
-/* 🏍️ AGREGA TUS MOTOS */
 let motos = [
-
 
 {
     nombre:"Boxer BM150 2026 ",
@@ -252,80 +291,65 @@ let motos = [
 
 ];
 
-/* GENERAR */
 const contenedor=document.getElementById("catalogo");
 
 motos.forEach((m,i)=>{
-    contenedor.innerHTML+=`
-    <div class="card" onclick="openModal(${i})">
-        ${m.vendido ? '<div class="sold">VENDIDA</div>' : ''}
-        <img src="${m.imgs[0]}">
-        <div class="info">
-            <h3>${m.nombre}</h3>
-            <p>Q${m.precio}</p>
-        </div>
-    </div>`;
+contenedor.innerHTML+=`
+<div class="card" onclick="openModal(${i})">
+${m.vendido ? '<div class="sold">VENDIDA</div>' : ''}
+<img src="${m.imgs[0]}">
+<div class="info">
+<h3>${m.nombre}</h3>
+<p>Q${m.precio}</p>
+</div>
+</div>`;
 });
 
-/* MODAL */
-let current=0;
-let actual=null;
-let intervalo;
+let current=0, actual, intervalo;
 
 function openModal(i){
-    actual=motos[i];
+actual=motos[i];
 
-    document.getElementById("modal").style.display="flex";
-    document.getElementById("titulo").innerText=actual.nombre;
-    document.getElementById("precio").innerText="Q"+actual.precio;
+document.getElementById("modal").style.display="flex";
+document.getElementById("titulo").innerText=actual.nombre;
+document.getElementById("precio").innerText="Q"+actual.precio;
 
-    let html="";
-    actual.datos.forEach(d=> html+="<p>"+d+"</p>");
-    document.getElementById("datos").innerHTML=html;
+document.getElementById("datos").innerHTML=actual.datos.map(d=>"<p>"+d+"</p>").join("");
 
-    current=0;
-    showSlide();
-    autoSlide();
+current=0;
+showSlide();
 
-    let numero="50244070180"; // 🔥 TU NUMERO REAL
-    let msg="Hola, quiero cotizar la "+actual.nombre+" con precio Q"+actual.precio;
+let numero="50244070180";
+let msg="Hola, quiero cotizar la "+actual.nombre;
 
-    document.getElementById("btnWhats").href=
-        "https://wa.me/"+numero+"?text="+encodeURIComponent(msg);
+document.getElementById("btnWhats").href="https://wa.me/"+numero+"?text="+encodeURIComponent(msg);
+
+intervalo=setInterval(()=>changeSlide(1),3000);
 }
 
 function showSlide(){
-    document.getElementById("slide").src=actual.imgs[current];
+document.getElementById("slide").src=actual.imgs[current];
 }
 
 function changeSlide(n){
-    current+=n;
-    if(current<0) current=actual.imgs.length-1;
-    if(current>=actual.imgs.length) current=0;
-    showSlide();
-}
-
-function autoSlide(){
-    clearInterval(intervalo);
-    intervalo=setInterval(()=>changeSlide(1),3000);
+current=(current+n+actual.imgs.length)%actual.imgs.length;
+showSlide();
 }
 
 function closeModal(){
-    document.getElementById("modal").style.display="none";
-    clearInterval(intervalo);
+document.getElementById("modal").style.display="none";
+clearInterval(intervalo);
 }
 
 </script>
 
-<footer class="footer">
-    © <span id="year"></span> Biker Zone Guatemala • Todos los derechos reservados <br><br>
-    <a href="privacidad.html">Aviso de Privacidad</a> | 
-    <a href="terminos.html">Términos y Condiciones</a>
-</footer>
+<a href="https://wa.me/50244070180" class="whatsapp">💬</a>
 
-<script>
-document.getElementById("year").innerText = new Date().getFullYear();
-</script>
+<footer class="footer">
+© 2026 Biker Zone Guatemala • Todos los derechos reservados <br><br>
+<a href="privacidad.html">Aviso de Privacidad</a> | 
+<a href="terminos.html">Términos y Condiciones</a>
+</footer>
 
 </body>
 </html>
