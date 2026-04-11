@@ -227,6 +227,29 @@ body{
     }
 }
 
+/* CSS PARA COTIZADOR CUOTAS */
+.cotizador{
+    background:#1a1a1a;
+    padding:12px;
+    border-radius:10px;
+    margin:10px 0;
+    text-align:center;
+}
+
+.cotizador select, .cotizador button{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border-radius:8px;
+    border:none;
+}
+
+#resultadoCuotas{
+    margin-top:10px;
+    font-size:14px;
+    color:#FFD700;
+}
+
 </style>
 </head>
 
@@ -296,6 +319,33 @@ body{
 
 </div>
 </div>
+
+/* COTIZADOR NUEVO */
+<div class="cotizador">
+    <h3>Cotizar por pagos</h3>
+
+    <select id="cuotas">
+        <option value="0.14">2 cuotas (14%)</option>
+        <option value="0.15">3 cuotas (15%)</option>
+        <option value="0.16">6 cuotas (16%)</option>
+        <option value="0.18">10 cuotas (18%)</option>
+        <option value="0.19">12 cuotas (19%)</option>
+        <option value="0.20">15 cuotas (20%)</option>
+        <option value="0.22">18 cuotas (22%)</option>
+        <option value="0.24">24 cuotas (24%)</option>
+        <option value="0.26">36 cuotas (26%)</option>
+        <option value="0.27">48 cuotas (27%)</option>
+    </select>
+
+    <button onclick="calcularCuotas()">Calcular</button>
+
+    <p id="resultadoCuotas"></p>
+</div>
+
+<a id="btnWhats" class="btn-main" target="_blank">Cotizar por WhatsApp</a>
+
+</div>
+/*ACA TERMINA EL COTIZADOR*/    
 
 <script>
 
@@ -442,6 +492,26 @@ function closeModal(){
 document.getElementById("modal").style.display="none";
 clearInterval(intervalo);
 }
+
+/* SCRIPT PARA COTIZADOR INTEGRADO */
+function calcularCuotas(){
+
+    let recargo = parseFloat(document.getElementById("cuotas").value);
+    let precio = actual.precio;
+
+    let total = precio + (precio * recargo);
+
+    let cuotasTexto = document.getElementById("cuotas").selectedOptions[0].text;
+    let numeroCuotas = parseInt(cuotasTexto);
+
+    let mensual = total / numeroCuotas;
+
+    document.getElementById("resultadoCuotas").innerHTML = `
+        Total: Q${total.toFixed(2)} <br>
+        Cuotas: Q${mensual.toFixed(2)} x ${numeroCuotas}
+    `;
+}I
+/* ACA TERMINA EL SCRIPT DE COTIZADOR INTEGRADO*/    
 
 </script>
 
