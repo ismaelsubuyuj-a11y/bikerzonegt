@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Panel PRO Biker Zone</title>
+
+<style>
+body{
+    background:#0b0b0b;
+    color:white;
+    font-family:sans-serif;
+    padding:20px;
+}
+
+input, textarea{
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+    border-radius:8px;
+    border:none;
+}
+
+button{
+    padding:12px;
+    margin-top:10px;
+    background:#FFD700;
+    border:none;
+    border-radius:10px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.preview img{
+    width:80px;
+    margin:5px;
+    border-radius:8px;
+}
+
+#output{
+    background:#111;
+    padding:15px;
+    margin-top:20px;
+    white-space:pre-wrap;
+    border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Panel PRO 🏍️</h2>
+
+<input type="text" id="nombre" placeholder="Nombre de la moto">
+<input type="number" id="precio" placeholder="Precio">
+
+<label><input type="checkbox" id="vendido"> Marcar como VENDIDA</label>
+
+<textarea id="datos" placeholder="Datos:
+Kilometraje: 10,000 km
+Servicio: Reciente"></textarea>
+
+<p>Selecciona imágenes:</p>
+<input type="file" id="img1" onchange="preview(event,0)">
+<input type="file" id="img2" onchange="preview(event,1)">
+<input type="file" id="img3" onchange="preview(event,2)">
+
+<div class="preview" id="preview"></div>
+
+<button onclick="generar()">Generar Código</button>
+<button onclick="copiar()">Copiar Código</button>
+
+<div id="output"></div>
+
+<script>
+
+let imgsPreview = [];
+
+function preview(e,index){
+    let file = e.target.files[0];
+    let reader = new FileReader();
+
+    reader.onload = function(){
+        imgsPreview[index] = reader.result;
+        mostrarPreview();
+    }
+
+    reader.readAsDataURL(file);
+}
+
+function mostrarPreview(){
+    let html="";
+    imgsPreview.forEach(img=>{
+        if(img) html += `<img src="${img}">`;
+    });
+    document.getElementById("preview").innerHTML = html;
+}
+
+function generar(){
+
+    let nombre = document.getElementById("nombre").value;
+    let precio = document.getElementById("precio").value;
+    let vendido = document.getElementById("vendido").checked;
+
+    let datos = document.getElementById("datos").value.split("\n");
+    let datosArray = datos.map(d => `"${d}"`).join(",");
+
+    let codigo = `
+{
+    nombre:"${nombre}",
+    precio:${precio},
+    vendido:${vendido},
+    imgs:["img/IMG1.jpg","img/IMG2.jpg","img/IMG3.jpg"],
+    datos:[${datosArray}]
+},
+`;
+
+    document.getElementById("output").innerText = codigo;
+}
+
+function copiar(){
+    let texto = document.getElementById("output").innerText;
+    navigator.clipboard.writeText(texto);
+    alert("Código copiado 🚀");
+}
+
+</script>
+
+</body>
+</html>
