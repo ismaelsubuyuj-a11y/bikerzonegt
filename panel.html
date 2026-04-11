@@ -2,67 +2,172 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Panel PRO Biker Zone</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Biker Zone</title>
 
 <style>
-body{
-    background:#0b0b0b;
-    color:white;
-    font-family:sans-serif;
-    padding:20px;
+
+/* VARIABLES */
+:root{
+    --bg:#ffffff;
+    --card:#f2f2f2;
+    --text:#000;
+    --accent:#FFD700;
 }
 
-input, textarea{
+@media (prefers-color-scheme: dark){
+:root{
+    --bg:#0b0b0b;
+    --card:#111;
+    --text:#fff;
+}
+}
+
+body{
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+/* LOGIN */
+.login{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.login-box{
+    background:var(--card);
+    padding:20px;
+    border-radius:15px;
+    width:90%;
+    max-width:300px;
+}
+
+input{
     width:100%;
-    padding:10px;
+    padding:12px;
     margin:5px 0;
-    border-radius:8px;
+    border-radius:10px;
     border:none;
 }
 
+/* PANEL */
+#panel{
+    display:none;
+}
+
+/* HEADER */
+.header{
+    text-align:center;
+    padding:20px;
+}
+
+.logo{
+    width:140px;
+}
+
+/* CONTENEDOR */
+.container{
+    max-width:500px;
+    margin:auto;
+    padding:15px;
+}
+
+textarea{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+}
+
+/* BOTONES */
 button{
+    width:100%;
     padding:12px;
     margin-top:10px;
-    background:#FFD700;
+    background:var(--accent);
     border:none;
     border-radius:10px;
     font-weight:bold;
     cursor:pointer;
 }
 
-.preview img{
-    width:80px;
-    margin:5px;
-    border-radius:8px;
+/* PREVIEW */
+.preview{
+    display:flex;
+    flex-wrap:wrap;
 }
 
+.preview p{
+    font-size:12px;
+    margin:3px;
+}
+
+/* OUTPUT */
 #output{
-    background:#111;
+    background:var(--card);
     padding:15px;
     margin-top:20px;
     white-space:pre-wrap;
     border-radius:10px;
 }
+
+/* FOOTER */
+.footer{
+    text-align:center;
+    padding:20px;
+    font-size:13px;
+    color:gray;
+    border-top:1px solid rgba(255,255,255,0.1);
+    margin-top:20px;
+}
+
 </style>
 </head>
 
 <body>
 
-<h2>Panel PRO 🏍️</h2>
+<!-- LOGIN -->
+<div class="login" id="loginBox">
+    <div class="login-box">
+        <h3>Acceso Panel</h3>
+        <input type="text" id="user" placeholder="Usuario">
+        <input type="password" id="pass" placeholder="Contraseña">
+        <button onclick="login()">Entrar</button>
+    </div>
+</div>
+
+<!-- PANEL -->
+<div id="panel">
+
+<div class="header">
+    <img src="logo.png" class="logo">
+    <p>Panel de carga de motos 🏍️</p>
+</div>
+
+<div class="container">
 
 <input type="text" id="nombre" placeholder="Nombre de la moto">
 <input type="number" id="precio" placeholder="Precio">
 
-<label><input type="checkbox" id="vendido"> Marcar como VENDIDA</label>
+<label>
+<input type="checkbox" id="vendido"> Marcar como VENDIDA
+</label>
 
 <textarea id="datos" placeholder="Datos:
 Kilometraje: 10,000 km
-Servicio: Reciente"></textarea>
+Servicio: Reciente
+Llantas: 90%
+Motor: Excelente"></textarea>
 
 <p>Selecciona imágenes:</p>
-<input type="file" id="img1" onchange="preview(event,0)">
-<input type="file" id="img2" onchange="preview(event,1)">
-<input type="file" id="img3" onchange="preview(event,2)">
+
+<input type="file" onchange="preview(event,0)">
+<input type="file" onchange="preview(event,1)">
+<input type="file" onchange="preview(event,2)">
 
 <div class="preview" id="preview"></div>
 
@@ -71,30 +176,56 @@ Servicio: Reciente"></textarea>
 
 <div id="output"></div>
 
+</div>
+
+<footer class="footer">
+    © <span id="year"></span> Biker Zone Guatemala • Panel privado
+</footer>
+
+</div>
+
 <script>
 
-let imgsPreview = [];
+/* AÑO */
+document.getElementById("year").innerText = new Date().getFullYear();
+
+/* LOGIN */
+function login(){
+    let u = document.getElementById("user").value;
+    let p = document.getElementById("pass").value;
+
+    if(u==="Ismael" && p==="Guate502"){
+        document.getElementById("loginBox").style.display="none";
+        document.getElementById("panel").style.display="block";
+    }else{
+        alert("Datos incorrectos ❌");
+    }
+}
+
+/* IMAGENES */
+let nombresImgs = [];
 
 function preview(e,index){
     let file = e.target.files[0];
-    let reader = new FileReader();
 
-    reader.onload = function(){
-        imgsPreview[index] = reader.result;
-        mostrarPreview();
+    if(file){
+        nombresImgs[index] = "img/" + file.name;
     }
 
-    reader.readAsDataURL(file);
+    mostrarPreview();
 }
 
 function mostrarPreview(){
     let html="";
-    imgsPreview.forEach(img=>{
-        if(img) html += `<img src="${img}">`;
+    nombresImgs.forEach(n=>{
+        if(n){
+            html += `<p>${n}</p>`;
+        }
     });
     document.getElementById("preview").innerHTML = html;
 }
 
+/* GENERAR */
 function generar(){
 
     let nombre = document.getElementById("nombre").value;
@@ -104,12 +235,14 @@ function generar(){
     let datos = document.getElementById("datos").value.split("\n");
     let datosArray = datos.map(d => `"${d}"`).join(",");
 
+    let imgsFinal = nombresImgs.map(n => `"${n}"`).join(",");
+
     let codigo = `
 {
     nombre:"${nombre}",
     precio:${precio},
     vendido:${vendido},
-    imgs:["img/IMG1.jpg","img/IMG2.jpg","img/IMG3.jpg"],
+    imgs:[${imgsFinal}],
     datos:[${datosArray}]
 },
 `;
@@ -117,6 +250,7 @@ function generar(){
     document.getElementById("output").innerText = codigo;
 }
 
+/* COPIAR */
 function copiar(){
     let texto = document.getElementById("output").innerText;
     navigator.clipboard.writeText(texto);
