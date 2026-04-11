@@ -141,11 +141,9 @@ body{
 /* SLIDER */
 .slider img{
     width:100%;
-    max-height:60vh;
-    object-fit:contain;
-    background:#000;
+    height:200px;
+    object-fit:cover;
     border-radius:10px;
-    transition:0.9s;
 }
 
 /* BOTONES */
@@ -172,7 +170,7 @@ body{
     font-size:14px;
     padding:8px;
 }
-/* NUEVO BENEFICIOS */
+
 .fila-beneficios{
     display:flex;
     justify-content:space-around;
@@ -273,7 +271,7 @@ body{
 <div class="fila-beneficios">
 
 <div class="item">
-<img src="icons/revision.jpg">
+<img src="icons/revision.png">
 <p>Motos revisadas</p>
 </div>
 
@@ -315,12 +313,8 @@ body{
 
 <div id="datos"></div>
 
-<a id="btnWhats" class="btn-main" target="_blank">Cotizar por WhatsApp</a>
 
-</div>
-</div>
-
-/* COTIZADOR NUEVO */
+<!-- COTIZADOR CUOTAS -->
 <div class="cotizador">
     <h3>Cotizar por pagos</h3>
 
@@ -341,10 +335,13 @@ body{
 
     <p id="resultadoCuotas"></p>
 </div>
+<!-- ACA TERMINA EL COTIZADOR DE CUOTAS -->
 
 <a id="btnWhats" class="btn-main" target="_blank">Cotizar por WhatsApp</a>
 
-</div>   
+</div>
+
+</div>
 
 <script>
 
@@ -414,23 +411,7 @@ let motos = [
     imgs:["img/mt091.jpeg","img/mt092.jpeg","img/mt093.jpeg"],
     datos:["MARCA: Yamaha","MODELO: 2015","KILOMETRAJE: 35xxx KMS","SERVICIOS: Menor Reciente","DOCUMENTOS: Papeleria en Orden ","ESTADO: 9/10"]
 },
-
-{
-    nombre:"YAMAHA MT03",
-    precio:38000,
-    vendido:true,
-    imgs:["img/mt031.jpeg","img/mt032.jpeg","img/mt0323.jpeg"],
-    datos:["MARCA: Yamaha","MODELO: 2023","KILOMETRAJE: 15xxx KMS","SERVICIOS: Menor Reciente","DOCUMENTOS: Papeleria en Orden ","ESTADO: 9/10"]
-},
-
-{
-    nombre:"YAMAHA MT03 AGENCIA",
-    precio:39000,
-    vendido:true,
-    imgs:["img/mt034.jpeg","img/mt035.jpeg","img/mt036.jpeg"],
-    datos:["MARCA: Yamaha","MODELO: 2023","KILOMETRAJE: 21xxx KMS","SERVICIOS: Menor Reciente","DOCUMENTOS: Papeleria en Orden ","ESTADO: 9/10"]
-},
-
+    
 {
     nombre:"PULSAR NS200 UG",
     precio:18500,
@@ -510,7 +491,7 @@ function calcularCuotas(){
         Cuotas: Q${mensual.toFixed(2)} x ${numeroCuotas}
     `;
 }I
-/* ACA TERMINA EL SCRIPT DE COTIZADOR INTEGRADO*/    
+/* ACA TERMINA EL SCRIPT DE COTIZADOR INTEGRADO*/
 
 </script>
 
