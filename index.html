@@ -172,6 +172,26 @@ body{
     font-size:14px;
     padding:8px;
 }
+/* NUEVO BENEFICIOS */
+.fila-beneficios{
+    display:flex;
+    justify-content:space-around;
+    flex-wrap:wrap;
+    text-align:center;
+}
+
+.item{
+    width:80px;
+}
+
+.item img{
+    width:50px;
+    margin-bottom:5px;
+}
+
+.item p{
+    font-size:12px;
+}
 
 /* FOOTER */
 .footer{
@@ -226,12 +246,31 @@ body{
 
 <div class="beneficios">
 <h2>¿Por qué elegirnos?</h2>
-<ul>
-<li>✔ Motos revisadas</li>
-<li>✔ Entrega inmediata</li>
-<li>✔ Atención personalizada</li>
-<li>✔ Cotización rápida</li>
-</ul>
+
+<div class="fila-beneficios">
+
+<div class="item">
+<img src="icons/revision.png">
+<p>Motos revisadas</p>
+</div>
+
+<div class="item">
+<img src="icons/entrega.png">
+<p>Entrega inmediata</p>
+</div>
+
+<div class="item">
+<img src="icons/atencion.png">
+<p>Atención personalizada</p>
+</div>
+
+<div class="item">
+<img src="icons/rapido.png">
+<p>Cotización rápida</p>
+</div>
+
+</div>
+
 </div>
 
 <!-- MODAL -->
