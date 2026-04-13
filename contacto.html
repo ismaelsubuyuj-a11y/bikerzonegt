@@ -174,10 +174,63 @@ h3{
     text-decoration:none;
 }
 
+.alerta{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:#000;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:2000;
+    opacity:1;
+    transition:0.5s;
+}
+
+.contenido-alerta{
+    text-align:center;
+}
+
+/* LOGO ANIMADO */
+.logo-alerta{
+    width:120px;
+    animation:zoomFade 1s ease;
+}
+
+/* TEXTO */
+.alerta p{
+    font-size:20px;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+/* ANIMACIÓN */
+@keyframes zoomFade{
+    0%{
+        transform:scale(0.5);
+        opacity:0;
+    }
+    100%{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+
 </style>
 </head>
 
 <body>
+
+<div id="alerta" class="alerta">
+
+    <div class="contenido-alerta">
+        <img src="logo.png" class="logo-alerta">
+        <p id="textoAlerta"></p>
+    </div>
+
+</div>
 
 <!-- MENU -->
 <div id="menu" class="menu">
@@ -313,6 +366,47 @@ function verificarHorario(){
 }
 
 verificarHorario();
+
+function mostrarAlerta(){
+
+    let ahora = new Date();
+    let dia = ahora.getDay();
+    let hora = ahora.getHours();
+
+    let abierto = false;
+
+    if(dia >= 1 && dia <= 5){
+        if(hora >= 8 && hora < 18){
+            abierto = true;
+        }
+    }
+
+    if(dia === 6){
+        if(hora >= 8 && hora < 16){
+            abierto = true;
+        }
+    }
+
+    let alerta = document.getElementById("alerta");
+    let texto = document.getElementById("textoAlerta");
+
+    if(abierto){
+        texto.innerHTML = "🟢 Estamos abiertos";
+        texto.style.color = "lime";
+    }else{
+        texto.innerHTML = "🔴 Cerrado en este momento";
+        texto.style.color = "red";
+    }
+
+    setTimeout(()=>{
+        alerta.style.opacity="0";
+        setTimeout(()=>{
+            alerta.style.display="none";
+        },500);
+    },1500);
+}
+
+mostrarAlerta();
 
 </script>
 
