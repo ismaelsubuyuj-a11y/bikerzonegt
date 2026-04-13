@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contacto - Biker Zone Guatemala</title>
+
+<style>
+
+:root{
+    --bg:#0b0b0b;
+    --card:#111;
+    --text:#fff;
+    --accent:#FFD700;
+}
+
+body{
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+/* HEADER */
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px;
+}
+
+.logo{
+    width:120px;
+}
+
+.menu-btn{
+    font-size:24px;
+    cursor:pointer;
+}
+
+/* MENU */
+.menu{
+    position:fixed;
+    top:0;
+    right:-100%;
+    width:75%;
+    max-width:300px;
+    height:100%;
+    background:#111;
+    padding:20px;
+    transition:0.3s;
+    z-index:1000;
+}
+
+.menu.active{
+    right:0;
+}
+
+.menu a{
+    display:block;
+    margin:20px 0;
+    color:white;
+    text-decoration:none;
+    font-size:18px;
+}
+
+.close{
+    font-size:22px;
+    cursor:pointer;
+}
+
+/* OVERLAY */
+#overlay{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    top:0;
+    left:0;
+    display:none;
+    z-index:999;
+}
+
+#overlay.active{
+    display:block;
+}
+
+/* CONTENIDO */
+.container{
+    padding:20px;
+    text-align:center;
+}
+
+.contacto-btn{
+    display:block;
+    margin:10px auto;
+    padding:12px;
+    background:var(--accent);
+    color:black;
+    border-radius:10px;
+    text-decoration:none;
+    max-width:300px;
+    font-weight:bold;
+}
+
+/* TITULOS */
+h3{
+    margin-top:20px;
+    font-size:16px;
+}
+
+/* MAPA */
+iframe{
+    margin-top:10px;
+}
+
+/* HORARIOS */
+.horarios{
+    background:#1a1a1a;
+    padding:15px;
+    border-radius:10px;
+    margin-top:15px;
+}
+
+/* BENEFICIOS */
+.fila-beneficios{
+    display:flex;
+    justify-content:space-around;
+    flex-wrap:wrap;
+    text-align:center;
+    padding:15px;
+}
+
+.item{
+    width:80px;
+}
+
+.item img{
+    width:50px;
+}
+
+.item p{
+    font-size:12px;
+}
+
+/* FOOTER */
+.footer{
+    text-align:center;
+    padding:20px;
+    font-size:12px;
+    color:gray;
+    border-top:1px solid #222;
+}
+
+.footer a{
+    color:#FFD700;
+    text-decoration:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- MENU -->
+<div id="menu" class="menu">
+<span class="close" onclick="toggleMenu()">✖</span>
+<a href="index.html">Inicio</a>
+<a href="index.html#catalogo">Catálogo</a>
+<a href="contacto.html">Contacto</a>
+</div>
+
+<div id="overlay" onclick="toggleMenu()"></div>
+
+<!-- HEADER -->
+<div class="header">
+<img src="logo.png" class="logo">
+<div class="menu-btn" onclick="toggleMenu()">☰</div>
+</div>
+
+<!-- CONTENIDO -->
+<div class="container">
+
+<h2>Contáctanos</h2>
+
+<!-- WHATSAPP -->
+<h3>WhatsApp Oficina</h3>
+<a href="https://wa.me/50212345678?text=Hola,%20quiero%20información%20de%20las%20motos" class="contacto-btn">
+💬 Escribir por WhatsApp
+</a>
+
+<!-- TELEFONOS -->
+<h3>Habla con un asesor</h3>
+<a href="tel:+50212345678" class="contacto-btn">📞 Asesor 1</a>
+<a href="tel:+50287654321" class="contacto-btn">📞 Asesor 2</a>
+
+<!-- UBICACION -->
+<h3>Ubicación de nuestra bodega</h3>
+<iframe 
+src="https://www.google.com/maps?q=Guatemala&output=embed"
+width="100%" 
+height="250" 
+style="border:0; border-radius:10px;">
+</iframe>
+
+<!-- HORARIOS -->
+<div class="horarios">
+<h3>Horarios de atención</h3>
+<p>Lunes a Viernes: 8:00 AM - 6:00 PM</p>
+<p>Sábado: 8:00 AM - 4:00 PM</p>
+<p>Domingo: Cerrado</p>
+</div>
+
+</div>
+
+<!-- BENEFICIOS -->
+<div class="fila-beneficios">
+
+<div class="item">
+<img src="icons/revision.png">
+<p>Revisadas</p>
+</div>
+
+<div class="item">
+<img src="icons/entrega.png">
+<p>Entrega</p>
+</div>
+
+<div class="item">
+<img src="icons/atencion.png">
+<p>Atención</p>
+</div>
+
+<div class="item">
+<img src="icons/rapido.png">
+<p>Rápido</p>
+</div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+© 2026 Biker Zone Guatemala • Todos los derechos reservados <br><br>
+<a href="privacidad.html">Aviso de Privacidad</a> | 
+<a href="terminos.html">Términos y Condiciones</a>
+</footer>
+
+<script>
+function toggleMenu(){
+    document.getElementById("menu").classList.toggle("active");
+    document.getElementById("overlay").classList.toggle("active");
+}
+</script>
+
+</body>
+</html>
