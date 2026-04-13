@@ -25,16 +25,84 @@ body{
     background:var(--bg);
     color:var(--text);
 }
+    
+/*  ACA INICIA EL CSS PARA EL NUEVO HEADER DE HAMBURGUESA */
+.menu{
+    position:fixed;
+    top:0;
+    right:-100%;
+    width:75%;
+    max-width:300px;
+    height:100%;
+    background:#111;
+    padding:20px;
+    transition:0.3s ease;
+    z-index:1000;
+    box-shadow:-5px 0 15px rgba(0,0,0,0.5);
+}
 
-/* HEADER */
+.menu.active{
+    right:0;
+}
+
+.menu a{
+    display:block;
+    margin:20px 0;
+    font-size:18px;
+    color:white;
+    text-decoration:none;
+}
+
+.close{
+    font-size:22px;
+    cursor:pointer;
+}
+/* ACA FINALIZA EL HEADER TIPO HAMBURGUESA */   
+
+/* HEADER 
 .header{
     text-align:center;
     padding:20px;
+}  TERMINA EL HEADER ANTERIOR */
+
+/* EMPIEZA EL HEADER NUEVO */
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px;
 }
 
 .logo{
-    width:140px;
+    width:120px;
 }
+
+.menu-btn{
+    font-size:24px;
+    cursor:pointer;
+}
+
+/* NUEVO ORVELAY ESTA EN EL MENU HAMBURGUESA */
+#overlay{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    top:0;
+    left:0;
+    display:none;
+    z-index:999;
+}
+
+#overlay.active{
+    display:block;
+}
+/* ACA TERMINA EL OVERLAY */    
+
+/* ACA ESTA SIN MODIFICAR EL LOGO YA EN FUNCION     
+.logo{
+    width:140px;
+} ACA LO FINALIZO */
 
 /* HERO */
 .hero{
@@ -255,9 +323,35 @@ body{
 
 <body>
 
-<div class="header">
-<img src="logo.png" class="logo">
+ <!-- ACA MODIFICO EL MENU TIPO HAMBURGUESA-->   
+ <div id="menu" class="menu">
+
+    <span class="close" onclick="toggleMenu()">✖</span>
+
+    <a href="index.html">Inicio</a>
+    <a href="#catalogo" onclick="toggleMenu()">Catálogo</a>
+    <a href="contacto.html">Contacto</a>
+
 </div>
+
+<div id="overlay" onclick="toggleMenu()"></div>
+<!-- ACA MODIFICO EL MENU DE HAMBURGUESA -->
+
+<!-- ACA MODIFICO EL MENU -->
+<div class="header">
+
+    <img src="logo.png" class="logo">
+
+    <div class="menu-btn" onclick="toggleMenu()">☰</div>
+
+</div>
+<!-- ACA TERMINA -->   
+    
+<!-- ACA MODIFICO CUANDO YA ESTA EN FUNCION BIEN -->    
+<!--<div class="header">
+<img src="logo.png" class="logo">
+</div>-->   
+<!-- ACA TERMINO DE MODIFICAR CUANDO YA ESTA EN FUNCION BIEN -->    
 
 <div class="hero">
 <h1>Compra tu moto fácil y segura</h1>
@@ -513,6 +607,13 @@ function calcularCuotas(){
 }I
 /* ACA TERMINA EL SCRIPT DE COTIZADOR INTEGRADO*/
 
+/* SCRIPT PARA EL MENU HAMBURGUESA */
+function toggleMenu(){
+    document.getElementById("menu").classList.toggle("active");
+    document.getElementById("overlay").classList.toggle("active");
+}
+/* ACA TERMINA SCRIPT PARA EL MENU HAMBURGUESA */
+    
 </script>
 
 <a href="https://wa.me/50244070180" class="whatsapp">💬</a>
