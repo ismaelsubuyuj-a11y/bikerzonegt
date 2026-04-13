@@ -110,8 +110,25 @@ h3{
 }
 
 /* MAPA */
-iframe{
+.mapa-container{
+    width:100%;
+    height:250px;
+    border-radius:12px;
+    overflow:hidden;
     margin-top:10px;
+}
+
+.mapa-container iframe{
+    width:100%;
+    height:100%;
+    border:0;
+}
+
+/* RESPONSIVE EXTRA */
+@media(max-width:400px){
+    .mapa-container{
+        height:200px;
+    }
 }
 
 /* HORARIOS */
@@ -185,30 +202,40 @@ iframe{
 
 <!-- WHATSAPP -->
 <h3>WhatsApp Oficina</h3>
-<a href="https://wa.me/50212345678?text=Hola,%20quiero%20información%20de%20las%20motos" class="contacto-btn">
+<a href="https://wa.me/50244070180?text=Hola,%20quiero%20información%20de%20las%20motos" class="contacto-btn">
 💬 Escribir por WhatsApp
 </a>
 
 <!-- TELEFONOS -->
 <h3>Habla con un asesor</h3>
-<a href="tel:+50212345678" class="contacto-btn">📞 Asesor 1</a>
-<a href="tel:+50287654321" class="contacto-btn">📞 Asesor 2</a>
+<a href="tel:+50254249870" class="contacto-btn">📞 Asesor 1</a>
+<a href="tel:+50254249870" class="contacto-btn">📞 Asesor 2</a>
 
 <!-- UBICACION -->
 <h3>Ubicación de nuestra bodega</h3>
-<iframe 
-src="https://www.google.com/maps?q=Guatemala&output=embed"
-width="100%" 
-height="250" 
-style="border:0; border-radius:10px;">
-</iframe>
+
+<div class="mapa-container">
+    <iframe 
+    src="https://www.google.com/maps?q=14.7175283,-90.6613791&output=embed"
+    loading="lazy">
+    </iframe>
+</div>
+
+<a href="https://www.google.com/maps?q=14.7175283,-90.6613791" 
+target="_blank" 
+class="contacto-btn">
+📍 Abrir en Google Maps
+</a>
 
 <!-- HORARIOS -->
 <div class="horarios">
-<h3>Horarios de atención</h3>
-<p>Lunes a Viernes: 8:00 AM - 6:00 PM</p>
-<p>Sábado: 8:00 AM - 4:00 PM</p>
-<p>Domingo: Cerrado</p>
+    <h3>Horarios de atención</h3>
+
+    <p id="estado"></p>
+
+    <p>Lunes a Viernes: 10:00 AM - 6:00 PM</p>
+    <p>Sábado: 10:00 AM - 4:00 PM</p>
+    <p>Domingo: Cerrado</p>
 </div>
 
 </div>
@@ -246,10 +273,47 @@ style="border:0; border-radius:10px;">
 </footer>
 
 <script>
+
+/* MENU */
 function toggleMenu(){
     document.getElementById("menu").classList.toggle("active");
     document.getElementById("overlay").classList.toggle("active");
 }
+
+/* HORARIO */
+function verificarHorario(){
+
+    let ahora = new Date();
+    let dia = ahora.getDay();
+    let hora = ahora.getHours();
+
+    let abierto = false;
+
+    if(dia >= 1 && dia <= 5){
+        if(hora >= 8 && hora < 18){
+            abierto = true;
+        }
+    }
+
+    if(dia === 6){
+        if(hora >= 8 && hora < 16){
+            abierto = true;
+        }
+    }
+
+    let estado = document.getElementById("estado");
+
+    if(abierto){
+        estado.innerHTML = "🟢 Estamos abiertos";
+        estado.style.color = "lime";
+    }else{
+        estado.innerHTML = "🔴 Cerrado en este momento";
+        estado.style.color = "red";
+    }
+}
+
+verificarHorario();
+
 </script>
 
 </body>
