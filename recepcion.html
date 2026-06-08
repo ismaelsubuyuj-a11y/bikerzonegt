@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recepción Taller - Biker Zone Guatemala</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#0b0b0b;color:#fff}
+.header{padding:15px;background:#111;text-align:center}
+.container{max-width:1000px;margin:auto;padding:20px}
+.card{background:#161616;padding:15px;border-radius:12px;margin-bottom:15px}
+input,select,textarea{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #333;background:#222;color:#fff;box-sizing:border-box}
+button{padding:12px 16px;border:none;border-radius:8px;cursor:pointer;margin:5px}
+.primary{background:#FFD700;color:#000;font-weight:bold}
+.login{max-width:400px;margin:80px auto}
+.hidden{display:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+@media(max-width:600px){.container{padding:10px}}
+</style>
+</head>
+<body>
+<div id="login" class="login card">
+<h2>Biker Zone Guatemala</h2>
+<input id="user" placeholder="Usuario">
+<input id="pass" type="password" placeholder="Contraseña">
+<button class="primary" onclick="login()">Ingresar</button>
+</div>
+
+<div id="app" class="hidden">
+<div class="header"><h2>Orden de Recepción Taller</h2></div>
+<div class="container">
+<div class="card">
+<p><b>No. Orden:</b> <span id="orden"></span></p>
+<p><b>Fecha:</b> <span id="fecha"></span></p>
+</div>
+
+<div class="card">
+<h3>Cliente</h3>
+<div class="grid">
+<input id="cliente" placeholder="Nombre">
+<input id="telefono" placeholder="Teléfono">
+<input id="dpi" placeholder="DPI">
+<input id="direccion" placeholder="Dirección">
+</div>
+</div>
+
+<div class="card">
+<h3>Motocicleta</h3>
+<div class="grid">
+<input id="marca" placeholder="Marca">
+<input id="modelo" placeholder="Modelo">
+<input id="anio" placeholder="Año">
+<input id="color" placeholder="Color">
+<input id="placa" placeholder="Placa">
+<input id="chasis" placeholder="Chasis">
+<input id="kilometraje" placeholder="Kilometraje">
+</div>
+</div>
+
+<div class="card">
+<h3>Servicio</h3>
+<select id="servicio">
+<option>Servicio menor</option>
+<option>Servicio mayor</option>
+<option>Diagnóstico</option>
+<option>Reparación</option>
+<option>Otro</option>
+</select>
+<textarea id="estadoIngreso" placeholder="Estado de ingreso"></textarea>
+<textarea id="accesorios" placeholder="Accesorios"></textarea>
+<textarea id="observaciones" placeholder="Observaciones"></textarea>
+</div>
+
+<div class="card">
+<h3>Fotografías</h3>
+<input type="file" multiple accept="image/*">
+</div>
+
+<button class="primary" onclick="guardar()">Guardar en Google Sheets</button>
+<button onclick="window.print()">Imprimir</button>
+</div>
+</div>
+
+<script>
+const URL_SCRIPT="https://script.google.com/macros/s/AKfycbyB6feSvC8zPdvt6ej8bo_U-1xyJUDETOcTM8QtW5AALzPfBsoGDXb2Kx82OYlxI6f-/exec";
+
+function login(){
+ if(user.value==="Ismael" && pass.value==="Guate502"){
+   loginDiv=document.getElementById('login');
+   loginDiv.style.display='none';
+   app.classList.remove('hidden');
+ } else alert('Credenciales incorrectas');
+}
+
+const now=new Date();
+document.getElementById('fecha').textContent=now.toLocaleString();
+document.getElementById('orden').textContent='RT-'+now.getFullYear()+'-'+String(Date.now()).slice(-4);
+
+async function guardar(){
+ const data={
+ numeroOrden:orden.textContent,
+ fecha:now.toLocaleDateString(),
+ hora:now.toLocaleTimeString(),
+ cliente:cliente.value,
+ telefono:telefono.value,
+ dpi:dpi.value,
+ direccion:direccion.value,
+ marca:marca.value,
+ modelo:modelo.value,
+ anio:anio.value,
+ color:color.value,
+ placa:placa.value,
+ chasis:chasis.value,
+ kilometraje:kilometraje.value,
+ servicio:servicio.value,
+ estadoIngreso:estadoIngreso.value,
+ accesorios:accesorios.value,
+ observaciones:observaciones.value
+ };
+ try{
+   await fetch(URL_SCRIPT,{method:'POST',body:JSON.stringify(data)});
+   alert('Orden enviada correctamente');
+ }catch(e){
+   alert('Error al enviar');
+ }
+}
+</script>
+</body>
+</html>
