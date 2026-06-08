@@ -99,48 +99,39 @@ document.getElementById('orden').textContent='RT-'+now.getFullYear()+'-'+String(
 async function guardar(){
 
  const data={
- numeroOrden:orden.textContent,
- fecha:now.toLocaleDateString(),
- hora:now.toLocaleTimeString(),
- cliente:cliente.value,
- telefono:telefono.value,
- dpi:dpi.value,
- direccion:direccion.value,
- marca:marca.value,
- modelo:modelo.value,
- anio:anio.value,
- color:color.value,
- placa:placa.value,
- chasis:chasis.value,
- kilometraje:kilometraje.value,
- servicio:servicio.value,
- estadoIngreso:estadoIngreso.value,
- accesorios:accesorios.value,
- observaciones:observaciones.value
+   numeroOrden:orden.textContent,
+   fecha:now.toLocaleDateString(),
+   hora:now.toLocaleTimeString(),
+   cliente:cliente.value,
+   telefono:telefono.value,
+   dpi:dpi.value,
+   direccion:direccion.value,
+   marca:marca.value,
+   modelo:modelo.value,
+   anio:anio.value,
+   color:color.value,
+   placa:placa.value,
+   chasis:chasis.value,
+   kilometraje:kilometraje.value,
+   servicio:servicio.value,
+   estadoIngreso:estadoIngreso.value,
+   accesorios:accesorios.value,
+   observaciones:observaciones.value
  };
-
- console.log("Enviando:", data);
 
  try{
 
-   const respuesta = await fetch(URL_SCRIPT,{
-     method:'POST',
-     headers:{
-       'Content-Type':'application/json'
-     },
+   await fetch(URL_SCRIPT,{
+     method:"POST",
+     mode:"no-cors",
      body:JSON.stringify(data)
    });
-
-   const texto = await respuesta.text();
-
-   console.log("Respuesta Apps Script:", texto);
 
    alert("Orden enviada correctamente");
 
  }catch(error){
 
    console.error(error);
-
    alert("Error al enviar: " + error);
 
  }
