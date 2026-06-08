@@ -97,6 +97,7 @@ document.getElementById('fecha').textContent=now.toLocaleString();
 document.getElementById('orden').textContent='RT-'+now.getFullYear()+'-'+String(Date.now()).slice(-4);
 
 async function guardar(){
+
  const data={
  numeroOrden:orden.textContent,
  fecha:now.toLocaleDateString(),
@@ -117,11 +118,31 @@ async function guardar(){
  accesorios:accesorios.value,
  observaciones:observaciones.value
  };
+
+ console.log("Enviando:", data);
+
  try{
-   await fetch(URL_SCRIPT,{method:'POST',body:JSON.stringify(data)});
-   alert('Orden enviada correctamente');
- }catch(e){
-   alert('Error al enviar');
+
+   const respuesta = await fetch(URL_SCRIPT,{
+     method:'POST',
+     headers:{
+       'Content-Type':'application/json'
+     },
+     body:JSON.stringify(data)
+   });
+
+   const texto = await respuesta.text();
+
+   console.log("Respuesta Apps Script:", texto);
+
+   alert("Orden enviada correctamente");
+
+ }catch(error){
+
+   console.error(error);
+
+   alert("Error al enviar: " + error);
+
  }
 }
 </script>
