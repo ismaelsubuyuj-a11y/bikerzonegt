@@ -117,6 +117,56 @@ touch-action:none;
 <button type="button" onclick="limpiarFirma('firmaAsesor')">
 Limpiar Firma Asesor
 </button>
+
+<div class="card">
+
+<h3>Inspección Visual de la Motocicleta</h3>
+
+<p>
+Marque rayones, golpes o daños existentes.
+</p>
+
+<div style="
+position:relative;
+max-width:900px;
+margin:auto;
+">
+
+<img
+src="moto-inspeccion.png"
+id="imgMoto"
+style="
+width:100%;
+display:block;
+border-radius:12px;
+">
+
+<canvas
+id="inspeccionMoto"
+style="
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+touch-action:none;
+">
+</canvas>
+
+</div>
+
+<br>
+
+<button
+type="button"
+onclick="limpiarFirma('inspeccionMoto')">
+
+Limpiar Marcas
+
+</button>
+
+</div> 
+
 </div> 
 
  
@@ -261,6 +311,7 @@ canvas.getContext("2d")
 
 iniciarFirma("firmaCliente");
 iniciarFirma("firmaAsesor");
+iniciarFirma("inspeccionMoto"); 
 
 </script> 
 
@@ -268,127 +319,211 @@ iniciarFirma("firmaAsesor");
 
 async function generarPDF(){
 
-const { jsPDF } = window.jspdf;
+ const { jsPDF } = window.jspdf;
 
-const doc = new jsPDF();
+ const doc = new jsPDF();
 
-doc.setFontSize(18);
+ const logo = new Image();
 
-doc.text(
-"Biker Zone Guatemala",
-20,
-20
-);
+ logo.src = "logo.png";
 
-doc.setFontSize(12);
+ logo.onload = function(){
 
-doc.text(
-"ORDEN DE RECEPCIÓN",
-20,
-30
-);
+   doc.addImage(
+     logo,
+     "PNG",
+     10,
+     10,
+     35,
+     35
+   );
 
-doc.text(
-"Cliente: "+cliente.value,
-20,
-50
-);
+   doc.setFontSize(18);
 
-doc.text(
-"Teléfono: "+telefono.value,
-20,
-60
-);
+   doc.text(
+     "Biker Zone Guatemala",
+     55,
+     18
+   );
 
-doc.text(
-"Marca: "+marca.value,
-20,
-70
-);
+   doc.setFontSize(10);
 
-doc.text(
-"Modelo: "+modelo.value,
-20,
-80
-);
+   doc.text(
+     "L167 Apto A, Sector 6, San Juan Sacatepéquez, Guatemala",
+     55,
+     25
+   );
 
-doc.text(
-"Placa: "+placa.value,
-20,
-90
-);
+   doc.text(
+     "Tel. (502) 5424-9870",
+     55,
+     31
+   );
 
-doc.text(
-"Kilometraje: "+kilometraje.value,
-20,
-100
-);
+   doc.line(
+     10,
+     45,
+     200,
+     45
+   );
 
-doc.text(
-"Servicio: "+servicio.value,
-20,
-110
-);
+   doc.setFontSize(14);
 
-doc.text(
-"Observaciones:",
-20,
-125
-);
+   doc.text(
+     "ORDEN DE RECEPCIÓN DE TALLER",
+     10,
+     55
+   );
 
-doc.text(
-observaciones.value,
-20,
-135
-);
+   doc.setFontSize(11);
 
-const firma1=
-document
-.getElementById("firmaCliente")
-.toDataURL();
+   doc.text(
+     "No. Orden: " + orden.textContent,
+     10,
+     65
+   );
 
-const firma2=
-document
-.getElementById("firmaAsesor")
-.toDataURL();
+   doc.text(
+     "Cliente: " + cliente.value,
+     10,
+     75
+   );
 
-doc.addImage(
-firma1,
-"PNG",
-20,
-160,
-60,
-25
-);
+   doc.text(
+     "Teléfono: " + telefono.value,
+     10,
+     85
+   );
 
-doc.addImage(
-firma2,
-"PNG",
-120,
-160,
-60,
-25
-);
+   doc.text(
+     "Marca: " + marca.value,
+     10,
+     95
+   );
 
-doc.text(
-"Firma Cliente",
-20,
-195
-);
+   doc.text(
+     "Modelo: " + modelo.value,
+     10,
+     105
+   );
 
-doc.text(
-"Firma Asesor",
-120,
-195
-);
+   doc.text(
+     "Placa: " + placa.value,
+     10,
+     115
+   );
 
-doc.save(
-"Recepcion-"+placa.value+".pdf"
-);
+   doc.text(
+     "Kilometraje: " + kilometraje.value,
+     10,
+     125
+   );
+
+   doc.text(
+     "Servicio: " + servicio.value,
+     10,
+     135
+   );
+
+   doc.text(
+     "Observaciones:",
+     10,
+     150
+   );
+
+   const obs =
+   doc.splitTextToSize(
+     observaciones.value,
+     170
+   );
+
+   doc.text(
+     obs,
+     10,
+     160
+   );
+
+   const firmaCliente =
+   document
+   .getElementById("firmaCliente")
+   .toDataURL();
+
+   const firmaAsesor =
+   document
+   .getElementById("firmaAsesor")
+   .toDataURL();
+
+   doc.addImage(
+     firmaCliente,
+     "PNG",
+     15,
+     220,
+     60,
+     25
+   );
+
+   doc.addImage(
+     firmaAsesor,
+     "PNG",
+     120,
+     220,
+     60,
+     25
+   );
+
+   doc.text(
+     "Firma Cliente",
+     20,
+     250
+   );
+
+   doc.text(
+     "Firma Asesor",
+     125,
+     250
+   );
+
+   const inspeccion =
+   document
+   .getElementById("inspeccionMoto")
+   .toDataURL();
+
+   doc.addPage();
+
+   doc.setFontSize(16);
+
+   doc.text(
+     "Inspección Visual de la Motocicleta",
+     15,
+     20
+   );
+
+   doc.addImage(
+     inspeccion,
+     "PNG",
+     10,
+     35,
+     190,
+     120
+   );
+
+   doc.setFontSize(8);
+
+   doc.text(
+     "Biker Zone Guatemala © Todos los derechos reservados",
+     10,
+     285
+   );
+
+   doc.save(
+     "Recepcion-" +
+     placa.value +
+     ".pdf"
+   );
+
+ };
 
 }
-
-</script> 
  
 </body>
 </html>
