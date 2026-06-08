@@ -17,6 +17,9 @@ button{padding:12px 16px;border:none;border-radius:8px;cursor:pointer;margin:5px
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
 @media(max-width:600px){.container{padding:10px}}
 </style>
+ 
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+ 
 </head>
 <body>
 <div id="login" class="login card">
@@ -76,8 +79,54 @@ button{padding:12px 16px;border:none;border-radius:8px;cursor:pointer;margin:5px
 <input type="file" multiple accept="image/*">
 </div>
 
+<div class="card">
+<h3>Firma del Cliente</h3>
+
+<canvas id="firmaCliente"
+style="
+width:100%;
+max-width:500px;
+height:200px;
+background:white;
+border-radius:10px;
+touch-action:none;
+"></canvas>
+
+<br><br>
+
+<button type="button" onclick="limpiarFirma('firmaCliente')">
+Limpiar Firma Cliente
+</button>
+</div>
+
+<div class="card">
+<h3>Firma del Asesor</h3>
+
+<canvas id="firmaAsesor"
+style="
+width:100%;
+max-width:500px;
+height:200px;
+background:white;
+border-radius:10px;
+touch-action:none;
+"></canvas>
+
+<br><br>
+
+<button type="button" onclick="limpiarFirma('firmaAsesor')">
+Limpiar Firma Asesor
+</button>
+</div> 
+
+ 
 <button class="primary" onclick="guardar()">Guardar en Google Sheets</button>
 <button onclick="window.print()">Imprimir</button>
+ <button
+class="primary"
+onclick="generarPDF()">
+Descargar PDF
+</button>
 </div>
 </div>
 
@@ -137,5 +186,209 @@ async function guardar(){
  }
 }
 </script>
+
+<script>
+
+function iniciarFirma(id){
+
+const canvas=document.getElementById(id);
+const ctx=canvas.getContext("2d");
+
+canvas.width=500;
+canvas.height=200;
+
+let dibujando=false;
+
+function pos(e){
+
+const rect=canvas.getBoundingClientRect();
+
+return{
+x:(e.touches?e.touches[0].clientX:e.clientX)-rect.left,
+y:(e.touches?e.touches[0].clientY:e.clientY)-rect.top
+};
+
+}
+
+function iniciar(e){
+
+dibujando=true;
+
+const p=pos(e);
+
+ctx.beginPath();
+ctx.moveTo(p.x,p.y);
+
+}
+
+function mover(e){
+
+if(!dibujando)return;
+
+e.preventDefault();
+
+const p=pos(e);
+
+ctx.lineTo(p.x,p.y);
+ctx.stroke();
+
+}
+
+function finalizar(){
+
+dibujando=false;
+
+}
+
+canvas.addEventListener("mousedown",iniciar);
+canvas.addEventListener("mousemove",mover);
+canvas.addEventListener("mouseup",finalizar);
+
+canvas.addEventListener("touchstart",iniciar);
+canvas.addEventListener("touchmove",mover);
+canvas.addEventListener("touchend",finalizar);
+
+}
+
+function limpiarFirma(id){
+
+const canvas=document.getElementById(id);
+
+canvas.getContext("2d")
+.clearRect(0,0,canvas.width,canvas.height);
+
+}
+
+iniciarFirma("firmaCliente");
+iniciarFirma("firmaAsesor");
+
+</script> 
+
+<script>
+
+async function generarPDF(){
+
+const { jsPDF } = window.jspdf;
+
+const doc = new jsPDF();
+
+doc.setFontSize(18);
+
+doc.text(
+"Biker Zone Guatemala",
+20,
+20
+);
+
+doc.setFontSize(12);
+
+doc.text(
+"ORDEN DE RECEPCIÓN",
+20,
+30
+);
+
+doc.text(
+"Cliente: "+cliente.value,
+20,
+50
+);
+
+doc.text(
+"Teléfono: "+telefono.value,
+20,
+60
+);
+
+doc.text(
+"Marca: "+marca.value,
+20,
+70
+);
+
+doc.text(
+"Modelo: "+modelo.value,
+20,
+80
+);
+
+doc.text(
+"Placa: "+placa.value,
+20,
+90
+);
+
+doc.text(
+"Kilometraje: "+kilometraje.value,
+20,
+100
+);
+
+doc.text(
+"Servicio: "+servicio.value,
+20,
+110
+);
+
+doc.text(
+"Observaciones:",
+20,
+125
+);
+
+doc.text(
+observaciones.value,
+20,
+135
+);
+
+const firma1=
+document
+.getElementById("firmaCliente")
+.toDataURL();
+
+const firma2=
+document
+.getElementById("firmaAsesor")
+.toDataURL();
+
+doc.addImage(
+firma1,
+"PNG",
+20,
+160,
+60,
+25
+);
+
+doc.addImage(
+firma2,
+"PNG",
+120,
+160,
+60,
+25
+);
+
+doc.text(
+"Firma Cliente",
+20,
+195
+);
+
+doc.text(
+"Firma Asesor",
+120,
+195
+);
+
+doc.save(
+"Recepcion-"+placa.value+".pdf"
+);
+
+}
+
+</script> 
+ 
 </body>
 </html>
