@@ -1,0 +1,3163 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de Canalización e Infraestructura | CONECTATE</title>
+  <meta name="description" content="Herramienta de ingeniería y cálculo de canalización, tubería PVC Gris Sch 40, EMT, IMC, Liquidtight y listado de materiales — Conéctate Soporte y Tecnologías (conectategt.online)." />
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            obsidian: '#060a13',
+            slateCard: '#0c1322',
+            cobalt: {
+              500: '#3b82f6',
+              600: '#2563eb',
+            },
+            emeraldCyber: {
+              500: '#10b981',
+              600: '#059669',
+            },
+            amberAlert: {
+              500: '#f59e0b',
+              600: '#d97706',
+            },
+            pvcGray: {
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --bg-obsidian: #060a13;
+      --bg-card: rgba(12, 19, 34, 0.85);
+      --border-subtle: rgba(148, 163, 184, 0.14);
+      --accent-primary: #3b82f6;
+      --accent-secondary: #64748b;
+    }
+
+    /* Dynamic PVC Gris theme accent enhancement when PVC Gris is active */
+    body.theme-pvc-gris {
+      --accent-primary: #94a3b8;
+      --accent-secondary: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background-color: var(--bg-obsidian);
+      color: #f1f5f9;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* 32px Technical Engineering Grid Overlay */
+    .tech-grid-bg {
+      background-image:
+        linear-gradient(to right, rgba(59, 130, 246, 0.055) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(59, 130, 246, 0.055) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: center top;
+    }
+
+    body.theme-pvc-gris .tech-grid-bg {
+      background-image:
+        linear-gradient(to right, rgba(148, 163, 184, 0.065) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148, 163, 184, 0.065) 1px, transparent 1px);
+    }
+
+    /* Elevated Glassmorphism Slate Cards */
+    .glass-card {
+      background: rgba(12, 19, 34, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      box-shadow: 0 18px 40px -15px rgba(2, 6, 23, 0.85), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    body.theme-pvc-gris .glass-card-accent {
+      border-color: rgba(148, 163, 184, 0.34);
+      box-shadow: 0 18px 40px -15px rgba(2, 6, 23, 0.85), 0 0 0 1px rgba(100, 116, 139, 0.18);
+    }
+
+    /* Corporate White Logo Container */
+    .logo-badge-white {
+      background-color: #ffffff;
+      border-radius: 10px;
+      padding: 6px 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #060a13;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    /* Number input spinner cleanup */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      opacity: 0.6;
+    }
+
+    /* Smooth pulse animation for live telemetry indicator */
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.85); }
+    }
+    .pulse-dot {
+      animation: pulseDot 2.2s infinite ease-in-out;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pulse-dot {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body class="theme-pvc-gris antialiased selection:bg-blue-500/30 selection:text-blue-200">
+
+  <!-- Full-Viewport 60fps Fiber-Optic Background Canvas -->
+  <canvas id="fiberCanvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+  <!-- Subtle Technical Grid Layer -->
+  <div class="fixed inset-0 tech-grid-bg pointer-events-none z-0"></div>
+
+  <!-- Toast Notification Container (Replaces alert/confirm) -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- ===================================================================== -->
+  <!-- 1. CORPORATE LOGIN GATE                                               -->
+  <!-- ===================================================================== -->
+  <section id="loginGate" class="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-10">
+    <div class="w-full max-w-md glass-card rounded-2xl p-6 sm:p-8 border border-slate-700/60">
+      <!-- Corporate White Logo Box -->
+      <div class="flex flex-col items-center text-center mb-6">
+        <div class="logo-badge-white mb-4">
+          <img
+            src="logo.jpg"
+            alt="CONECTATE"
+            class="h-11 w-auto object-contain"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+          />
+          <!-- Crisp Inline SVG Fallback matching brand identity -->
+          <div style="display:none;" class="items-center gap-2.5 select-none">
+            <svg width="42" height="42" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M44 16.5C40.6 13.7 36.3 12 31.5 12C20.7 12 12 20.7 12 31.5C12 42.3 20.7 51 31.5 51C36.5 51 41.1 49.1 44.5 46" stroke="#2C69B3" stroke-width="7.5" stroke-linecap="round"/>
+              <path d="M31 24H46M34 31.5H52M31 39H45" stroke="#97C222" stroke-width="3.2" stroke-linecap="round"/>
+              <circle cx="47" cy="24" r="3" fill="#97C222"/>
+              <circle cx="53" cy="31.5" r="3.3" fill="#97C222"/>
+              <circle cx="46" cy="39" r="3" fill="#97C222"/>
+            </svg>
+            <div class="text-left leading-tight">
+              <div class="font-extrabold tracking-tight text-lg" style="color:#2C69B3;">CONECTATE</div>
+              <div class="italic text-[11px] font-semibold" style="color:#1E3A5F;">¡Innovación que conecta!</div>
+            </div>
+          </div>
+        </div>
+
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium bg-blue-500/10 text-blue-300 border border-blue-500/25 mb-2.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot"></span>
+          PLATAFORMA DE INGENIERÍA · GT
+        </span>
+
+        <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight">
+          Acceso Técnico · Ingeniería de Infraestructura
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1.5">
+          Calculador normativo TIA-569 / NEC de canalización, ductería y materiales
+        </p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="space-y-4" novalidate>
+        <div>
+          <label for="loginUser" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+            Usuario Técnico
+          </label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </span>
+            <input
+              id="loginUser"
+              name="username"
+              type="text"
+              autocomplete="username"
+              autocapitalize="none"
+              autocorrect="off"
+              spellcheck="false"
+              placeholder="Ingrese usuario técnico"
+              required
+              class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-950/80 border border-slate-700/80 text-white placeholder-slate-500 text-sm font-mono focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 transition"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="loginPass" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+            Contraseña de Acceso
+          </label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </span>
+            <input
+              id="loginPass"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              autocapitalize="none"
+              autocorrect="off"
+              spellcheck="false"
+              placeholder="••••••••"
+              required
+              class="w-full pl-10 pr-12 py-3 rounded-xl bg-slate-950/80 border border-slate-700/80 text-white placeholder-slate-500 text-sm font-mono focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 transition"
+            />
+            <button
+              type="button"
+              id="togglePassBtn"
+              aria-label="Mostrar u ocultar contraseña"
+              class="absolute inset-y-0 right-0 px-3.5 flex items-center text-slate-400 hover:text-white transition"
+            >
+              <svg id="eyeIconOpen" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <svg id="eyeIconClosed" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-1">
+          <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              id="keepSession"
+              type="checkbox"
+              checked
+              class="w-4 h-4 rounded border-slate-600 bg-slate-900 text-blue-600 focus:ring-blue-500/40"
+            />
+            <span class="text-xs text-slate-300">Mantener sesión activa</span>
+          </label>
+          <a href="index.html" class="text-xs text-blue-400 hover:text-blue-300 transition">
+            ← Portal Principal
+          </a>
+        </div>
+
+        <div id="loginErrorMsg" class="hidden rounded-xl bg-red-500/10 border border-red-500/30 px-3.5 py-2.5 text-xs text-red-300 flex items-center gap-2">
+          <svg class="w-4 h-4 shrink-0 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>Credenciales incorrectas. Verifique su usuario y contraseña técnica.</span>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold text-sm shadow-lg shadow-blue-600/25 transition flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>Ingresar al Calculador Técnico</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </button>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
+        <span>Conéctate Soporte y Tecnologías</span>
+        <a href="https://wa.me/50256466948" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 font-mono transition">
+          Soporte: +502 5646-6948
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- 2. MAIN APPLICATION WORKSPACE (HIDDEN UNTIL AUTHENTICATED)            -->
+  <!-- ===================================================================== -->
+  <div id="appWorkspace" class="hidden relative z-10 min-h-screen flex flex-col">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-30 border-b border-slate-800/80 bg-[#060a13]/90 backdrop-blur-md">
+      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+        <!-- Brand Logo & App Title -->
+        <div class="flex items-center gap-3.5">
+          <div class="logo-badge-white">
+            <img
+              src="logo.jpg"
+              alt="CONECTATE"
+              class="h-8 sm:h-9 w-auto object-contain"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+            />
+            <!-- Inline SVG Fallback -->
+            <div style="display:none;" class="items-center gap-2 select-none">
+              <svg width="34" height="34" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M44 16.5C40.6 13.7 36.3 12 31.5 12C20.7 12 12 20.7 12 31.5C12 42.3 20.7 51 31.5 51C36.5 51 41.1 49.1 44.5 46" stroke="#2C69B3" stroke-width="7.5" stroke-linecap="round"/>
+                <path d="M31 24H46M34 31.5H52M31 39H45" stroke="#97C222" stroke-width="3.2" stroke-linecap="round"/>
+                <circle cx="47" cy="24" r="3" fill="#97C222"/>
+                <circle cx="53" cy="31.5" r="3.3" fill="#97C222"/>
+                <circle cx="46" cy="39" r="3" fill="#97C222"/>
+              </svg>
+              <div class="text-left leading-tight">
+                <div class="font-extrabold tracking-tight text-sm sm:text-base" style="color:#2C69B3;">CONECTATE</div>
+                <div class="italic text-[10px] font-semibold" style="color:#1E3A5F;">¡Innovación que conecta!</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hidden md:block h-8 w-px bg-slate-800"></div>
+
+          <div class="hidden sm:block">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-bold text-white">Calculador de Canalización & Materiales</span>
+              <span id="headerConduitPill" class="px-2 py-0.5 rounded-md text-[11px] font-mono font-semibold bg-slate-500/20 text-slate-200 border border-slate-400/30">
+                PVC GRIS SCH 40
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">Ingeniería de Infraestructura · conectategt.online</p>
+          </div>
+        </div>
+
+        <!-- Navigation Links & Actions -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <a
+            href="index.html"
+            class="px-3 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-700/70 transition inline-flex items-center gap-1.5"
+          >
+            <span>← Portal Principal</span>
+          </a>
+
+          <a
+            href="https://wa.me/50256466948"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="px-3 py-2 rounded-xl text-xs sm:text-sm font-mono font-semibold text-emerald-300 hover:text-white bg-emerald-600/15 hover:bg-emerald-600 border border-emerald-500/35 transition inline-flex items-center gap-1.5"
+          >
+            <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824z"/>
+            </svg>
+            <span class="hidden sm:inline">+502 5646-6948</span>
+            <span class="sm:hidden">WhatsApp</span>
+          </a>
+
+          <button
+            type="button"
+            id="logoutBtn"
+            class="px-3 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-red-300 bg-slate-900/80 hover:bg-red-950/50 border border-slate-700/70 hover:border-red-500/40 transition inline-flex items-center gap-1.5 cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span class="hidden md:inline">Cerrar Sesión</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+      <!-- Executive Status & Normative Banner -->
+      <div class="glass-card rounded-2xl p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <div class="flex flex-wrap items-center gap-2 mb-1">
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-blue-500/15 text-blue-300 border border-blue-500/30">
+              TIA-569 · NEC ART. 314 / 352 / 358
+            </span>
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              3 ABRAZADERAS / 3M
+            </span>
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+              1 CAJA REGISTRO / 9M LINEALES
+            </span>
+          </div>
+          <h1 class="text-lg sm:text-xl font-extrabold text-white tracking-tight">
+            Dimensionamiento de Ductería, Accesorios y Listado Consolidado
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-400">
+            Configure cada tramo de red, CCTV o fibra óptica, verifique el porcentaje de ocupación en tiempo real y consolide materiales.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            id="resetRunBtn"
+            class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-700 transition inline-flex items-center gap-1.5 cursor-pointer"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Reiniciar Tramo</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- CALCULATOR 2-COLUMN WORKSPACE                                       -->
+      <!-- =================================================================== -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- LEFT COLUMN (7 cols): Conduit, Cables, Route & Bends Configuration -->
+        <div class="lg:col-span-7 space-y-6">
+
+          <!-- STEP 1: Conduit / Pipe Type, Trade Size & Fill Factor -->
+          <div id="conduitCard" class="glass-card glass-card-accent rounded-2xl p-5 sm:p-6">
+            <div class="flex items-center justify-between gap-2 mb-4">
+              <div class="flex items-center gap-2.5">
+                <span class="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/40 text-blue-300 font-mono font-bold text-xs flex items-center justify-center">
+                  01
+                </span>
+                <div>
+                  <h2 class="text-base font-bold text-white">Tipo de Tubería / Ducto y Norma de Ocupación</h2>
+                  <p class="text-xs text-slate-400">Seleccione el material del ducto, medida comercial y factor de relleno</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pipe / Conduit Type Selector Cards -->
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2.5">
+              Material de Canalización
+            </label>
+            <div id="conduitTypeGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5 mb-5">
+              <!-- Populated dynamically by JS with PVC Gris as first/default -->
+            </div>
+
+            <!-- Trade Size & Fill Factor Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-800/80">
+              <!-- Commercial Trade Size Selector -->
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label for="tradeSizeSelect" class="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                    Diámetro Comercial (Pulgadas)
+                  </label>
+                  <span id="selectedInternalMmBadge" class="text-[11px] font-mono text-blue-300 bg-blue-500/10 border border-blue-500/25 px-2 py-0.5 rounded">
+                    Ø Int: 20.93 mm
+                  </span>
+                </div>
+                <select
+                  id="tradeSizeSelect"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/90 border border-slate-700 text-white text-sm font-mono focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 transition"
+                >
+                  <option value="auto">Auto (Óptimo según norma)</option>
+                  <option value="1/2">1/2" (Media pulgada)</option>
+                  <option value="3/4">3/4" (Tres cuartos)</option>
+                  <option value="1">1" (Una pulgada)</option>
+                  <option value="1-1/4">1-1/4" (Una y cuarto)</option>
+                  <option value="1-1/2">1-1/2" (Una y media)</option>
+                  <option value="2">2" (Dos pulgadas)</option>
+                  <option value="2-1/2">2-1/2" (Dos y media)</option>
+                  <option value="3">3" (Tres pulgadas)</option>
+                  <option value="4">4" (Cuatro pulgadas)</option>
+                </select>
+                <p id="autoSizeHint" class="text-[11px] text-slate-400 mt-1.5">
+                  Selección automática calcula el diámetro mínimo que cumple el factor de relleno.
+                </p>
+              </div>
+
+              <!-- Fill Factor Selector -->
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Factor Máximo de Relleno
+                </label>
+                <div class="grid grid-cols-3 gap-2" id="fillFactorGroup">
+                  <button
+                    type="button"
+                    data-fill="40"
+                    class="fill-btn py-2.5 px-2 rounded-xl border text-center transition cursor-pointer bg-blue-600/20 border-blue-500 text-white"
+                  >
+                    <div class="font-mono font-bold text-sm">40%</div>
+                    <div class="text-[10px] text-slate-300 leading-tight mt-0.5">TIA-569 (&gt;2)</div>
+                  </button>
+                  <button
+                    type="button"
+                    data-fill="30"
+                    class="fill-btn py-2.5 px-2 rounded-xl border text-center transition cursor-pointer bg-slate-950/70 border-slate-700/80 text-slate-300 hover:border-slate-500"
+                  >
+                    <div class="font-mono font-bold text-sm">30%</div>
+                    <div class="text-[10px] text-slate-400 leading-tight mt-0.5">C/ Reserva</div>
+                  </button>
+                  <button
+                    type="button"
+                    data-fill="50"
+                    class="fill-btn py-2.5 px-2 rounded-xl border text-center transition cursor-pointer bg-slate-950/70 border-slate-700/80 text-slate-300 hover:border-slate-500"
+                  >
+                    <div class="font-mono font-bold text-sm">50%</div>
+                    <div class="text-[10px] text-slate-400 leading-tight mt-0.5">1 Cable</div>
+                  </button>
+                </div>
+                <p id="fillRuleNotice" class="text-[11px] text-slate-400 mt-1.5">
+                  Estándar NEC/TIA-569 para 3 o más conductores en ducto.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2: Multi-Cable Builder -->
+          <div class="glass-card rounded-2xl p-5 sm:p-6">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div class="flex items-center gap-2.5">
+                <span class="w-7 h-7 rounded-lg bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 font-mono font-bold text-xs flex items-center justify-center">
+                  02
+                </span>
+                <div>
+                  <h2 class="text-base font-bold text-white">Conductores / Cables en el Tramo</h2>
+                  <p class="text-xs text-slate-400">Agregue uno o múltiples tipos de cable dentro de la misma canalización</p>
+                </div>
+              </div>
+              <span id="totalCablesBadge" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 font-mono text-xs text-slate-200">
+                0 cables
+              </span>
+            </div>
+
+            <!-- Add Cable Controls -->
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 mb-3">
+              <div class="sm:col-span-6">
+                <label for="cablePresetSelect" class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                  Tipo de Cable
+                </label>
+                <select
+                  id="cablePresetSelect"
+                  class="w-full px-3 py-2.5 rounded-xl bg-slate-950/90 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:border-blue-500 transition"
+                >
+                  <option value="utp_cat6">UTP Cat 6 (Ø 6.2 mm)</option>
+                  <option value="utp_cat6a">UTP Cat 6A Blindado F/UTP (Ø 7.5 mm)</option>
+                  <option value="utp_cat5e">UTP Cat 5e (Ø 5.2 mm)</option>
+                  <option value="fo_drop">Fibra Óptica Drop / Interior (Ø 3.0 mm)</option>
+                  <option value="fo_adss">Fibra Óptica Armada ADSS Exterior (Ø 8.5 mm)</option>
+                  <option value="rg6_cctv">Coaxial RG6 CCTV (Ø 6.9 mm)</option>
+                  <option value="elec_3x12">Cable Eléctrico 3x12 AWG (Ø 10.5 mm)</option>
+                  <option value="custom">Cable Personalizado (Nombre y Ø mm)...</option>
+                </select>
+              </div>
+
+              <div class="sm:col-span-3">
+                <label for="cableQtyInput" class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                  Cantidad
+                </label>
+                <input
+                  id="cableQtyInput"
+                  type="number"
+                  min="1"
+                  max="200"
+                  value="4"
+                  class="w-full px-3 py-2.5 rounded-xl bg-slate-950/90 border border-slate-700 text-white text-sm font-mono focus:outline-none focus:border-blue-500 transition"
+                />
+              </div>
+
+              <div class="sm:col-span-3 flex items-end">
+                <button
+                  type="button"
+                  id="addCableBtn"
+                  class="w-full py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 shadow-md shadow-blue-600/20 cursor-pointer"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>Agregar</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Custom Cable Inputs (Hidden unless 'custom' selected) -->
+            <div id="customCableFields" class="hidden grid-cols-1 sm:grid-cols-12 gap-2.5 p-3 mb-3 rounded-xl bg-slate-900/90 border border-blue-500/30">
+              <div class="sm:col-span-8">
+                <label for="customCableName" class="block text-[11px] font-semibold text-blue-300 mb-1">
+                  Nombre del Cable Personalizado
+                </label>
+                <input
+                  id="customCableName"
+                  type="text"
+                  placeholder="Ej. Cable Control 4x18 AWG Blindado"
+                  class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div class="sm:col-span-4">
+                <label for="customCableDia" class="block text-[11px] font-semibold text-blue-300 mb-1">
+                  Diámetro Exterior (mm)
+                </label>
+                <input
+                  id="customCableDia"
+                  type="number"
+                  step="0.1"
+                  min="0.5"
+                  max="80"
+                  value="8.0"
+                  class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-white text-xs font-mono focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <!-- Active Cables List -->
+            <div id="activeCablesList" class="space-y-2 mt-3">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- STEP 3: Route Length, Left/Right 90° Turns & Extra Junction Boxes -->
+          <div class="glass-card rounded-2xl p-5 sm:p-6">
+            <div class="flex items-center gap-2.5 mb-4">
+              <span class="w-7 h-7 rounded-lg bg-amber-600/20 border border-amber-500/40 text-amber-300 font-mono font-bold text-xs flex items-center justify-center">
+                03
+              </span>
+              <div>
+                <h2 class="text-base font-bold text-white">Metraje, Vueltas 90° (Izq / Der) y Cajas de Registro</h2>
+                <p class="text-xs text-slate-400">Reglas automáticas: 3 abrazaderas cada 3m · 1 caja de registro cada 9m lineales</p>
+              </div>
+            </div>
+
+            <!-- Run Name & Linear Length -->
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 mb-5">
+              <div class="sm:col-span-7">
+                <label for="runNameInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Identificador / Descripción del Tramo
+                </label>
+                <input
+                  id="runNameInput"
+                  type="text"
+                  placeholder="Ej. Tramo 01 · Rack Principal a Bodega Norte"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/90 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 transition"
+                />
+              </div>
+
+              <div class="sm:col-span-5">
+                <label for="runLengthInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Metraje Lineal del Tramo (m)
+                </label>
+                <div class="relative">
+                  <input
+                    id="runLengthInput"
+                    type="number"
+                    step="0.5"
+                    min="0.5"
+                    max="2000"
+                    value="12"
+                    class="w-full pl-3.5 pr-12 py-2.5 rounded-xl bg-slate-950/90 border border-slate-700 text-white text-base font-mono font-bold focus:outline-none focus:border-blue-500 transition"
+                  />
+                  <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center font-mono text-xs text-slate-400 pointer-events-none">
+                    metros
+                  </span>
+                </div>
+                <!-- Quick Length Chips -->
+                <div class="flex flex-wrap gap-1.5 mt-2">
+                  <button type="button" data-len="6" class="len-chip px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-[11px] font-mono text-slate-300 cursor-pointer">6m</button>
+                  <button type="button" data-len="9" class="len-chip px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-[11px] font-mono text-slate-300 cursor-pointer">9m</button>
+                  <button type="button" data-len="12" class="len-chip px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-[11px] font-mono text-slate-300 cursor-pointer">12m</button>
+                  <button type="button" data-len="18" class="len-chip px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-[11px] font-mono text-slate-300 cursor-pointer">18m</button>
+                  <button type="button" data-len="27" class="len-chip px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-[11px] font-mono text-slate-300 cursor-pointer">27m</button>
+                  <button type="button" data-len="30" class="len-chip px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-[11px] font-mono text-slate-300 cursor-pointer">30m</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Left & Right 90° Turns Steppers -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-4">
+              <!-- Left 90° Turn Stepper -->
+              <div class="p-3.5 rounded-xl bg-slate-950/75 border border-slate-800 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+                    <!-- Left 90° Turn Directional SVG Icon -->
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M17 20V11a4 4 0 00-4-4H5m0 0l4-4M5 7l4 4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-white">Vueltas 90° Izquierda</div>
+                    <div class="text-[11px] text-slate-400 font-mono">Giro 90° lado izq.</div>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    id="decLeftTurnBtn"
+                    aria-label="Restar vuelta 90 izquierda"
+                    class="w-9 h-9 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-mono font-bold text-base flex items-center justify-center transition cursor-pointer"
+                  >−</button>
+                  <span id="leftTurnsVal" class="w-8 text-center font-mono font-bold text-base text-white">1</span>
+                  <button
+                    type="button"
+                    id="incLeftTurnBtn"
+                    aria-label="Sumar vuelta 90 izquierda"
+                    class="w-9 h-9 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-mono font-bold text-base flex items-center justify-center transition cursor-pointer"
+                  >+</button>
+                </div>
+              </div>
+
+              <!-- Right 90° Turn Stepper -->
+              <div class="p-3.5 rounded-xl bg-slate-950/75 border border-slate-800 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+                    <!-- Right 90° Turn Directional SVG Icon -->
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M7 20V11a4 4 0 014-4h8m0 0l-4-4m4 4l-4 4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-white">Vueltas 90° Derecha</div>
+                    <div class="text-[11px] text-slate-400 font-mono">Giro 90° lado der.</div>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    id="decRightTurnBtn"
+                    aria-label="Restar vuelta 90 derecha"
+                    class="w-9 h-9 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-mono font-bold text-base flex items-center justify-center transition cursor-pointer"
+                  >−</button>
+                  <span id="rightTurnsVal" class="w-8 text-center font-mono font-bold text-base text-white">1</span>
+                  <button
+                    type="button"
+                    id="incRightTurnBtn"
+                    aria-label="Sumar vuelta 90 derecha"
+                    class="w-9 h-9 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-mono font-bold text-base flex items-center justify-center transition cursor-pointer"
+                  >+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- TIA-569 / NEC Cumulative Bend Angle Compliance Badge -->
+            <div id="bendComplianceBox" class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div class="flex items-center gap-2">
+                <span id="bendStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span id="bendComplianceText" class="text-xs font-semibold text-emerald-200">
+                  Cumple TIA-569 / NEC · 2 curvas (180° acumulados ≤ 180°)
+                </span>
+              </div>
+              <span id="bendDegreesBadge" class="px-2.5 py-0.5 rounded-md bg-slate-950/70 font-mono text-xs font-bold text-emerald-300 border border-emerald-500/30">
+                2 × 90° = 180°
+              </span>
+            </div>
+
+            <!-- Extra Junction Box Toggle + Stepper -->
+            <div class="p-3.5 rounded-xl bg-slate-950/75 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="extraBoxToggle" class="sr-only peer" />
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+                <div>
+                  <div class="text-xs font-bold text-white">Caja de Registro Extra (Manual)</div>
+                  <div class="text-[11px] text-slate-400">
+                    Adicional a las cajas automáticas cada 9.00 m (+2 conectores por caja)
+                  </div>
+                </div>
+              </div>
+
+              <div id="extraBoxStepperGroup" class="flex items-center gap-1.5 opacity-45 pointer-events-none transition">
+                <button
+                  type="button"
+                  id="decExtraBoxBtn"
+                  aria-label="Restar caja de registro extra"
+                  class="w-9 h-9 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-mono font-bold text-base flex items-center justify-center transition cursor-pointer"
+                >−</button>
+                <span id="extraBoxVal" class="w-8 text-center font-mono font-bold text-base text-white">0</span>
+                <button
+                  type="button"
+                  id="incExtraBoxBtn"
+                  aria-label="Sumar caja de registro extra"
+                  class="w-9 h-9 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-mono font-bold text-base flex items-center justify-center transition cursor-pointer"
+                >+</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN (5 cols): Live SVG Cross-Section, Telemetry & Current Run Summary -->
+        <div class="lg:col-span-5 space-y-6">
+
+          <!-- Live CAD Cross-Section Diagram & Fill Telemetry -->
+          <div id="diagramCard" class="glass-card glass-card-accent rounded-2xl p-5 sm:p-6">
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div>
+                <h2 class="text-base font-bold text-white">Sección Transversal en Vivo</h2>
+                <p id="diagramSubtitle" class="text-xs text-slate-400">PVC Gris (Conduit Sch 40) · Vista CAD</p>
+              </div>
+              <span id="fillStatusBadge" class="px-2.5 py-1 rounded-lg font-mono text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                ÓPTIMO
+              </span>
+            </div>
+
+            <!-- Interactive SVG Cross-Section -->
+            <div class="relative flex items-center justify-center my-2 p-3 rounded-2xl bg-slate-950/90 border border-slate-800/90">
+              <svg
+                id="crossSectionSvg"
+                viewBox="0 0 320 320"
+                class="w-full max-w-[280px] h-auto select-none"
+                role="img"
+                aria-label="Diagrama de sección transversal del ducto y cables"
+              >
+                <!-- Dynamically rendered cross-section -->
+              </svg>
+            </div>
+
+            <!-- Fill Percentage Gauge -->
+            <div class="mt-4">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="text-slate-300 font-medium">Ocupación Interna Calculada</span>
+                <span id="fillPercentLabel" class="font-mono font-bold text-white">0.0% / 40% máx.</span>
+              </div>
+              <div class="w-full h-3 rounded-full bg-slate-950 border border-slate-800 overflow-hidden p-0.5">
+                <div
+                  id="fillProgressBar"
+                  class="h-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-300"
+                  style="width: 0%;"
+                ></div>
+              </div>
+              <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 mt-1.5">
+                <span id="areaUsedLabel">Área cables: 0.0 mm²</span>
+                <span id="areaTotalLabel">Área ducto: 344.1 mm²</span>
+              </div>
+            </div>
+
+            <!-- 4 Key Engineering KPI Tiles -->
+            <div class="grid grid-cols-2 gap-2.5 mt-4 pt-4 border-t border-slate-800/80">
+              <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                <div class="text-[11px] text-slate-400">Medida Comercial</div>
+                <div id="kpiTradeSize" class="font-mono font-extrabold text-lg text-white mt-0.5">3/4"</div>
+                <div id="kpiInternalDia" class="font-mono text-[11px] text-blue-300">Ø Int: 20.93 mm</div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                <div class="text-[11px] text-slate-400">Tubos (3.00 m c/u)</div>
+                <div id="kpiPipesCount" class="font-mono font-extrabold text-lg text-white mt-0.5">4 unid.</div>
+                <div id="kpiLengthSub" class="font-mono text-[11px] text-slate-400">Tramo: 12.0 m</div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                <div class="text-[11px] text-slate-400">Abrazaderas (3 / 3m)</div>
+                <div id="kpiClampsCount" class="font-mono font-extrabold text-lg text-white mt-0.5">12 unid.</div>
+                <div class="font-mono text-[11px] text-emerald-400">Soportería exacta</div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                <div class="text-[11px] text-slate-400">Cajas de Registro</div>
+                <div id="kpiBoxesCount" class="font-mono font-extrabold text-lg text-white mt-0.5">1 unid.</div>
+                <div id="kpiBoxDimSub" class="font-mono text-[11px] text-amber-300">6" x 6" x 4"</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Current Run Accessories Breakdown & Add to Project CTA -->
+          <div class="glass-card rounded-2xl p-5 sm:p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-bold uppercase tracking-wider text-slate-200">
+                Desglose del Tramo Actual
+              </h3>
+              <span id="runMaterialBadge" class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                PVC Gris Sch 40
+              </span>
+            </div>
+
+            <!-- Recommended Junction Box Highlight -->
+            <div class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/25 mb-3.5">
+              <div class="text-[11px] font-semibold text-blue-300 uppercase tracking-wider">
+                Caja de Registro Recomendada (NEC 314.28)
+              </div>
+              <div id="recommendedBoxFullLabel" class="text-xs sm:text-sm font-bold text-white mt-0.5">
+                Caja Termoplástica PVC Gris IP65 · 6" x 6" x 4"
+              </div>
+              <div id="boxBreakdownNote" class="text-[11px] font-mono text-slate-300 mt-1">
+                1 automática (cada 9m) + 0 extras = 1 caja · 2 conectores
+              </div>
+            </div>
+
+            <!-- Detailed Run Accessory Lines -->
+            <ul id="currentRunSummaryList" class="space-y-2 text-xs mb-5">
+              <!-- Populated dynamically -->
+            </ul>
+
+            <button
+              type="button"
+              id="addRunToProjectBtn"
+              class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-sm shadow-lg shadow-emerald-600/25 transition flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Agregar Tramo a la Lista del Proyecto</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- MULTI-RUN CONSOLIDATED BILL OF MATERIALS, PRICING (Q) & EXPORT      -->
+      <!-- =================================================================== -->
+      <section class="glass-card rounded-2xl p-5 sm:p-6 space-y-5">
+        <!-- Section Header + Optional Quetzal Pricing Toggle -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 border-b border-slate-800/80">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-extrabold text-white tracking-tight">
+                Consolidado de Materiales del Proyecto
+              </h2>
+              <span id="projectRunsCountBadge" class="px-2.5 py-0.5 rounded-full font-mono text-xs font-bold bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                0 tramos
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Agrupación automática de tubería, abrazaderas, curvas 90°, cajas de registro, conectores, coples y cableado
+            </p>
+          </div>
+
+          <!-- Optional Quetzal (Q) Pricing Toggle -->
+          <div class="flex flex-wrap items-center gap-3">
+            <label class="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-950/90 border border-slate-700/80 cursor-pointer select-none">
+              <input type="checkbox" id="enablePricingToggle" class="sr-only peer" />
+              <div class="w-10 h-5 bg-slate-800 rounded-full relative peer-checked:bg-emerald-600 transition after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-all peer-checked:after:translate-x-5"></div>
+              <span class="text-xs font-semibold text-slate-200">
+                Cotización en Quetzales (<span class="font-mono text-emerald-400 font-bold">Q</span>)
+              </span>
+            </label>
+
+            <button
+              type="button"
+              id="clearAllRunsBtn"
+              class="hidden px-3 py-2 rounded-xl text-xs font-semibold text-red-300 hover:text-white bg-red-500/10 hover:bg-red-600/80 border border-red-500/30 transition cursor-pointer"
+            >
+              Limpiar Proyecto
+            </button>
+          </div>
+        </div>
+
+        <!-- Client & Project Metadata Inputs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="clientNameInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+              Cliente / Empresa (Opcional)
+            </label>
+            <input
+              id="clientNameInput"
+              type="text"
+              placeholder="Ej. Corporación Industrial de Guatemala, S.A."
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/90 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 transition"
+            />
+          </div>
+
+          <div>
+            <label for="projectNameInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+              Proyecto / Ubicación (Opcional)
+            </label>
+            <input
+              id="projectNameInput"
+              type="text"
+              placeholder="Ej. Cableado Estructurado y CCTV · Zona 10, Ciudad de Guatemala"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/90 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500 transition"
+            />
+          </div>
+        </div>
+
+        <!-- Added Runs List -->
+        <div id="addedRunsContainer" class="space-y-2.5">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Consolidated Bill of Materials Table -->
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/75">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 bg-slate-900/90 text-[11px] font-mono uppercase tracking-wider text-slate-300">
+                <th class="py-3 px-3.5 w-10">#</th>
+                <th class="py-3 px-3.5">Categoría</th>
+                <th class="py-3 px-3.5">Material / Especificación Técnica</th>
+                <th class="py-3 px-3.5 text-center">Unidad</th>
+                <th class="py-3 px-3.5 text-right">Cantidad</th>
+                <th class="pricing-col hidden py-3 px-3.5 text-right min-w-[130px]">Precio Unit. (Q)</th>
+                <th class="pricing-col hidden py-3 px-3.5 text-right min-w-[130px]">Subtotal (Q)</th>
+              </tr>
+            </thead>
+            <tbody id="consolidatedBomBody" class="divide-y divide-slate-800/70 text-xs sm:text-sm">
+              <!-- Populated dynamically -->
+            </tbody>
+            <tfoot id="consolidatedBomFooter" class="hidden border-t-2 border-emerald-500/40 bg-emerald-950/20">
+              <tr>
+                <td colspan="6" class="py-3.5 px-4 text-right font-bold text-sm text-white">
+                  TOTAL ESTIMADO DEL PROYECTO (QUETZALES):
+                </td>
+                <td id="grandTotalQuetzales" class="py-3.5 px-3.5 text-right font-mono font-extrabold text-base sm:text-lg text-emerald-400">
+                  Q 0.00
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Export & Communication Action Buttons -->
+        <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-between gap-3 pt-2">
+          <div class="text-xs text-slate-400 flex items-center gap-2">
+            <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>El reporte PDF incluye membrete ejecutivo CONECTATE, resumen de tramos y listado técnico completo.</span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button
+              type="button"
+              id="copyListBtn"
+              class="flex-1 sm:flex-none px-4 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 hover:text-white font-semibold text-xs sm:text-sm transition inline-flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <span>Copiar Listado</span>
+            </button>
+
+            <button
+              type="button"
+              id="exportPdfBtn"
+              class="flex-1 sm:flex-none px-4 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold text-xs sm:text-sm shadow-lg shadow-blue-600/25 transition inline-flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Descargar PDF</span>
+            </button>
+
+            <button
+              type="button"
+              id="sendWhatsappBtn"
+              class="flex-1 sm:flex-none px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-600/25 transition inline-flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824z"/>
+              </svg>
+              <span>Enviar por WhatsApp</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Corporate Footer -->
+    <footer class="border-t border-slate-800/80 bg-[#060a13]/90 py-5 px-4 sm:px-6 lg:px-8 mt-8">
+      <div class="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+        <div>
+          <span class="font-semibold text-slate-200">Conéctate Soporte y Tecnologías</span> · Ingeniería en Redes, CCTV, Fibra Óptica y Seguridad Electrónica
+        </div>
+        <div class="flex items-center gap-4 font-mono">
+          <a href="https://conectategt.online" target="_blank" rel="noopener noreferrer" class="hover:text-blue-400 transition">conectategt.online</a>
+          <a href="https://wa.me/50256466948" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 transition">+502 5646-6948</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Floating Bottom-Right WhatsApp Support Button -->
+  <a
+    href="https://wa.me/50256466948"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Contactar por WhatsApp +502 5646-6948"
+    class="fixed bottom-5 right-5 z-40 group flex items-center gap-2.5 pl-3.5 pr-4 py-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl shadow-emerald-950/80 border border-emerald-400/40 transition-all hover:scale-105"
+  >
+    <svg class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824z"/>
+    </svg>
+    <div class="leading-tight">
+      <div class="text-[10px] uppercase tracking-wider text-emerald-100 font-semibold">Soporte Técnico</div>
+      <div class="text-xs font-mono font-bold">+502 5646-6948</div>
+    </div>
+  </a>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT ENGINE: SAFESTORAGE, FIBER CANVAS, CALCULATOR & VECTOR PDF -->
+  <!-- ===================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ------------------------------------------------------------------- */
+      /* 1. ROBUST SAFESTORAGE (LOCALSTORAGE / SESSIONSTORAGE / MEMORY MAP)  */
+      /* ------------------------------------------------------------------- */
+      const safeStorage = (() => {
+        const memoryLocal = new Map();
+        const memorySession = new Map();
+
+        function isStorageAvailable(type) {
+          try {
+            const storage = window[type];
+            const testKey = '__conectate_storage_test__';
+            storage.setItem(testKey, '1');
+            storage.removeItem(testKey);
+            return true;
+          } catch (e) {
+            return false;
+          }
+        }
+
+        const hasLocal = isStorageAvailable('localStorage');
+        const hasSession = isStorageAvailable('sessionStorage');
+
+        return {
+          setItem(key, value, persistent = true) {
+            const strVal = String(value);
+            try {
+              if (persistent && hasLocal) {
+                window.localStorage.setItem(key, strVal);
+              } else if (!persistent && hasSession) {
+                window.sessionStorage.setItem(key, strVal);
+              }
+            } catch (e) {
+              // Ignore SecurityError / QuotaExceededError and rely on memory fallback
+            }
+            if (persistent) {
+              memoryLocal.set(key, strVal);
+            } else {
+              memorySession.set(key, strVal);
+            }
+          },
+          getItem(key) {
+            try {
+              if (hasSession) {
+                const sVal = window.sessionStorage.getItem(key);
+                if (sVal !== null) return sVal;
+              }
+              if (hasLocal) {
+                const lVal = window.localStorage.getItem(key);
+                if (lVal !== null) return lVal;
+              }
+            } catch (e) {
+              // Ignore SecurityError
+            }
+            if (memorySession.has(key)) return memorySession.get(key);
+            if (memoryLocal.has(key)) return memoryLocal.get(key);
+            return null;
+          },
+          removeItem(key) {
+            try {
+              if (hasLocal) window.localStorage.removeItem(key);
+              if (hasSession) window.sessionStorage.removeItem(key);
+            } catch (e) {
+              // Ignore SecurityError
+            }
+            memoryLocal.delete(key);
+            memorySession.delete(key);
+          }
+        };
+      })();
+
+      /* ------------------------------------------------------------------- */
+      /* 2. TOAST NOTIFICATION SYSTEM (NEVER USES ALERT OR CONFIRM)          */
+      /* ------------------------------------------------------------------- */
+      function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        const styles = {
+          success: 'bg-emerald-950/95 border-emerald-500/50 text-emerald-100',
+          warning: 'bg-amber-950/95 border-amber-500/50 text-amber-100',
+          error: 'bg-red-950/95 border-red-500/50 text-red-100',
+          info: 'bg-slate-900/95 border-blue-500/50 text-slate-100'
+        };
+
+        const dotColors = {
+          success: 'bg-emerald-400',
+          warning: 'bg-amber-400',
+          error: 'bg-red-400',
+          info: 'bg-blue-400'
+        };
+
+        const toast = document.createElement('div');
+        toast.className = `pointer-events-auto rounded-xl border px-4 py-3 shadow-2xl backdrop-blur-md flex items-center gap-3 text-xs sm:text-sm font-medium transition-all duration-300 transform translate-y-0 opacity-100 ${styles[type] || styles.info}`;
+        toast.innerHTML = `
+          <span class="w-2.5 h-2.5 rounded-full shrink-0 ${dotColors[type] || dotColors.info}"></span>
+          <span class="flex-1">${escapeHtml(message)}</span>
+        `;
+
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(-8px)';
+          setTimeout(() => toast.remove(), 300);
+        }, 3400);
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      /* ------------------------------------------------------------------- */
+      /* 3. CORPORATE LOGIN GATE LOGIC                                       */
+      /* ------------------------------------------------------------------- */
+      const AUTH_STORAGE_KEY = 'conectate_calc_auth_v1';
+      const VALID_USER = 'tecit';
+      const VALID_PASS = 'ittectec';
+
+      const loginGate = document.getElementById('loginGate');
+      const appWorkspace = document.getElementById('appWorkspace');
+      const loginForm = document.getElementById('loginForm');
+      const loginUserInput = document.getElementById('loginUser');
+      const loginPassInput = document.getElementById('loginPass');
+      const keepSessionCheckbox = document.getElementById('keepSession');
+      const loginErrorMsg = document.getElementById('loginErrorMsg');
+      const togglePassBtn = document.getElementById('togglePassBtn');
+      const eyeIconOpen = document.getElementById('eyeIconOpen');
+      const eyeIconClosed = document.getElementById('eyeIconClosed');
+      const logoutBtn = document.getElementById('logoutBtn');
+
+      function unlockWorkspace() {
+        loginGate.classList.add('hidden');
+        appWorkspace.classList.remove('hidden');
+        recalculateAll();
+      }
+
+      function lockWorkspace() {
+        safeStorage.removeItem(AUTH_STORAGE_KEY);
+        appWorkspace.classList.add('hidden');
+        loginGate.classList.remove('hidden');
+        loginPassInput.value = '';
+        loginErrorMsg.classList.add('hidden');
+      }
+
+      // Check existing session on startup
+      if (safeStorage.getItem(AUTH_STORAGE_KEY) === 'authenticated') {
+        unlockWorkspace();
+      }
+
+      togglePassBtn.addEventListener('click', () => {
+        const isPassword = loginPassInput.type === 'password';
+        loginPassInput.type = isPassword ? 'text' : 'password';
+        eyeIconOpen.classList.toggle('hidden', isPassword);
+        eyeIconClosed.classList.toggle('hidden', !isPassword);
+      });
+
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const normUser = (loginUserInput.value || '').trim().toLowerCase();
+        const normPass = (loginPassInput.value || '').trim().toLowerCase();
+
+        if (normUser === VALID_USER && normPass === VALID_PASS) {
+          loginErrorMsg.classList.add('hidden');
+          safeStorage.setItem(AUTH_STORAGE_KEY, 'authenticated', keepSessionCheckbox.checked);
+          unlockWorkspace();
+          showToast('Sesión técnica iniciada · Bienvenido a CONECTATE', 'success');
+        } else {
+          loginErrorMsg.classList.remove('hidden');
+          loginPassInput.focus();
+        }
+      });
+
+      logoutBtn.addEventListener('click', () => {
+        lockWorkspace();
+        showToast('Sesión cerrada correctamente', 'info');
+      });
+
+      /* ------------------------------------------------------------------- */
+      /* 4. ENGINEERING DATABASE: CONDUITS (WITH PVC GRIS), SIZES & CABLES   */
+      /* ------------------------------------------------------------------- */
+      const TRADE_SIZES = ['1/2', '3/4', '1', '1-1/4', '1-1/2', '2', '2-1/2', '3', '4'];
+
+      const CONDUIT_TYPES = {
+        pvc_gris: {
+          id: 'pvc_gris',
+          name: 'PVC Gris (Conduit Sch 40)',
+          shortName: 'PVC Gris Sch 40',
+          badge: 'ESTÁNDAR · ELÉCTRICO / REDES',
+          description: 'Tramo 3.00 m · Cédula 40 · Accesorios PVC Gris',
+          standardLength: 3.0,
+          isFlexible: false,
+          swatchColor: '#94a3b8',
+          wallOuterColor: '#64748b',
+          wallInnerColor: '#94a3b8',
+          // Schedule 40 internal diameters in mm (ANSI/UL 651)
+          diametersMm: {
+            '1/2': 15.80,
+            '3/4': 20.93,
+            '1': 26.64,
+            '1-1/4': 35.05,
+            '1-1/2': 40.89,
+            '2': 52.50,
+            '2-1/2': 62.71,
+            '3': 77.93,
+            '4': 102.26
+          },
+          pipeItem: (size) => `Tubo PVC Gris Conduit Sch 40 ${size}" (3.00 m)`,
+          clampItem: (size) => `Abrazadera Tipo Omega PVC Gris ${size}"`,
+          connectorItem: (size) => `Conector Terminal c/Contratuerca PVC Gris ${size}"`,
+          couplingItem: (size) => `Cople / Unión PVC Gris ${size}"`,
+          bendItem: (size) => `Curva 90° PVC Gris ${size}"`,
+          boxPrefix: 'Caja de Registro Termoplástica PVC Gris IP65'
+        },
+        pvc_blanco: {
+          id: 'pvc_blanco',
+          name: 'PVC Blanco (Cédula 40)',
+          shortName: 'PVC Blanco Sch 40',
+          badge: 'INTERIOR · CÉDULA 40',
+          description: 'Tramo 3.00 m · Cédula 40 · Accesorios PVC Blanco',
+          standardLength: 3.0,
+          isFlexible: false,
+          swatchColor: '#e2e8f0',
+          wallOuterColor: '#cbd5e1',
+          wallInnerColor: '#f8fafc',
+          diametersMm: {
+            '1/2': 15.80,
+            '3/4': 20.93,
+            '1': 26.64,
+            '1-1/4': 35.05,
+            '1-1/2': 40.89,
+            '2': 52.50,
+            '2-1/2': 62.71,
+            '3': 77.93,
+            '4': 102.26
+          },
+          pipeItem: (size) => `Tubo PVC Blanco Cédula 40 ${size}" (3.00 m)`,
+          clampItem: (size) => `Abrazadera Tipo Omega PVC Blanco ${size}"`,
+          connectorItem: (size) => `Conector Terminal c/Contratuerca PVC Blanco ${size}"`,
+          couplingItem: (size) => `Cople / Unión PVC Blanco ${size}"`,
+          bendItem: (size) => `Curva 90° PVC Blanco ${size}"`,
+          boxPrefix: 'Caja de Registro Termoplástica PVC Blanco IP65'
+        },
+        emt: {
+          id: 'emt',
+          name: 'Tubería EMT (Metálica Ligera)',
+          shortName: 'Tubería EMT',
+          badge: 'GALVANIZADA · INTERIOR',
+          description: 'Tramo 3.00 m · Acero Galvanizado · Cajas Galvanizadas',
+          standardLength: 3.0,
+          isFlexible: false,
+          swatchColor: '#38bdf8',
+          wallOuterColor: '#94a3b8',
+          wallInnerColor: '#e2e8f0',
+          // ANSI C80.3 EMT internal diameters in mm
+          diametersMm: {
+            '1/2': 15.80,
+            '3/4': 20.93,
+            '1': 26.64,
+            '1-1/4': 35.05,
+            '1-1/2': 40.89,
+            '2': 52.50,
+            '2-1/2': 69.37,
+            '3': 85.24,
+            '4': 110.08
+          },
+          pipeItem: (size) => `Tubo Metálico EMT Galvanizado ${size}" (3.00 m)`,
+          clampItem: (size) => `Abrazadera Galvanizada para EMT ${size}"`,
+          connectorItem: (size) => `Conector EMT Galvanizado ${size}"`,
+          couplingItem: (size) => `Cople / Unión EMT Galvanizado ${size}"`,
+          bendItem: (size) => `Curva 90° EMT Galvanizada ${size}"`,
+          boxPrefix: 'Caja Cuadrada / Registro Metálica Galvanizada'
+        },
+        imc: {
+          id: 'imc',
+          name: 'Tubería IMC (Metálica Intermedia)',
+          shortName: 'Tubería IMC',
+          badge: 'USO PESADO · ROSCADA',
+          description: 'Tramo 3.00 m · Pared Intermedia Roscada · NEMA',
+          standardLength: 3.0,
+          isFlexible: false,
+          swatchColor: '#f59e0b',
+          wallOuterColor: '#64748b',
+          wallInnerColor: '#cbd5e1',
+          // ANSI C80.6 IMC internal diameters in mm
+          diametersMm: {
+            '1/2': 16.76,
+            '3/4': 21.95,
+            '1': 28.07,
+            '1-1/4': 36.83,
+            '1-1/2': 42.75,
+            '2': 54.69,
+            '2-1/2': 65.02,
+            '3': 80.72,
+            '4': 105.41
+          },
+          pipeItem: (size) => `Tubo Metálico IMC Roscado ${size}" (3.00 m)`,
+          clampItem: (size) => `Abrazadera Reforzada IMC / Unistrut ${size}"`,
+          connectorItem: (size) => `Conector Roscado IMC c/Contratuerca ${size}"`,
+          couplingItem: (size) => `Cople Roscado IMC Galvanizado ${size}"`,
+          bendItem: (size) => `Codo / Curva 90° Roscada IMC ${size}"`,
+          boxPrefix: 'Caja de Registro Metálica Reforzada NEMA / Galvanizada'
+        },
+        liquidtight: {
+          id: 'liquidtight',
+          name: 'Conduit Flexible Liquidtight',
+          shortName: 'Liquidtight Flexible',
+          badge: 'HERMÉTICO · IP65 / NEMA 4X',
+          description: 'Canalización Flexible Hermética · Abrazaderas c/3.00 m',
+          standardLength: 3.0,
+          isFlexible: true,
+          swatchColor: '#10b981',
+          wallOuterColor: '#334155',
+          wallInnerColor: '#64748b',
+          // UL 360 LFMC internal diameters in mm
+          diametersMm: {
+            '1/2': 16.05,
+            '3/4': 21.08,
+            '1': 26.77,
+            '1-1/4': 35.31,
+            '1-1/2': 40.39,
+            '2': 51.82,
+            '2-1/2': 63.50,
+            '3': 78.49,
+            '4': 102.11
+          },
+          pipeItem: (size) => `Conduit Flexible Liquidtight Hermético ${size}" (Tramo eq. 3.00 m)`,
+          clampItem: (size) => `Abrazadera Reforzada Liquidtight ${size}"`,
+          connectorItem: (size) => `Conector Hermético Liquidtight ${size}"`,
+          couplingItem: (size) => `Unión / Cople Hermético Liquidtight ${size}"`,
+          bendItem: (size) => `Conector / Curva 90° Liquidtight ${size}"`,
+          boxPrefix: 'Caja de Registro Estanca IP65 / NEMA 4X'
+        }
+      };
+
+      const CABLE_PRESETS = {
+        utp_cat6: { id: 'utp_cat6', name: 'UTP Cat 6', diameterMm: 6.2, color: '#3b82f6' },
+        utp_cat6a: { id: 'utp_cat6a', name: 'UTP Cat 6A Blindado F/UTP', diameterMm: 7.5, color: '#60a5fa' },
+        utp_cat5e: { id: 'utp_cat5e', name: 'UTP Cat 5e', diameterMm: 5.2, color: '#38bdf8' },
+        fo_drop: { id: 'fo_drop', name: 'Fibra Óptica Drop / Interior', diameterMm: 3.0, color: '#10b981' },
+        fo_adss: { id: 'fo_adss', name: 'Fibra Óptica Armada ADSS Exterior', diameterMm: 8.5, color: '#34d399' },
+        rg6_cctv: { id: 'rg6_cctv', name: 'Coaxial RG6 CCTV', diameterMm: 6.9, color: '#f59e0b' },
+        elec_3x12: { id: 'elec_3x12', name: 'Cable Eléctrico 3x12 AWG', diameterMm: 10.5, color: '#ef4444' }
+      };
+
+      /* ------------------------------------------------------------------- */
+      /* 5. APPLICATION STATE                                                */
+      /* ------------------------------------------------------------------- */
+      const state = {
+        conduitType: 'pvc_gris', // Default: PVC Gris (Conduit Sch 40)
+        tradeSizeMode: 'auto',   // 'auto' or one of TRADE_SIZES
+        fillFactor: 40,          // 40%, 30%, or 50%
+        cables: [
+          { uid: 'c1', presetId: 'utp_cat6', name: 'UTP Cat 6', diameterMm: 6.2, qty: 4, color: '#3b82f6' }
+        ],
+        runName: '',
+        lengthMeters: 12,
+        turnsLeft: 1,
+        turnsRight: 1,
+        extraBoxEnabled: false,
+        extraBoxes: 0,
+        projectRuns: [],
+        pricingEnabled: false,
+        unitPrices: {} // keyed by consolidated item key -> numeric price in Quetzales
+      };
+
+      let uidCounter = 10;
+      function nextUid(prefix = 'id') {
+        uidCounter += 1;
+        return `${prefix}_${uidCounter}`;
+      }
+
+      /* ------------------------------------------------------------------- */
+      /* 6. RECOMMENDED JUNCTION BOX LOGIC (NEC 314.28 / TIA-569)            */
+      /* ------------------------------------------------------------------- */
+      function getRecommendedBoxDimension(tradeSize, hasAnglePulls) {
+        const table = {
+          '1/2':   { straight: '4" x 4" x 2-1/8"',  angle: '6" x 6" x 4"' },
+          '3/4':   { straight: '4" x 4" x 2-1/8"',  angle: '6" x 6" x 4"' },
+          '1':     { straight: '6" x 6" x 4"',      angle: '8" x 8" x 4"' },
+          '1-1/4': { straight: '8" x 8" x 4"',      angle: '10" x 10" x 6"' },
+          '1-1/2': { straight: '8" x 8" x 4"',      angle: '10" x 10" x 6"' },
+          '2':     { straight: '10" x 10" x 6"',    angle: '12" x 12" x 6"' },
+          '2-1/2': { straight: '12" x 12" x 6"',    angle: '16" x 16" x 8"' },
+          '3':     { straight: '12" x 12" x 6"',    angle: '16" x 16" x 8"' },
+          '4':     { straight: '16" x 16" x 8"',    angle: '16" x 16" x 8"' }
+        };
+        const entry = table[tradeSize] || table['3/4'];
+        return hasAnglePulls ? entry.angle : entry.straight;
+      }
+
+      /* ------------------------------------------------------------------- */
+      /* 7. CORE ENGINEERING CALCULATION ENGINE                              */
+      /* ------------------------------------------------------------------- */
+      function computeCurrentRunMetrics() {
+        const conduit = CONDUIT_TYPES[state.conduitType] || CONDUIT_TYPES.pvc_gris;
+        const maxFillRatio = state.fillFactor / 100;
+
+        // Calculate total cable cross-sectional area (mm²) & total cable count
+        let totalCableAreaMm2 = 0;
+        let totalCableCount = 0;
+        for (const cable of state.cables) {
+          const r = cable.diameterMm / 2;
+          const singleArea = Math.PI * r * r;
+          totalCableAreaMm2 += singleArea * cable.qty;
+          totalCableCount += cable.qty;
+        }
+
+        // Determine active trade size ('auto' selects smallest size that satisfies fillFactor)
+        let activeTradeSize = state.tradeSizeMode;
+        let recommendedAutoSize = '4';
+        for (const size of TRADE_SIZES) {
+          const dMm = conduit.diametersMm[size];
+          const conduitArea = Math.PI * Math.pow(dMm / 2, 2);
+          if (totalCableAreaMm2 <= conduitArea * maxFillRatio) {
+            recommendedAutoSize = size;
+            break;
+          }
+        }
+
+        if (activeTradeSize === 'auto') {
+          activeTradeSize = recommendedAutoSize;
+        }
+
+        const internalDiameterMm = conduit.diametersMm[activeTradeSize];
+        const internalAreaMm2 = Math.PI * Math.pow(internalDiameterMm / 2, 2);
+        const fillPercent = internalAreaMm2 > 0 ? (totalCableAreaMm2 / internalAreaMm2) * 100 : 0;
+
+        // Length, Tubes (3.00m), Clamps (3 per 3m/tube), Straight Junction Boxes (1 per 9m)
+        const lengthMeters = Math.max(0.5, Number(state.lengthMeters) || 0.5);
+        const tubesCount = Math.ceil(lengthMeters / 3);
+        const clampsCount = tubesCount * 3; // Exact rule: 3 abrazaderas per 3m / tube
+        const autoStraightBoxes = Math.floor(lengthMeters / 9); // 1 box every 9.00 m straight
+        const extraBoxes = state.extraBoxEnabled ? Math.max(0, state.extraBoxes) : 0;
+        const totalJunctionBoxes = autoStraightBoxes + extraBoxes;
+
+        // 90° Turns (Left & Right)
+        const turnsLeft = Math.max(0, state.turnsLeft);
+        const turnsRight = Math.max(0, state.turnsRight);
+        const totalBends = turnsLeft + turnsRight;
+        const totalBendDegrees = totalBends * 90;
+
+        // Recommended Box Dimension (NEC 314.28) adapted to conduit material
+        const boxDimension = getRecommendedBoxDimension(activeTradeSize, totalBends > 0);
+        const fullBoxDescription = `${conduit.boxPrefix} ${boxDimension}`;
+
+        // Connectors: 2 per junction box (entrada y salida)
+        const connectorsCount = totalJunctionBoxes * 2;
+
+        // Couplings (Coples): Math.max(0, tubos - 1)
+        const couplingsCount = Math.max(0, tubesCount - 1);
+
+        return {
+          conduit,
+          activeTradeSize,
+          recommendedAutoSize,
+          internalDiameterMm,
+          internalAreaMm2,
+          totalCableAreaMm2,
+          totalCableCount,
+          fillPercent,
+          fillLimitPercent: state.fillFactor,
+          isOverfilled: fillPercent > state.fillFactor + 0.05,
+          lengthMeters,
+          tubesCount,
+          clampsCount,
+          autoStraightBoxes,
+          extraBoxes,
+          totalJunctionBoxes,
+          turnsLeft,
+          turnsRight,
+          totalBends,
+          totalBendDegrees,
+          boxDimension,
+          fullBoxDescription,
+          connectorsCount,
+          couplingsCount
+        };
+      }
+
+      /* ------------------------------------------------------------------- */
+      /* 8. RENDER CONDUIT SELECTOR CARDS (PVC GRIS FIRST)                   */
+      /* ------------------------------------------------------------------- */
+      function renderConduitTypeCards() {
+        const container = document.getElementById('conduitTypeGrid');
+        container.innerHTML = '';
+
+        Object.values(CONDUIT_TYPES).forEach((ct) => {
+          const isSelected = state.conduitType === ct.id;
+          const isPvcGris = ct.id === 'pvc_gris';
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.dataset.conduitId = ct.id;
+
+          let cardClasses = 'text-left p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-1.5 ';
+          if (isSelected) {
+            if (isPvcGris) {
+              cardClasses += 'bg-slate-600/25 border-slate-300 shadow-md shadow-slate-950/60 ring-1 ring-slate-300/40';
+            } else {
+              cardClasses += 'bg-blue-600/20 border-blue-400 shadow-md shadow-blue-950/50 ring-1 ring-blue-400/30';
+            }
+          } else {
+            cardClasses += 'bg-slate-950/75 border-slate-800 hover:border-slate-600';
+          }
+
+          btn.className = cardClasses;
+          btn.innerHTML = `
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="w-3.5 h-3.5 rounded-full border border-white/30 shrink-0" style="background-color: ${ct.swatchColor};"></span>
+                <span class="text-xs font-bold text-white leading-tight">${escapeHtml(ct.name)}</span>
+              </div>
+              ${isSelected ? '<span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>' : ''}
+            </div>
+            <div class="flex items-center justify-between gap-1 mt-0.5">
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-900/90 text-slate-300 border border-slate-700/70">
+                ${escapeHtml(ct.badge)}
+              </span>
+            </div>
+          `;
+
+          btn.addEventListener('click', () => {
+            state.conduitType = ct.id;
+            document.body.classList.toggle('theme-pvc-gris', ct.id === 'pvc_gris');
+            renderConduitTypeCards();
+            recalculateAll();
+          });
+
+          container.appendChild(btn);
+        });
+      }
+
+      /* ------------------------------------------------------------------- */
+      /* 9. RENDER ACTIVE CABLES IN CURRENT RUN                              */
+      /* ------------------------------------------------------------------- */
+      function renderActiveCablesList() {
+        const container = document.getElementById('activeCablesList');
+        container.innerHTML = '';
+
+        if (state.cables.length === 0) {
+          container.innerHTML = `
+            <div class="p-4 rounded-xl bg-slate-950/60 border border-dashed border-slate-700 text-center text-xs text-slate-400">
+              No hay cables agregados en este tramo. Seleccione un tipo de cable arriba y presione <strong class="text-slate-200">+ Agregar</strong>.
+            </div>
+          `;
+          return;
+        }
+
+        state.cables.forEach((cable) => {
+          const r = cable.diameterMm / 2;
+          const totalArea = Math.PI * r * r * cable.qty;
+
+          const row = document.createElement('div');
+          row.className = 'p-3 rounded-xl bg-slate-950/85 border border-slate-800 flex flex-wrap items-center justify-between gap-2.5';
+          row.innerHTML = `
+            <div class="flex items-center gap-2.5 min-w-[180px]">
+              <span class="w-3.5 h-3.5 rounded-full shrink-0 border border-white/25" style="background-color: ${cable.color};"></span>
+              <div>
+                <div class="text-xs sm:text-sm font-bold text-white">${escapeHtml(cable.name)}</div>
+                <div class="text-[11px] font-mono text-slate-400">
+                  Ø ${cable.diameterMm.toFixed(1)} mm · Área total: ${totalArea.toFixed(1)} mm²
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 ml-auto">
+              <button
+                type="button"
+                data-action="dec"
+                data-uid="${cable.uid}"
+                aria-label="Reducir cantidad de cable"
+                class="w-8 h-8 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-mono font-bold flex items-center justify-center transition cursor-pointer"
+              >−</button>
+              <span class="w-9 text-center font-mono font-bold text-sm text-white">${cable.qty}</span>
+              <button
+                type="button"
+                data-action="inc"
+                data-uid="${cable.uid}"
+                aria-label="Aumentar cantidad de cable"
+                class="w-8 h-8 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-mono font-bold flex items-center justify-center transition cursor-pointer"
+              >+</button>
+              <button
+                type="button"
+                data-action="remove"
+                data-uid="${cable.uid}"
+                aria-label="Eliminar cable"
+                class="ml-1 w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-600/80 border border-red-500/30 text-red-300 hover:text-white flex items-center justify-center transition cursor-pointer"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          `;
+
+          container.appendChild(row);
+        });
+
+        // Delegate stepper & remove events
+        container.querySelectorAll('button[data-uid]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const uid = btn.dataset.uid;
+            const action = btn.dataset.action;
+            const idx = state.cables.findIndex((c) => c.uid === uid);
+            if (idx === -1) return;
+
+            if (action === 'inc') {
+              state.cables[idx].qty += 1;
+            } else if (action === 'dec') {
+              if (state.cables[idx].qty > 1) {
+                state.cables[idx].qty -= 1;
+              } else {
+                state.cables.splice(idx, 1);
+              }
+            } else if (action === 'remove') {
+              state.cables.splice(idx, 1);
+            }
+            renderActiveCablesList();
+            recalculateAll();
+          });
+        });
+      }
+
+      /* ------------------------------------------------------------------- */
+      /* 10. LIVE CAD SVG CROSS-SECTION RENDERER (CIRCLE PACKING)            */
+      /* ------------------------------------------------------------------- */
+      function renderCrossSectionSvg(metrics) {
+        const svg = document.getElementById('crossSectionSvg');
+        const cx = 160;
+        const cy = 160;
+        const outerR = 122;
+        const innerR = metrics.conduit.id === 'emt' ? 111 : 104;
+
+        // Expand individual cable circles sorted largest to smallest
+        const individualCircles = [];
+        for (const cable of state.cables) {
+          for (let i = 0; i < cable.qty; i++) {
+            individualCircles.push({
+              rMm: cable.diameterMm / 2,
+              color: cable.color,
+              name: cable.name
+            });
+          }
+        }
+        individualCircles.sort((a, b) => b.rMm - a.rMm);
+
+        const scale = innerR / (metrics.internalDiameterMm / 2);
+        const placed = [];
+
+        // Deterministic spiral/ring circle packing inside innerR
+        for (let idx = 0; idx < individualCircles.length; idx++) {
+          const item = individualCircles[idx];
+          const rSvg = Math.max(2.5, item.rMm * scale);
+
+          if (idx === 0) {
+            if (individualCircles.length === 2) {
+              placed.push({ x: -rSvg - 0.5, y: 0, r: rSvg, color: item.color });
+            } else {
+              placed.push({ x: 0, y: 0, r: rSvg, color: item.color });
+            }
+            continue;
+          }
+
+          let bestPos = null;
+          const maxDist = Math.max(0, innerR - rSvg - 1.2);
+          const radialSteps = 38;
+          const angleSteps = 72;
+
+          for (let rs = 0; rs <= radialSteps; rs++) {
+            const dist = (rs / radialSteps) * maxDist;
+            for (let as = 0; as < angleSteps; as++) {
+              const angle = (as / angleSteps) * Math.PI * 2 + (rs * 0.35);
+              const candX = Math.cos(angle) * dist;
+              const candY = Math.sin(angle) * dist;
+
+              let overlaps = false;
+              for (let p = 0; p < placed.length; p++) {
+                const dx = candX - placed[p].x;
+                const dy = candY - placed[p].y;
+                const minDist = rSvg + placed[p].r + 0.9;
+                if (dx * dx + dy * dy < minDist * minDist) {
+                  overlaps = true;
+                  break;
+                }
+              }
+
+              if (!overlaps) {
+                bestPos = { x: candX, y: candY, r: rSvg, color: item.color };
+                break;
+              }
+            }
+            if (bestPos) break;
+          }
+
+          if (!bestPos) {
+            // Fallback spiral placement if intentionally overfilled (>100%)
+            const fallbackAngle = idx * 2.39996;
+            const fallbackDist = Math.min(innerR * 0.72, Math.sqrt(idx) * rSvg * 0.85);
+            bestPos = {
+              x: Math.cos(fallbackAngle) * fallbackDist,
+              y: Math.sin(fallbackAngle) * fallbackDist,
+              r: rSvg,
+              color: item.color
+            };
+          }
+
+          placed.push(bestPos);
+        }
+
+        // Fill target limit ring radius (visual guide for 30%, 40%, or 50% area)
+        const fillLimitR = innerR * Math.sqrt(metrics.fillLimitPercent / 100);
+
+        const cablesMarkup = placed.map((c) => `
+          <g>
+            <circle cx="${(cx + c.x).toFixed(2)}" cy="${(cy + c.y).toFixed(2)}" r="${c.r.toFixed(2)}" fill="${c.color}" fill-opacity="0.88" stroke="#060a13" stroke-width="1.1" />
+            <circle cx="${(cx + c.x - c.r * 0.28).toFixed(2)}" cy="${(cy + c.y - c.r * 0.28).toFixed(2)}" r="${Math.max(1, c.r * 0.24).toFixed(2)}" fill="#ffffff" fill-opacity="0.35" />
+          </g>
+        `).join('');
+
+        const wallStroke = metrics.isOverfilled ? '#ef4444' : metrics.conduit.wallOuterColor;
+        const innerStroke = metrics.isOverfilled ? '#f87171' : metrics.conduit.wallInnerColor;
+
+        svg.innerHTML = `
+          <defs>
+            <radialGradient id="conduitBgGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#0f172a" />
+              <stop offset="100%" stop-color="#020617" />
+            </radialGradient>
+          </defs>
+
+          <!-- Subtle CAD Crosshairs -->
+          <line x1="16" y1="${cy}" x2="304" y2="${cy}" stroke="#1e293b" stroke-width="1" stroke-dasharray="4 4" />
+          <line x1="${cx}" y1="16" x2="${cx}" y2="304" stroke="#1e293b" stroke-width="1" stroke-dasharray="4 4" />
+
+          <!-- Outer Conduit Wall -->
+          <circle cx="${cx}" cy="${cy}" r="${outerR}" fill="${wallStroke}" fill-opacity="0.22" stroke="${wallStroke}" stroke-width="3.5" />
+
+          <!-- Inner Conduit Cavity -->
+          <circle cx="${cx}" cy="${cy}" r="${innerR}" fill="url(#conduitBgGrad)" stroke="${innerStroke}" stroke-width="2" />
+
+          <!-- Allowable Fill Factor Guideline Circle -->
+          <circle cx="${cx}" cy="${cy}" r="${fillLimitR.toFixed(2)}" fill="none" stroke="${metrics.isOverfilled ? '#ef4444' : '#38bdf8'}" stroke-width="1" stroke-dasharray="4 3" stroke-opacity="0.55" />
+
+          <!-- Packed Cables -->
+          ${cablesMarkup}
+
+          <!-- Top Material Pill -->
+          <rect x="78" y="6" width="164" height="20" rx="6" fill="#0f172a" stroke="${wallStroke}" stroke-width="1" />
+          <text x="160" y="19" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700">
+            ${escapeHtml(metrics.conduit.shortName.toUpperCase())} · ${escapeHtml(metrics.activeTradeSize)}"
+          </text>
+
+          <!-- Bottom Internal Diameter Callout -->
+          <rect x="84" y="294" width="152" height="20" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1" />
+          <text x="160" y="307" text-anchor="middle" fill="#93c5fd" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">
+            Ø Int: ${metrics.internalDiameterMm.toFixed(2)} mm
+          </text>
+        `;
+      }
+
+      /* ------------------------------------------------------------------- */
+      /* 11. UPDATE LIVE TELEMETRY & CURRENT RUN BREAKDOWN UI                */
+      /* ------------------------------------------------------------------- */
+      function recalculateAll() {
+        const metrics = computeCurrentRunMetrics();
+
+        // Header & Diagram Subtitle
+        document.getElementById('headerConduitPill').textContent = metrics.conduit.shortName.toUpperCase();
+        document.getElementById('diagramSubtitle').textContent = `${metrics.conduit.name} · Vista CAD`;
+        document.getElementById('runMaterialBadge').textContent = metrics.conduit.shortName;
+
+        // Internal diameter badge in Step 1
+        document.getElementById('selectedInternalMmBadge').textContent = `Ø Int: ${metrics.internalDiameterMm.toFixed(2)} mm`;
+        document.getElementById('autoSizeHint').textContent = state.tradeSizeMode === 'auto'
+          ? `Modo Auto: medida óptima ${metrics.activeTradeSize}" (${metrics.internalDiameterMm.toFixed(2)} mm) para ${metrics.fillLimitPercent}% máx.`
+          : `Medida fija ${metrics.activeTradeSize}" (Óptima sugerida: ${metrics.recommendedAutoSize}").`;
+
+        // Total cables badge
+        document.getElementById('totalCablesBadge').textContent = `${metrics.totalCableCount} ${metrics.totalCableCount === 1 ? 'cable' : 'cables'}`;
+
+        // Bend steppers & TIA-569 / NEC angular compliance badge
+        document.getElementById('leftTurnsVal').textContent = metrics.turnsLeft;
+        document.getElementById('rightTurnsVal').textContent = metrics.turnsRight;
+        document.getElementById('bendDegreesBadge').textContent = `${metrics.totalBends} × 90° = ${metrics.totalBendDegrees}°`;
+
+        const bendBox = document.getElementById('bendComplianceBox');
+        const bendDot = document.getElementById('bendStatusDot');
+        const bendText = document.getElementById('bendComplianceText');
+        const bendDegBadge = document.getElementById('bendDegreesBadge');
+
+        if (metrics.totalBendDegrees <= 180) {
+          bendBox.className = 'p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex flex-wrap items-center justify-between gap-2 mb-4';
+          bendDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+          bendText.className = 'text-xs font-semibold text-emerald-200';
+          bendText.textContent = `Cumple TIA-569 / NEC · ${metrics.totalBends} ${metrics.totalBends === 1 ? 'curva' : 'curvas'} (${metrics.totalBendDegrees}° ≤ 180°)`;
+          bendDegBadge.className = 'px-2.5 py-0.5 rounded-md bg-slate-950/70 font-mono text-xs font-bold text-emerald-300 border border-emerald-500/30';
+        } else if (metrics.totalBendDegrees === 270) {
+          bendBox.className = 'p-3 rounded-xl bg-amber-500/15 border border-amber-500/40 flex flex-wrap items-center justify-between gap-2 mb-4';
+          bendDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400';
+          bendText.className = 'text-xs font-semibold text-amber-200';
+          bendText.textContent = 'Precaución TIA-569 (270° · Límite máximo cercano de tiro)';
+          bendDegBadge.className = 'px-2.5 py-0.5 rounded-md bg-slate-950/70 font-mono text-xs font-bold text-amber-300 border border-amber-500/40';
+        } else {
+          bendBox.className = 'p-3 rounded-xl bg-red-500/15 border border-red-500/45 flex flex-wrap items-center justify-between gap-2 mb-4';
+          bendDot.className = 'w-2.5 h-2.5 rounded-full bg-red-400';
+          bendText.className = `text-xs font-semibold text-red-200`;
+          bendText.textContent = `Excede 360° (${metrics.totalBendDegrees}°) · Requiere caja de registro intermedia (active Caja Extra)`;
+          bendDegBadge.className = 'px-2.5 py-0.5 rounded-md bg-slate-950/70 font-mono text-xs font-bold text-red-300 border border-red-500/40';
+        }
+
+        // Extra Junction Box controls
+        const extraToggle = document.getElementById('extraBoxToggle');
+        const extraStepperGroup = document.getElementById('extraBoxStepperGroup');
+        extraToggle.checked = state.extraBoxEnabled;
+        document.getElementById('extraBoxVal').textContent = state.extraBoxEnabled ? state.extraBoxes : 0;
+        if (state.extraBoxEnabled) {
+          extraStepperGroup.classList.remove('opacity-45', 'pointer-events-none');
+        } else {
+          extraStepperGroup.classList.add('opacity-45', 'pointer-events-none');
+        }
+
+        // Fill Progress Bar & Status Badge
+        const fillStatusBadge = document.getElementById('fillStatusBadge');
+        const fillProgressBar = document.getElementById('fillProgressBar');
+        const clampedWidth = Math.min(100, (metrics.fillPercent / metrics.fillLimitPercent) * 100);
+
+        document.getElementById('fillPercentLabel').textContent = `${metrics.fillPercent.toFixed(1)}% / ${metrics.fillLimitPercent}% máx.`;
+        document.getElementById('areaUsedLabel').textContent = `Área cables: ${metrics.totalCableAreaMm2.toFixed(1)} mm²`;
+        document.getElementById('areaTotalLabel').textContent = `Área ducto: ${metrics.internalAreaMm2.toFixed(1)} mm²`;
+        fillProgressBar.style.width = `${clampedWidth.toFixed(1)}%`;
+
+        if (metrics.isOverfilled) {
+          fillStatusBadge.textContent = 'SOBRECARGA';
+          fillStatusBadge.className = 'px-2.5 py-1 rounded-lg font-mono text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/40';
+          fillProgressBar.className = 'h-full rounded-full bg-gradient-to-r from-amber-500 to-red-500 transition-all duration-300';
+        } else if (metrics.fillPercent > metrics.fillLimitPercent * 0.85) {
+          fillStatusBadge.textContent = 'AL LÍMITE';
+          fillStatusBadge.className = 'px-2.5 py-1 rounded-lg font-mono text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
+          fillProgressBar.className = 'h-full rounded-full bg-gradient-to-r from-blue-500 to-amber-400 transition-all duration-300';
+        } else {
+          fillStatusBadge.textContent = 'ÓPTIMO';
+          fillStatusBadge.className = 'px-2.5 py-1 rounded-lg font-mono text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
+          fillProgressBar.className = 'h-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-300';
+        }
+
+        // 4 KPI Tiles
+        document.getElementById('kpiTradeSize').textContent = `${metrics.activeTradeSize}"`;
+        document.getElementById('kpiInternalDia').textContent = `Ø Int: ${metrics.internalDiameterMm.toFixed(2)} mm`;
+        document.getElementById('kpiPipesCount').textContent = `${metrics.tubesCount} ${metrics.tubesCount === 1 ? 'tramo' : 'tramos'}`;
+        document.getElementById('kpiLengthSub').textContent = `Lineal: ${metrics.lengthMeters.toFixed(1)} m`;
+        document.getElementById('kpiClampsCount').textContent = `${metrics.clampsCount} unid.`;
+        document.getElementById('kpiBoxesCount').textContent = `${metrics.totalJunctionBoxes} unid.`;
+        document.getElementById('kpiBoxDimSub').textContent = metrics.boxDimension;
+
+        // Recommended Box Card
+        document.getElementById('recommendedBoxFullLabel').textContent = metrics.fullBoxDescription;
+        document.getElementById('boxBreakdownNote').textContent =
+          `${metrics.autoStraightBoxes} automática(s) cada 9m + ${metrics.extraBoxes} extra(s) = ${metrics.totalJunctionBoxes} caja(s) · ${metrics.connectorsCount} conectores`;
+
+        // Current Run Accessory Summary List
+        const summaryList = document.getElementById('currentRunSummaryList');
+        const lines = [
+          { label: metrics.conduit.pipeItem(metrics.activeTradeSize), qty: `${metrics.tubesCount} unid.` },
+          { label: metrics.conduit.clampItem(metrics.activeTradeSize), qty: `${metrics.clampsCount} unid.` },
+          { label: `${metrics.conduit.bendItem(metrics.activeTradeSize)} (Izq: ${metrics.turnsLeft} / Der: ${metrics.turnsRight})`, qty: `${metrics.totalBends} unid.` },
+          { label: metrics.fullBoxDescription, qty: `${metrics.totalJunctionBoxes} unid.` },
+          { label: metrics.conduit.connectorItem(metrics.activeTradeSize), qty: `${metrics.connectorsCount} unid.` },
+          { label: metrics.conduit.couplingItem(metrics.activeTradeSize), qty: `${metrics.couplingsCount} unid.` }
+        ];
+
+        summaryList.innerHTML = lines.map((item) => `
+          <li class="flex items-center justify-between gap-2 py-1.5 px-2.5 rounded-lg bg-slate-950/70 border border-slate-800/80">
+            <span class="text-slate-300">${escapeHtml(item.label)}</span>
+            <span class="font-mono font-bold text-white shrink-0">${escapeHtml(item.qty)}</span>
+          </li>
+        `).join('');
+
+        // Render SVG Cross-Section
+        renderCrossSectionSvg(metrics);
+      }
+
+      /* ------------------------------------------------------------------- */
+      /* 12. MULTI-RUN PROJECT MANAGEMENT & BILL OF MATERIALS CONSOLIDATION  */
+      /* ------------------------------------------------------------------- */
+      function addCurrentRunToProject() {
+        const metrics = computeCurrentRunMetrics();
+        if (metrics.totalCableCount === 0) {
+          showToast('Agregue al menos un cable antes de añadir el tramo al proyecto.', 'warning');
+          return;
+        }
+
+        const runIndex = state.projectRuns.length + 1;
+        const customName = (document.getElementById('runNameInput').value || '').trim();
+        const runTitle = customName || `Tramo ${String(runIndex).padStart(2, '0')} · ${metrics.conduit.shortName} ${metrics.activeTradeSize}"`;
+
+        state.projectRuns.push({
+          uid: nextUid('run'),
+          title: runTitle,
+          metrics: JSON.parse(JSON.stringify(metrics)),
+          cablesSnapshot: JSON.parse(JSON.stringify(state.cables))
+        });
+
+        document.getElementById('runNameInput').value = '';
+        renderProjectSection();
+        showToast(`"${runTitle}" agregado al listado del proyecto.`, 'success');
+      }
+
+      function buildConsolidatedItems() {
+        const map = new Map();
+
+        function upsertItem(key, category, description, unit, qty) {
+          if (qty <= 0) return;
+          if (!map.has(key)) {
+            map.set(key, { key, category, description, unit, qty: 0 });
+          }
+          map.get(key).qty += qty;
+        }
+
+        for (const run of state.projectRuns) {
+          const m = run.metrics;
+          const ct = CONDUIT_TYPES[m.conduit.id] || CONDUIT_TYPES.pvc_gris;
+          const size = m.activeTradeSize;
+
+          // 1. Pipes (3.00 m sections)
+          upsertItem(
+            `pipe_${ct.id}_${size}`,
+            'Tubería / Ducto',
+            ct.pipeItem(size),
+            'Tramo (3m)',
+            m.tubesCount
+          );
+
+          // 2. Clamps (3 per 3m / tube)
+          upsertItem(
+            `clamp_${ct.id}_${size}`,
+            'Soportería',
+            ct.clampItem(size),
+            'Unidad',
+            m.clampsCount
+          );
+
+          // 3. 90° Bends (Left + Right)
+          if (m.totalBends > 0) {
+            upsertItem(
+              `bend_${ct.id}_${size}`,
+              'Curvas y Giros',
+              `${ct.bendItem(size)} (Curvas 90° Izq/Der)`,
+              'Unidad',
+              m.totalBends
+            );
+          }
+
+          // 4. Junction Boxes
+          if (m.totalJunctionBoxes > 0) {
+            upsertItem(
+              `box_${ct.id}_${m.boxDimension}`,
+              'Cajas de Registro',
+              m.fullBoxDescription,
+              'Unidad',
+              m.totalJunctionBoxes
+            );
+          }
+
+          // 5. Connectors (2 per junction box)
+          if (m.connectorsCount > 0) {
+            upsertItem(
+              `conn_${ct.id}_${size}`,
+              'Conectores',
+              ct.connectorItem(size),
+              'Unidad',
+              m.connectorsCount
+            );
+          }
+
+          // 6. Couplings (tubos - 1)
+          if (m.couplingsCount > 0) {
+            upsertItem(
+              `coup_${ct.id}_${size}`,
+              'Coples / Uniones',
+              ct.couplingItem(size),
+              'Unidad',
+              m.couplingsCount
+            );
+          }
+
+          // 7. Cables (qty * run length in meters)
+          for (const c of run.cablesSnapshot) {
+            const totalMeters = Number((c.qty * m.lengthMeters).toFixed(2));
+            upsertItem(
+              `cable_${c.name.toLowerCase()}_${c.diameterMm}`,
+              'Cableado',
+              `Cable ${c.name} (Ø ${c.diameterMm.toFixed(1)} mm)`,
+              'Metro',
+              totalMeters
+            );
+          }
+        }
+
+        return Array.from(map.values());
+      }
+
+      function formatQuetzales(amount) {
+        return 'Q ' + Number(amount || 0).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function renderProjectSection() {
+        const countBadge = document.getElementById('projectRunsCountBadge');
+        const clearBtn = document.getElementById('clearAllRunsBtn');
+        const runsContainer = document.getElementById('addedRunsContainer');
+        const bomBody = document.getElementById('consolidatedBomBody');
+        const bomFooter = document.getElementById('consolidatedBomFooter');
+
+        const runCount = state.projectRuns.length;
+        countBadge.textContent = `${runCount} ${runCount === 1 ? 'tramo' : 'tramos'}`;
+        clearBtn.classList.toggle('hidden', runCount === 0);
+
+        // Render Added Runs Cards
+        if (runCount === 0) {
+          runsContainer.innerHTML = `
+            <div class="p-4 rounded-xl bg-slate-950/60 border border-dashed border-slate-700/80 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <p class="text-xs text-slate-400 text-center sm:text-left">
+                Aún no ha agregado tramos al proyecto. Configure el tramo actual arriba y presione <strong class="text-emerald-400">Agregar Tramo a la Lista del Proyecto</strong>.
+              </p>
+              <button type="button" id="quickAddEmptyStateBtn" class="px-3.5 py-2 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/40 text-xs font-semibold transition shrink-0 cursor-pointer">
+                + Agregar Tramo Actual Ahora
+              </button>
+            </div>
+          `;
+          const quickBtn = document.getElementById('quickAddEmptyStateBtn');
+          if (quickBtn) quickBtn.addEventListener('click', addCurrentRunToProject);
+        } else {
+          runsContainer.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              ${state.projectRuns.map((run) => {
+                const m = run.metrics;
+                const cableSummary = run.cablesSnapshot.map((c) => `${c.qty}× ${c.name}`).join(', ');
+                return `
+                  <div class="p-3.5 rounded-xl bg-slate-950/85 border border-slate-800 flex flex-col justify-between gap-2">
+                    <div class="flex items-start justify-between gap-2">
+                      <div>
+                        <div class="text-xs font-bold text-white">${escapeHtml(run.title)}</div>
+                        <div class="text-[11px] font-mono text-blue-300 mt-0.5">
+                          ${escapeHtml(m.conduit.shortName)} · ${escapeHtml(m.activeTradeSize)}" · ${m.lengthMeters.toFixed(1)} m
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        data-remove-run="${run.uid}"
+                        aria-label="Eliminar tramo"
+                        class="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/25 transition cursor-pointer"
+                      >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div class="text-[11px] text-slate-400 truncate" title="${escapeHtml(cableSummary)}">
+                      ${escapeHtml(cableSummary)}
+                    </div>
+                    <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-800/80 text-[10px] font-mono text-slate-300">
+                      <span class="px-1.5 py-0.5 rounded bg-slate-900">Tubos: ${m.tubesCount}</span>
+                      <span class="px-1.5 py-0.5 rounded bg-slate-900">Abraz: ${m.clampsCount}</span>
+                      <span class="px-1.5 py-0.5 rounded bg-slate-900">Curvas: ${m.totalBends} (I:${m.turnsLeft}/D:${m.turnsRight})</span>
+                      <span class="px-1.5 py-0.5 rounded bg-slate-900">Cajas: ${m.totalJunctionBoxes}</span>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `;
+
+          runsContainer.querySelectorAll('button[data-remove-run]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const uid = btn.dataset.removeRun;
+              state.projectRuns = state.projectRuns.filter((r) => r.uid !== uid);
+              renderProjectSection();
+              showToast('Tramo eliminado del proyecto', 'info');
+            });
+          });
+        }
+
+        // Toggle pricing columns visibility
+        document.querySelectorAll('.pricing-col').forEach((el) => {
+          el.classList.toggle('hidden', !state.pricingEnabled);
+        });
+
+        const items = buildConsolidatedItems();
+        if (items.length === 0) {
+          bomBody.innerHTML = `
+            <tr>
+              <td colspan="${state.pricingEnabled ? 7 : 5}" class="py-8 px-4 text-center text-xs text-slate-500">
+                El consolidado de materiales aparecerá aquí automáticamente al agregar uno o más tramos.
+              </td>
+            </tr>
+          `;
+          bomFooter.classList.add('hidden');
+          return;
+        }
+
+        let grandTotal = 0;
+        bomBody.innerHTML = items.map((item, idx) => {
+          const unitPrice = Number(state.unitPrices[item.key] || 0);
+          const subtotal = unitPrice * item.qty;
+          grandTotal += subtotal;
+          const displayQty = Number.isInteger(item.qty) ? item.qty : item.qty.toFixed(1);
+
+          return `
+            <tr class="hover:bg-slate-900/50 transition">
+              <td class="py-3 px-3.5 font-mono text-xs text-slate-400">${idx + 1}</td>
+              <td class="py-3 px-3.5">
+                <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-900 border border-slate-700/80 text-slate-300">
+                  ${escapeHtml(item.category)}
+                </span>
+              </td>
+              <td class="py-3 px-3.5 font-medium text-white">${escapeHtml(item.description)}</td>
+              <td class="py-3 px-3.5 text-center font-mono text-xs text-slate-300">${escapeHtml(item.unit)}</td>
+              <td class="py-3 px-3.5 text-right font-mono font-bold text-white">${displayQty}</td>
+              <td class="pricing-col ${state.pricingEnabled ? '' : 'hidden'} py-2.5 px-3.5 text-right">
+                <div class="inline-flex items-center justify-end gap-1">
+                  <span class="font-mono text-xs text-slate-400">Q</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    data-price-key="${escapeHtml(item.key)}"
+                    value="${unitPrice > 0 ? unitPrice.toFixed(2) : ''}"
+                    placeholder="0.00"
+                    class="w-24 px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-right font-mono text-xs text-white focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </td>
+              <td class="pricing-col ${state.pricingEnabled ? '' : 'hidden'} py-3 px-3.5 text-right font-mono font-bold text-emerald-300" data-subtotal-key="${escapeHtml(item.key)}">
+                ${formatQuetzales(subtotal)}
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // Bind live unit price inputs
+        bomBody.querySelectorAll('input[data-price-key]').forEach((input) => {
+          input.addEventListener('input', () => {
+            const key = input.dataset.priceKey;
+            const val = Math.max(0, parseFloat(input.value) || 0);
+            state.unitPrices[key] = val;
+
+            // Update line subtotal and grand total without losing input focus
+            let newGrand = 0;
+            const currentItems = buildConsolidatedItems();
+            for (const it of currentItems) {
+              const p = Number(state.unitPrices[it.key] || 0);
+              const sub = p * it.qty;
+              newGrand += sub;
+              if (it.key === key) {
+                const subCell = bomBody.querySelector(`[data-subtotal-key="${CSS.escape(key)}"]`);
+                if (subCell) subCell.textContent = formatQuetzales(sub);
+              }
+            }
+            document.getElementById('grandTotalQuetzales').textContent = formatQuetzales(newGrand);
+          });
+        });
+
+        if (state.pricingEnabled) {
+          bomFooter.classList.remove('hidden');
+          document.getElementById('grandTotalQuetzales').textContent = formatQuetzales(grandTotal);
+        } else {
+          bomFooter.classList.add('hidden');
+        }
+      }
+
+      /* ------------------------------------------------------------------- */
+      /* 13. TEXT SUMMARY GENERATOR (WHATSAPP & CLIPBOARD)                   */
+      /* ------------------------------------------------------------------- */
+      function generateFormattedTextSummary() {
+        // If no runs added yet, use current configured run as single preview run
+        const runsToExport = state.projectRuns.length > 0
+          ? state.projectRuns
+          : [{
+              title: (document.getElementById('runNameInput').value || '').trim() || 'Tramo 01 (Actual)',
+              metrics: computeCurrentRunMetrics(),
+              cablesSnapshot: state.cables
+            }];
+
+        // Temporarily compute consolidated items from runsToExport
+        const savedRuns = state.projectRuns;
+        state.projectRuns = runsToExport;
+        const items = buildConsolidatedItems();
+        state.projectRuns = savedRuns;
+
+        const client = (document.getElementById('clientNameInput').value || '').trim();
+        const project = (document.getElementById('projectNameInput').value || '').trim();
+        const dateStr = new Date().toLocaleDateString('es-GT', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+        const lines = [];
+        lines.push('*CONECTATE SOPORTE Y TECNOLOGÍAS*');
+        lines.push('_¡Innovación que conecta!_ · conectategt.online');
+        lines.push('*LISTADO TÉCNICO DE MATERIALES E INFRAESTRUCTURA*');
+        lines.push(`Fecha: ${dateStr}`);
+        if (client) lines.push(`Cliente: ${client}`);
+        if (project) lines.push(`Proyecto: ${project}`);
+        lines.push('');
+
+        lines.push('*RESUMEN DE TRAMOS EVALUADOS:*');
+        runsToExport.forEach((r, idx) => {
+          const m = r.metrics;
+          lines.push(`${idx + 1}. *${r.title}*`);
+          lines.push(`   • Ducto: ${m.conduit.name} (${m.activeTradeSize}" · Ø Int ${m.internalDiameterMm.toFixed(2)} mm)`);
+          lines.push(`   • Metraje: ${m.lengthMeters.toFixed(1)} m · Curvas 90°: ${m.totalBends} (Izq: ${m.turnsLeft}, Der: ${m.turnsRight}) · Ocupación: ${m.fillPercent.toFixed(1)}%`);
+        });
+        lines.push('');
+
+        lines.push('*CONSOLIDADO DE MATERIALES:*');
+        let grandTotal = 0;
+        items.forEach((it, idx) => {
+          const qtyStr = Number.isInteger(it.qty) ? it.qty : it.qty.toFixed(1);
+          if (state.pricingEnabled) {
+            const price = Number(state.unitPrices[it.key] || 0);
+            const sub = price * it.qty;
+            grandTotal += sub;
+            lines.push(`${idx + 1}. ${it.description} — *${qtyStr} ${it.unit}* | P.U: ${formatQuetzales(price)} | Sub: ${formatQuetzales(sub)}`);
+          } else {
+            lines.push(`${idx + 1}. ${it.description} — *${qtyStr} ${it.unit}*`);
+          }
+        });
+
+        if (state.pricingEnabled) {
+          lines.push('');
+          lines.push(`*TOTAL ESTIMADO: ${formatQuetzales(grandTotal)}*`);
+        }
+
+        lines.push('');
+        lines.push('Soporte e Ingeniería: +502 5646-6948');
+        return lines.join('\n');
+      }
+
+      /* ------------------------------------------------------------------- */
+      /* 14. ZERO-DEPENDENCY PURE-JS VECTOR PDF 1.4 GENERATOR                */
+      /* ------------------------------------------------------------------- */
+      function generateExecutiveVectorPdf() {
+        const runsToExport = state.projectRuns.length > 0
+          ? state.projectRuns
+          : [{
+              title: (document.getElementById('runNameInput').value || '').trim() || 'Tramo 01 · Ingeniería Actual',
+              metrics: computeCurrentRunMetrics(),
+              cablesSnapshot: state.cables
+            }];
+
+        const savedRuns = state.projectRuns;
+        state.projectRuns = runsToExport;
+        const items = buildConsolidatedItems();
+        state.projectRuns = savedRuns;
+
+        if (items.length === 0) {
+          showToast('Agregue al menos un cable para generar el reporte PDF.', 'warning');
+          return;
+        }
+
+        const client = (document.getElementById('clientNameInput').value || '').trim() || 'Cliente General / Corporativo';
+        const project = (document.getElementById('projectNameInput').value || '').trim() || 'Infraestructura de Canalización y Redes';
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('es-GT', { year: 'numeric', month: 'long', day: 'numeric' });
+        const timeStr = now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' });
+
+        // Helper: Convert UTF-16 JS string to WinAnsi byte sequence & escape PDF literal parens
+        function pdfStr(text) {
+          const map = {
+            '•': '-',
+            '—': '-',
+            '–': '-',
+            '“': '"',
+            '”': '"',
+            '‘': "'",
+            '’': "'",
+            '≥': '>=',
+            '≤': '<=',
+            '≈': '~'
+          };
+          let out = '(';
+          for (let i = 0; i < text.length; i++) {
+            let ch = text[i];
+            if (map[ch]) ch = map[ch];
+            const code = ch.charCodeAt(0);
+            if (ch === '(' || ch === ')' || ch === '\\') {
+              out += '\\' + ch;
+            } else if (code >= 32 && code <= 126) {
+              out += ch;
+            } else if (code >= 160 && code <= 255) {
+              // WinAnsiEncoding matches ISO-8859-1 for 0xA0..0xFF (á, é, í, ó, ú, ñ, Ñ, °, ¡, ¿, Ø, ×)
+              out += String.fromCharCode(code);
+            } else {
+              out += '?';
+            }
+          }
+          out += ')';
+          return out;
+        }
+
+        function wrapPdfText(str, maxChars) {
+          const words = String(str).split(/\s+/);
+          const result = [];
+          let line = '';
+          for (const w of words) {
+            if (!line) {
+              line = w;
+            } else if ((line + ' ' + w).length <= maxChars) {
+              line += ' ' + w;
+            } else {
+              result.push(line);
+              line = w;
+            }
+          }
+          if (line) result.push(line);
+          return result.length ? result : [''];
+        }
+
+        // Letter page size in PDF points: 612 x 792
+        const PAGE_W = 612;
+        const PAGE_H = 792;
+        const MARGIN = 40;
+        const CONTENT_W = PAGE_W - MARGIN * 2; // 532
+
+        const pages = [];
+        let ops = [];
+        let cursorY = PAGE_H;
+
+        function startNewPage(isFirstPage) {
+          if (ops.length > 0) {
+            pages.push(ops.join('\n'));
+            ops = [];
+          }
+
+          if (isFirstPage) {
+            // Executive Dark Slate Header Banner
+            ops.push('0.024 0.039 0.075 rg'); // #060a13
+            ops.push(`0 ${PAGE_H - 106} ${PAGE_W} 106 re f`);
+
+            // Cobalt Blue Accent Stripe
+            ops.push('0.145 0.388 0.922 rg'); // #2563eb
+            ops.push(`0 ${PAGE_H - 110} ${PAGE_W} 4 re f`);
+
+            // White Rounded-Look Logo Badge Container on Left
+            const bx = MARGIN;
+            const by = PAGE_H - 86;
+            const bw = 186;
+            const bh = 62;
+            ops.push('1 1 1 rg');
+            ops.push(`${bx} ${by} ${bw} ${bh} re f`);
+
+            // Vector CONECTATE Logo inside White Badge:
+            // Blue 'C' Arc (#2C69B3 -> 0.173 0.412 0.702)
+            ops.push('0.173 0.412 0.702 RG');
+            ops.push('4.2 w');
+            ops.push('1 J');
+            const cx = bx + 28;
+            const cy = by + 31;
+            const r = 14;
+            ops.push(`${cx + 9} ${cy + 11} m`);
+            ops.push(`${cx - 14} ${cy + 16} ${cx - 14} ${cy - 16} ${cx + 9} ${cy - 11} c S`);
+
+            // Lime Green Circuit Traces (#97C222 -> 0.592 0.761 0.133)
+            ops.push('0.592 0.761 0.133 RG');
+            ops.push('1.8 w');
+            ops.push(`${cx - 2} ${cy + 5} m ${cx + 12} ${cy + 5} l S`);
+            ops.push(`${cx + 1} ${cy} m ${cx + 16} ${cy} l S`);
+            ops.push(`${cx - 2} ${cy - 5} m ${cx + 11} ${cy - 5} l S`);
+            ops.push('0.592 0.761 0.133 rg');
+            ops.push(`${cx + 11} ${cy + 3.5} 3 3 re f`);
+            ops.push(`${cx + 15} ${cy - 1.5} 3 3 re f`);
+            ops.push(`${cx + 10} ${cy - 6.5} 3 3 re f`);
+
+            // Brand Name "CONECTATE"
+            ops.push('BT /F2 14 Tf 0.173 0.412 0.702 rg');
+            ops.push(`${bx + 52} ${by + 34} Td ${pdfStr('CONECTATE')} Tj ET`);
+
+            // Slogan "¡Innovación que conecta!"
+            ops.push('BT /F3 8.2 Tf 0.118 0.227 0.373 rg');
+            ops.push(`${bx + 52} ${by + 20} Td ${pdfStr('¡Innovación que conecta!')} Tj ET`);
+
+            // Right Header Document Title & Metadata
+            ops.push('BT /F2 12.5 Tf 1 1 1 rg');
+            ops.push(`${bx + 202} ${PAGE_H - 42} Td ${pdfStr('REPORTE TÉCNICO DE CANALIZACIÓN')} Tj ET`);
+
+            ops.push('BT /F1 9 Tf 0.58 0.64 0.72 rg');
+            ops.push(`${bx + 202} ${PAGE_H - 57} Td ${pdfStr('Ingeniería en Redes, CCTV, Fibra Óptica y Seguridad')} Tj ET`);
+
+            ops.push('BT /F4 8.5 Tf 0.4 0.78 0.96 rg');
+            ops.push(`${bx + 202} ${PAGE_H - 73} Td ${pdfStr(`Emisión: ${dateStr} · ${timeStr}`)} Tj ET`);
+
+            // Client & Project Metadata Box
+            const metaY = PAGE_H - 166;
+            ops.push('0.96 0.97 0.99 rg');
+            ops.push(`${MARGIN} ${metaY} ${CONTENT_W} 44 re f`);
+            ops.push('0.82 0.86 0.91 RG 0.8 w');
+            ops.push(`${MARGIN} ${metaY} ${CONTENT_W} 44 re S`);
+
+            ops.push('BT /F2 8 Tf 0.28 0.34 0.42 rg');
+            ops.push(`${MARGIN + 10} ${metaY + 29} Td ${pdfStr('CLIENTE / EMPRESA:')} Tj ET`);
+            ops.push('BT /F1 9 Tf 0.08 0.12 0.20 rg');
+            ops.push(`${MARGIN + 108} ${metaY + 29} Td ${pdfStr(client.slice(0, 72))} Tj ET`);
+
+            ops.push('BT /F2 8 Tf 0.28 0.34 0.42 rg');
+            ops.push(`${MARGIN + 10} ${metaY + 12} Td ${pdfStr('PROYECTO / SITIO:')} Tj ET`);
+            ops.push('BT /F1 9 Tf 0.08 0.12 0.20 rg');
+            ops.push(`${MARGIN + 108} ${metaY + 12} Td ${pdfStr(project.slice(0, 72))} Tj ET`);
+
+            cursorY = metaY - 18;
+          } else {
+            // Continuation Page Header
+            ops.push('0.047 0.075 0.133 rg');
+            ops.push(`0 ${PAGE_H - 42} ${PAGE_W} 42 re f`);
+            ops.push('BT /F2 10 Tf 1 1 1 rg');
+            ops.push(`${MARGIN} ${PAGE_H - 26} Td ${pdfStr('CONECTATE · Continuación de Listado Técnico de Materiales')} Tj ET`);
+            cursorY = PAGE_H - 64;
+          }
+        }
+
+        function ensureSpace(neededHeight) {
+          if (cursorY - neededHeight < 58) {
+            startNewPage(false);
+          }
+        }
+
+        startNewPage(true);
+
+        // SECTION 1: Evaluated Runs Summary
+        ops.push('BT /F2 10 Tf 0.08 0.12 0.20 rg');
+        ops.push(`${MARGIN} ${cursorY} Td ${pdfStr('1. RESUMEN DE TRAMOS DE CANALIZACIÓN EVALUADOS')} Tj ET`);
+        cursorY -= 14;
+
+        runsToExport.forEach((run, idx) => {
+          const m = run.metrics;
+          const cableNames = run.cablesSnapshot.map((c) => `${c.qty}x ${c.name}`).join(', ');
+          const summaryLine1 = `${idx + 1}. ${run.title} | Ducto: ${m.conduit.name} ${m.activeTradeSize}" (Ø Int ${m.internalDiameterMm.toFixed(2)} mm)`;
+          const summaryLine2 = `   Metraje: ${m.lengthMeters.toFixed(1)} m | Tubos (3m): ${m.tubesCount} | Abrazaderas: ${m.clampsCount} | Curvas 90°: ${m.totalBends} (Izq:${m.turnsLeft}, Der:${m.turnsRight}) | Cajas: ${m.totalJunctionBoxes} (${m.boxDimension}) | Ocupación: ${m.fillPercent.toFixed(1)}%`;
+          const summaryLine3 = `   Cables: ${cableNames}`;
+
+          const wrapped3 = wrapPdfText(summaryLine3, 102);
+          const boxH = 28 + wrapped3.length * 10;
+          ensureSpace(boxH + 6);
+
+          ops.push('0.97 0.98 0.99 rg');
+          ops.push(`${MARGIN} ${cursorY - boxH} ${CONTENT_W} ${boxH} re f`);
+          ops.push('0.85 0.88 0.92 RG 0.6 w');
+          ops.push(`${MARGIN} ${cursorY - boxH} ${CONTENT_W} ${boxH} re S`);
+
+          ops.push('BT /F2 8.2 Tf 0.08 0.12 0.20 rg');
+          ops.push(`${MARGIN + 8} ${cursorY - 11} Td ${pdfStr(summaryLine1.slice(0, 102))} Tj ET`);
+
+          ops.push('BT /F1 7.6 Tf 0.22 0.28 0.36 rg');
+          ops.push(`${MARGIN + 8} ${cursorY - 22} Td ${pdfStr(summaryLine2.slice(0, 114))} Tj ET`);
+
+          wrapped3.forEach((wLine, wIdx) => {
+            ops.push('BT /F1 7.5 Tf 0.32 0.38 0.46 rg');
+            ops.push(`${MARGIN + 8} ${cursorY - 32 - wIdx * 10} Td ${pdfStr(wLine)} Tj ET`);
+          });
+
+          cursorY -= (boxH + 6);
+        });
+
+        cursorY -= 10;
+        ensureSpace(50);
+
+        // SECTION 2: Consolidated Bill of Materials Table
+        ops.push('BT /F2 10 Tf 0.08 0.12 0.20 rg');
+        ops.push(`${MARGIN} ${cursorY} Td ${pdfStr('2. CONSOLIDADO DE MATERIALES Y ACCESORIOS REQUERIDOS')} Tj ET`);
+        cursorY -= 14;
+
+        function drawTableHeader() {
+          ops.push('0.075 0.125 0.22 rg');
+          ops.push(`${MARGIN} ${cursorY - 20} ${CONTENT_W} 20 re f`);
+
+          ops.push('BT /F2 7.8 Tf 1 1 1 rg');
+          ops.push(`${MARGIN + 6} ${cursorY - 13} Td ${pdfStr('#')} Tj ET`);
+          ops.push(`${MARGIN + 24} ${cursorY - 13} Td ${pdfStr('CATEGORÍA')} Tj ET`);
+          ops.push(`${MARGIN + 104} ${cursorY - 13} Td ${pdfStr('MATERIAL / ESPECIFICACIÓN TÉCNICA')} Tj ET`);
+
+          if (state.pricingEnabled) {
+            ops.push(`${MARGIN + 345} ${cursorY - 13} Td ${pdfStr('UNIDAD')} Tj ET`);
+            ops.push(`${MARGIN + 398} ${cursorY - 13} Td ${pdfStr('CANT.')} Tj ET`);
+            ops.push(`${MARGIN + 436} ${cursorY - 13} Td ${pdfStr('P. UNIT.')} Tj ET`);
+            ops.push(`${MARGIN + 486} ${cursorY - 13} Td ${pdfStr('SUBTOTAL')} Tj ET`);
+          } else {
+            ops.push(`${MARGIN + 415} ${cursorY - 13} Td ${pdfStr('UNIDAD')} Tj ET`);
+            ops.push(`${MARGIN + 485} ${cursorY - 13} Td ${pdfStr('CANT.')} Tj ET`);
+          }
+          cursorY -= 20;
+        }
+
+        drawTableHeader();
+
+        let grandTotal = 0;
+        items.forEach((item, idx) => {
+          const maxDescChars = state.pricingEnabled ? 46 : 58;
+          const descLines = wrapPdfText(item.description, maxDescChars);
+          const rowH = Math.max(20, descLines.length * 10 + 8);
+
+          if (cursorY - rowH < 58) {
+            startNewPage(false);
+            drawTableHeader();
+          }
+
+          if (idx % 2 === 1) {
+            ops.push('0.965 0.975 0.99 rg');
+            ops.push(`${MARGIN} ${cursorY - rowH} ${CONTENT_W} ${rowH} re f`);
+          }
+          ops.push('0.86 0.89 0.93 RG 0.5 w');
+          ops.push(`${MARGIN} ${cursorY - rowH} ${CONTENT_W} ${rowH} re S`);
+
+          const textY = cursorY - 12;
+          ops.push('BT /F4 8 Tf 0.35 0.40 0.48 rg');
+          ops.push(`${MARGIN + 6} ${textY} Td ${pdfStr(String(idx + 1))} Tj ET`);
+
+          ops.push('BT /F2 7.5 Tf 0.22 0.28 0.36 rg');
+          ops.push(`${MARGIN + 24} ${textY} Td ${pdfStr(item.category.slice(0, 16))} Tj ET`);
+
+          descLines.forEach((dLine, dIdx) => {
+            ops.push('BT /F1 8 Tf 0.06 0.09 0.16 rg');
+            ops.push(`${MARGIN + 104} ${textY - dIdx * 10} Td ${pdfStr(dLine)} Tj ET`);
+          });
+
+          const qtyStr = Number.isInteger(item.qty) ? String(item.qty) : item.qty.toFixed(1);
+
+          if (state.pricingEnabled) {
+            const price = Number(state.unitPrices[item.key] || 0);
+            const sub = price * item.qty;
+            grandTotal += sub;
+
+            ops.push('BT /F1 7.6 Tf 0.25 0.31 0.39 rg');
+            ops.push(`${MARGIN + 345} ${textY} Td ${pdfStr(item.unit)} Tj ET`);
+
+            ops.push('BT /F5 8 Tf 0.06 0.09 0.16 rg');
+            ops.push(`${MARGIN + 402} ${textY} Td ${pdfStr(qtyStr)} Tj ET`);
+
+            ops.push('BT /F4 7.6 Tf 0.22 0.28 0.36 rg');
+            ops.push(`${MARGIN + 434} ${textY} Td ${pdfStr(`Q${price.toFixed(2)}`)} Tj ET`);
+
+            ops.push('BT /F5 7.8 Tf 0.02 0.45 0.31 rg');
+            ops.push(`${MARGIN + 484} ${textY} Td ${pdfStr(`Q${sub.toFixed(2)}`)} Tj ET`);
+          } else {
+            ops.push('BT /F1 8 Tf 0.25 0.31 0.39 rg');
+            ops.push(`${MARGIN + 415} ${textY} Td ${pdfStr(item.unit)} Tj ET`);
+
+            ops.push('BT /F5 8.5 Tf 0.06 0.09 0.16 rg');
+            ops.push(`${MARGIN + 488} ${textY} Td ${pdfStr(qtyStr)} Tj ET`);
+          }
+
+          cursorY -= rowH;
+        });
+
+        // Grand Total Row if Pricing Enabled
+        if (state.pricingEnabled) {
+          ensureSpace(28);
+          ops.push('0.024 0.37 0.27 rg'); // Emerald bar
+          ops.push(`${MARGIN} ${cursorY - 24} ${CONTENT_W} 24 re f`);
+
+          ops.push('BT /F2 9 Tf 1 1 1 rg');
+          ops.push(`${MARGIN + 250} ${cursorY - 15} Td ${pdfStr('TOTAL ESTIMADO (QUETZALES):')} Tj ET`);
+
+          ops.push('BT /F5 10 Tf 1 1 1 rg');
+          ops.push(`${MARGIN + 455} ${cursorY - 15} Td ${pdfStr(formatQuetzales(grandTotal))} Tj ET`);
+          cursorY -= 32;
+        } else {
+          cursorY -= 12;
+        }
+
+        // Technical Notes Box
+        ensureSpace(46);
+        ops.push('0.96 0.97 0.99 rg');
+        ops.push(`${MARGIN} ${cursorY - 38} ${CONTENT_W} 38 re f`);
+        ops.push('0.82 0.86 0.91 RG 0.6 w');
+        ops.push(`${MARGIN} ${cursorY - 38} ${CONTENT_W} 38 re S`);
+        ops.push('BT /F2 7.5 Tf 0.15 0.22 0.32 rg');
+        ops.push(`${MARGIN + 8} ${cursorY - 12} Td ${pdfStr('NOTAS TÉCNICAS DE INGENIERÍA (TIA-569 / NEC):')} Tj ET`);
+        ops.push('BT /F1 7.2 Tf 0.28 0.34 0.42 rg');
+        ops.push(`${MARGIN + 8} ${cursorY - 22} Td ${pdfStr('• Cálculo basado en tramos estándar de 3.00 m con 3 abrazaderas de fijación por cada 3.00 m de tubería.')} Tj ET`);
+        ops.push('BT /F1 7.2 Tf 0.28 0.34 0.42 rg');
+        ops.push(`${MARGIN + 8} ${cursorY - 31} Td ${pdfStr('• Se incluye 1 caja de registro automática cada 9.00 m lineales + cajas extra, con 2 conectores terminales por caja.')} Tj ET`);
+
+        // Push final page
+        pages.push(ops.join('\n'));
+
+        // Add Corporate Footer with Page X of Y to every page
+        const totalPages = pages.length;
+        const finalizedPages = pages.map((pageContent, pIdx) => {
+          const footerOps = [
+            '0.82 0.86 0.91 RG 0.6 w',
+            `${MARGIN} 36 m ${PAGE_W - MARGIN} 36 l S`,
+            'BT /F1 7.5 Tf 0.35 0.41 0.49 rg',
+            `${MARGIN} 24 Td ${pdfStr('Conéctate Soporte y Tecnologías · +502 5646-6948 · conectategt.online')} Tj ET`,
+            'BT /F2 7.5 Tf 0.25 0.31 0.39 rg',
+            `${PAGE_W - MARGIN - 62} 24 Td ${pdfStr(`Página ${pIdx + 1} de ${totalPages}`)} Tj ET`
+          ];
+          return pageContent + '\n' + footerOps.join('\n');
+        });
+
+        // Assemble PDF 1.4 Binary Structure with Exact Byte Offsets
+        const objects = [];
+        function addObj(content) {
+          objects.push(content);
+          return objects.length;
+        }
+
+        // 1: Catalog, 2: Pages
+        const catalogId = addObj('<< /Type /Catalog /Pages 2 0 R >>');
+        const pagesId = addObj(''); // placeholder
+
+        // Fonts with WinAnsiEncoding
+        const f1 = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+        const f2 = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+        const f3 = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>');
+        const f4 = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>');
+        const f5 = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Courier-Bold /Encoding /WinAnsiEncoding >>');
+
+        const fontRes = `/Font << /F1 ${f1} 0 R /F2 ${f2} 0 R /F3 ${f3} 0 R /F4 ${f4} 0 R /F5 ${f5} 0 R >>`;
+        const pageIds = [];
+
+        for (const pStream of finalizedPages) {
+          const streamBytesLength = pStream.length;
+          const contentId = addObj(`<< /Length ${streamBytesLength} >>\nstream\n${pStream}\nendstream`);
+          const pageId = addObj(
+            `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${PAGE_W} ${PAGE_H}] /Resources << ${fontRes} >> /Contents ${contentId} 0 R >>`
+          );
+          pageIds.push(pageId);
+        }
+
+        objects[pagesId - 1] = `<< /Type /Pages /Kids [${pageIds.map((id) => `${id} 0 R`).join(' ')}] /Count ${pageIds.length} >>`;
+
+        // Convert entire PDF structure into single-byte Uint8Array
+        const chunks = [];
+        let byteOffset = 0;
+        const xrefOffsets = [0];
+
+        function pushRawString(str) {
+          const bytes = new Uint8Array(str.length);
+          for (let i = 0; i < str.length; i++) {
+            bytes[i] = str.charCodeAt(i) & 0xff;
+          }
+          chunks.push(bytes);
+          byteOffset += bytes.length;
+        }
+
+        pushRawString('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+
+        for (let i = 0; i < objects.length; i++) {
+          xrefOffsets.push(byteOffset);
+          pushRawString(`${i + 1} 0 obj\n${objects[i]}\nendobj\n`);
+        }
+
+        const xrefStart = byteOffset;
+        pushRawString(`xref\n0 ${objects.length + 1}\n`);
+        pushRawString('0000000000 65535 f \n');
+        for (let i = 1; i < xrefOffsets.length; i++) {
+          const offStr = String(xrefOffsets[i]).padStart(10, '0');
+          pushRawString(`${offStr} 00000 n \n`);
+        }
+
+        pushRawString(`trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefStart}\n%%EOF`);
+
+        const pdfBlob = new Blob(chunks, { type: 'application/pdf' });
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = 'Conectate_Materiales_Infraestructura.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+
+        showToast('PDF ejecutivo descargado: Conectate_Materiales_Infraestructura.pdf', 'success');
+      }
+
+      /* ------------------------------------------------------------------- */
+      /* 15. CLIPBOARD COPY (EXEC-COMMAND) & WHATSAPP EXPORT                 */
+      /* ------------------------------------------------------------------- */
+      function copySummaryToClipboard() {
+        const text = generateFormattedTextSummary();
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.top = '-9999px';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+
+        let copied = false;
+        try {
+          copied = document.execCommand('copy');
+        } catch (err) {
+          copied = false;
+        }
+        document.body.removeChild(ta);
+
+        if (copied) {
+          showToast('Listado técnico copiado al portapapeles.', 'success');
+        } else {
+          showToast('No se pudo copiar automáticamente. Intente descargar el PDF.', 'warning');
+        }
+      }
+
+      function sendSummaryViaWhatsApp() {
+        const text = generateFormattedTextSummary();
+        const waUrl = `https://wa.me/50256466948?text=${encodeURIComponent(text)}`;
+        window.open(waUrl, '_blank', 'noopener,noreferrer');
+      }
+
+      /* ------------------------------------------------------------------- */
+      /* 16. UI EVENT LISTENERS WIRING                                       */
+      /* ------------------------------------------------------------------- */
+      // Trade size dropdown
+      document.getElementById('tradeSizeSelect').addEventListener('change', (e) => {
+        state.tradeSizeMode = e.target.value;
+        recalculateAll();
+      });
+
+      // Fill factor buttons
+      document.querySelectorAll('.fill-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.fillFactor = Number(btn.dataset.fill);
+          document.querySelectorAll('.fill-btn').forEach((b) => {
+            const active = Number(b.dataset.fill) === state.fillFactor;
+            b.className = active
+              ? 'fill-btn py-2.5 px-2 rounded-xl border text-center transition cursor-pointer bg-blue-600/20 border-blue-500 text-white'
+              : 'fill-btn py-2.5 px-2 rounded-xl border text-center transition cursor-pointer bg-slate-950/70 border-slate-700/80 text-slate-300 hover:border-slate-500';
+          });
+          const ruleHints = {
+            40: 'Estándar NEC/TIA-569 para 3 o más conductores en ducto.',
+            30: 'Recomendado para dejar 10%–20% de holgura para ampliaciones futuras.',
+            50: 'Norma NEC permitida únicamente cuando se instala 1 solo cable en el ducto.'
+          };
+          document.getElementById('fillRuleNotice').textContent = ruleHints[state.fillFactor] || '';
+          recalculateAll();
+        });
+      });
+
+      // Cable preset dropdown toggle for custom fields
+      const cablePresetSelect = document.getElementById('cablePresetSelect');
+      const customCableFields = document.getElementById('customCableFields');
+      cablePresetSelect.addEventListener('change', () => {
+        const isCustom = cablePresetSelect.value === 'custom';
+        customCableFields.classList.toggle('hidden', !isCustom);
+        customCableFields.classList.toggle('grid', isCustom);
+      });
+
+      // Add cable button
+      document.getElementById('addCableBtn').addEventListener('click', () => {
+        const presetKey = cablePresetSelect.value;
+        const qty = Math.max(1, Math.min(200, parseInt(document.getElementById('cableQtyInput').value, 10) || 1));
+
+        if (presetKey === 'custom') {
+          const customName = (document.getElementById('customCableName').value || '').trim() || 'Cable Personalizado';
+          const customDia = Math.max(0.5, Math.min(80, parseFloat(document.getElementById('customCableDia').value) || 6.0));
+          state.cables.push({
+            uid: nextUid('cable'),
+            presetId: 'custom',
+            name: customName,
+            diameterMm: customDia,
+            qty,
+            color: '#a855f7'
+          });
+        } else {
+          const preset = CABLE_PRESETS[presetKey];
+          if (!preset) return;
+          const existing = state.cables.find((c) => c.presetId === preset.id);
+          if (existing) {
+            existing.qty += qty;
+          } else {
+            state.cables.push({
+              uid: nextUid('cable'),
+              presetId: preset.id,
+              name: preset.name,
+              diameterMm: preset.diameterMm,
+              qty,
+              color: preset.color
+            });
+          }
+        }
+
+        renderActiveCablesList();
+        recalculateAll();
+      });
+
+      // Linear length input & quick chips
+      const runLengthInput = document.getElementById('runLengthInput');
+      runLengthInput.addEventListener('input', () => {
+        state.lengthMeters = Math.max(0.5, parseFloat(runLengthInput.value) || 0.5);
+        recalculateAll();
+      });
+
+      document.querySelectorAll('.len-chip').forEach((chip) => {
+        chip.addEventListener('click', () => {
+          const val = Number(chip.dataset.len);
+          state.lengthMeters = val;
+          runLengthInput.value = val;
+          recalculateAll();
+        });
+      });
+
+      // Left & Right 90° Turn steppers
+      document.getElementById('decLeftTurnBtn').addEventListener('click', () => {
+        state.turnsLeft = Math.max(0, state.turnsLeft - 1);
+        recalculateAll();
+      });
+      document.getElementById('incLeftTurnBtn').addEventListener('click', () => {
+        state.turnsLeft += 1;
+        recalculateAll();
+      });
+
+      document.getElementById('decRightTurnBtn').addEventListener('click', () => {
+        state.turnsRight = Math.max(0, state.turnsRight - 1);
+        recalculateAll();
+      });
+      document.getElementById('incRightTurnBtn').addEventListener('click', () => {
+        state.turnsRight += 1;
+        recalculateAll();
+      });
+
+      // Extra Junction Box toggle & steppers
+      document.getElementById('extraBoxToggle').addEventListener('change', (e) => {
+        state.extraBoxEnabled = e.target.checked;
+        if (state.extraBoxEnabled && state.extraBoxes === 0) {
+          state.extraBoxes = 1;
+        }
+        recalculateAll();
+      });
+
+      document.getElementById('decExtraBoxBtn').addEventListener('click', () => {
+        if (!state.extraBoxEnabled) return;
+        state.extraBoxes = Math.max(0, state.extraBoxes - 1);
+        if (state.extraBoxes === 0) {
+          state.extraBoxEnabled = false;
+        }
+        recalculateAll();
+      });
+
+      document.getElementById('incExtraBoxBtn').addEventListener('click', () => {
+        if (!state.extraBoxEnabled) return;
+        state.extraBoxes += 1;
+        recalculateAll();
+      });
+
+      // Reset current run button
+      document.getElementById('resetRunBtn').addEventListener('click', () => {
+        state.conduitType = 'pvc_gris';
+        state.tradeSizeMode = 'auto';
+        state.fillFactor = 40;
+        state.cables = [
+          { uid: nextUid('cable'), presetId: 'utp_cat6', name: 'UTP Cat 6', diameterMm: 6.2, qty: 4, color: '#3b82f6' }
+        ];
+        state.runName = '';
+        state.lengthMeters = 12;
+        state.turnsLeft = 1;
+        state.turnsRight = 1;
+        state.extraBoxEnabled = false;
+        state.extraBoxes = 0;
+
+        document.body.classList.add('theme-pvc-gris');
+        document.getElementById('tradeSizeSelect').value = 'auto';
+        document.getElementById('runNameInput').value = '';
+        document.getElementById('runLengthInput').value = '12';
+        renderConduitTypeCards();
+        renderActiveCablesList();
+        recalculateAll();
+        showToast('Tramo restablecido a valores iniciales (PVC Gris Sch 40).', 'info');
+      });
+
+      // Project actions
+      document.getElementById('addRunToProjectBtn').addEventListener('click', addCurrentRunToProject);
+
+      document.getElementById('clearAllRunsBtn').addEventListener('click', () => {
+        state.projectRuns = [];
+        state.unitPrices = {};
+        renderProjectSection();
+        showToast('Todos los tramos del proyecto han sido eliminados.', 'info');
+      });
+
+      document.getElementById('enablePricingToggle').addEventListener('change', (e) => {
+        state.pricingEnabled = e.target.checked;
+        renderProjectSection();
+      });
+
+      document.getElementById('copyListBtn').addEventListener('click', copySummaryToClipboard);
+      document.getElementById('exportPdfBtn').addEventListener('click', generateExecutiveVectorPdf);
+      document.getElementById('sendWhatsappBtn').addEventListener('click', sendSummaryViaWhatsApp);
+
+      /* ------------------------------------------------------------------- */
+      /* 17. 60FPS FIBER-OPTIC CANVAS ANIMATION (RESPECTS REDUCED MOTION)    */
+      /* ------------------------------------------------------------------- */
+      function initFiberOpticCanvas() {
+        const canvas = document.getElementById('fiberCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        let width = 0;
+        let height = 0;
+        let dpr = 1;
+
+        const palette = ['#3b82f6', '#10b981', '#f59e0b'];
+        const nodes = [];
+        const pulses = [];
+
+        function resizeCanvas() {
+          dpr = Math.min(window.devicePixelRatio || 1, 2);
+          width = window.innerWidth;
+          height = window.innerHeight;
+          canvas.width = Math.floor(width * dpr);
+          canvas.height = Math.floor(height * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const nodeCount = Math.min(28, Math.max(14, Math.floor((width * height) / 55000)));
+        for (let i = 0; i < nodeCount; i++) {
+          nodes.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.32,
+            vy: (Math.random() - 0.5) * 0.32,
+            radius: 1.6 + Math.random() * 1.8,
+            color: palette[i % palette.length]
+          });
+        }
+
+        function spawnPulse() {
+          if (nodes.length < 2) return;
+          const a = Math.floor(Math.random() * nodes.length);
+          let b = Math.floor(Math.random() * nodes.length);
+          if (a === b) b = (b + 1) % nodes.length;
+          pulses.push({
+            from: a,
+            to: b,
+            t: 0,
+            speed: 0.006 + Math.random() * 0.008,
+            color: palette[Math.floor(Math.random() * palette.length)]
+          });
+        }
+
+        for (let i = 0; i < 10; i++) spawnPulse();
+
+        function drawFrame() {
+          ctx.clearRect(0, 0, width, height);
+
+          // Update node positions
+          if (!prefersReducedMotion) {
+            for (const n of nodes) {
+              n.x += n.vx;
+              n.y += n.vy;
+              if (n.x < 0 || n.x > width) n.vx *= -1;
+              if (n.y < 0 || n.y > height) n.vy *= -1;
+            }
+          }
+
+          // Draw curved fiber-optic links between nearby nodes
+          const maxDist = 240;
+          for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+              const dx = nodes[j].x - nodes[i].x;
+              const dy = nodes[j].y - nodes[i].y;
+              const dist = Math.hypot(dx, dy);
+              if (dist < maxDist) {
+                const alpha = (1 - dist / maxDist) * 0.14;
+                const midX = (nodes[i].x + nodes[j].x) * 0.5 - dy * 0.12;
+                const midY = (nodes[i].y + nodes[j].y) * 0.5 + dx * 0.12;
+
+                ctx.beginPath();
+                ctx.moveTo(nodes[i].x, nodes[i].y);
+                ctx.quadraticCurveTo(midX, midY, nodes[j].x, nodes[j].y);
+                ctx.strokeStyle = `rgba(59, 130, 246, ${alpha.toFixed(3)})`;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+              }
+            }
+          }
+
+          // Draw nodes
+          for (const n of nodes) {
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+            ctx.fillStyle = n.color;
+            ctx.globalAlpha = 0.45;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          }
+
+          // Draw traveling fiber data pulses
+          if (!prefersReducedMotion) {
+            for (let i = pulses.length - 1; i >= 0; i--) {
+              const p = pulses[i];
+              p.t += p.speed;
+              if (p.t >= 1) {
+                pulses.splice(i, 1);
+                spawnPulse();
+                continue;
+              }
+              const nA = nodes[p.from];
+              const nB = nodes[p.to];
+              const dx = nB.x - nA.x;
+              const dy = nB.y - nA.y;
+              const midX = (nA.x + nB.x) * 0.5 - dy * 0.12;
+              const midY = (nA.y + nB.y) * 0.5 + dx * 0.12;
+
+              const inv = 1 - p.t;
+              const px = inv * inv * nA.x + 2 * inv * p.t * midX + p.t * p.t * nB.x;
+              const py = inv * inv * nA.y + 2 * inv * p.t * midY + p.t * p.t * nB.y;
+
+              ctx.beginPath();
+              ctx.arc(px, py, 2.3, 0, Math.PI * 2);
+              ctx.fillStyle = p.color;
+              ctx.shadowBlur = 10;
+              ctx.shadowColor = p.color;
+              ctx.fill();
+              ctx.shadowBlur = 0;
+            }
+            requestAnimationFrame(drawFrame);
+          }
+        }
+
+        drawFrame();
+      }
+
+      /* ------------------------------------------------------------------- */
+      /* 18. INITIALIZATION ON WINDOW LOAD                                   */
+      /* ------------------------------------------------------------------- */
+      window.addEventListener('load', () => {
+        initFiberOpticCanvas();
+        renderConduitTypeCards();
+        renderActiveCablesList();
+        recalculateAll();
+        renderProjectSection();
+      });
+    })();
+  </script>
+</body>
+</html>
