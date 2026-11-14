@@ -1,0 +1,2649 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Conéctate Soporte y Tecnologías | Infraestructura de Red, Ciberseguridad y CCTV</title>
+  <meta
+    name="description"
+    content="Conéctate Soporte y Tecnologías (conectategt.online) - ¡Innovación que conecta! Ingeniería empresarial en infraestructura de red, ciberseguridad y videovigilancia IP en Guatemala."
+  />
+
+  <!-- Tipografías Corporativas: Plus Jakarta Sans (Interfaz) & JetBrains Mono (Telemetría) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ==========================================================================
+       1. VARIABLES DE DISEÑO Y PALETA EJECUTIVA
+       ========================================================================== */
+    :root {
+      --bg-obsidian: #060a13;
+      --bg-slate-card: rgba(12, 19, 34, 0.85);
+      --bg-slate-solid: #0c1322;
+      --text-platinum: #f8fafc;
+      --text-steel: #94a3b8;
+      --text-muted: #64748b;
+
+      /* Colores Oficiales de Marca CONECTATE (Inalterables) */
+      --brand-blue: #2C69B3;
+      --brand-navy: #1E3A5F;
+      --brand-lime: #97C222;
+
+      /* Identidad Cromática por División de Servicio */
+      --cobalt: #3b82f6;
+      --cobalt-deep: #2563eb;
+      --emerald: #10b981;
+      --emerald-deep: #059669;
+      --amber: #f59e0b;
+      --amber-deep: #d97706;
+
+      /* WhatsApp Corporativo */
+      --whatsapp: #16a34a;
+      --whatsapp-hover: #15803d;
+
+      /* Tipografías y Radios */
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --border-subtle: rgba(148, 163, 184, 0.15);
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 10px;
+    }
+
+    /* ==========================================================================
+       2. RESET Y BASE GLOBAL
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: var(--bg-obsidian);
+      background-image:
+        radial-gradient(circle at 50% 0%, rgba(30, 64, 175, 0.16), transparent 60%),
+        linear-gradient(rgba(148, 163, 184, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.035) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+      background-position: center top, 0 0, 0 0;
+      color: var(--text-platinum);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background-color: var(--cobalt-deep);
+      color: var(--text-platinum);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ==========================================================================
+       3. LIENZO DE FIBRA ÓPTICA DE ALTA PRECISIÓN (CANVAS FIJO)
+       ========================================================================== */
+    #fiber-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       4. PANTALLA DE CARGA INICIAL (INTRO SPLASH SCREEN)
+       ========================================================================== */
+    .intro-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: radial-gradient(circle at 50% 48%, rgba(12, 19, 34, 0.68) 0%, rgba(6, 10, 19, 0.92) 100%);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.65s ease;
+    }
+
+    .intro-splash.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .splash-card {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      max-width: 440px;
+      width: 100%;
+      animation: splashRise 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes splashRise {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Placa blanca pura (#ffffff) en el centro del splash para preservar intacto el logo */
+    .splash-logo-plate {
+      background-color: #ffffff;
+      border-radius: 14px;
+      padding: 1.25rem 1.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow:
+        0 24px 60px -12px rgba(2, 6, 23, 0.9),
+        0 0 36px -4px rgba(59, 130, 246, 0.32),
+        0 0 0 1px rgba(59, 130, 246, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.75rem;
+    }
+
+    .splash-logo-plate img {
+      height: 58px;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* Barra fina de sincronización óptica debajo del logo */
+    .splash-sync-box {
+      width: 100%;
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .splash-progress-track {
+      width: 100%;
+      height: 3px;
+      background: rgba(148, 163, 184, 0.18);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .splash-progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--cobalt), var(--emerald), var(--amber));
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.7);
+      animation: opticalSyncProgress 2.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes opticalSyncProgress {
+      0% { width: 0%; }
+      45% { width: 62%; }
+      100% { width: 100%; }
+    }
+
+    .splash-sync-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--text-steel);
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .splash-sync-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+    }
+
+    /* Botón discreto "Entrar ahora" */
+    .splash-skip-btn {
+      margin-top: 1.5rem;
+      background: rgba(12, 19, 34, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      color: var(--text-steel);
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.55rem 1.15rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .splash-skip-btn:hover,
+    .splash-skip-btn:focus-visible {
+      color: var(--text-platinum);
+      border-color: rgba(59, 130, 246, 0.55);
+      background: rgba(30, 41, 59, 0.9);
+      outline: none;
+    }
+
+    /* ==========================================================================
+       5. ESTRUCTURA DE CONTENIDO PRINCIPAL Y COMPONENTES EJECUTIVOS
+       ========================================================================== */
+    .app-shell {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }
+
+    @media (min-width: 640px) {
+      .container {
+        padding: 0 1.75rem;
+      }
+    }
+
+    /* Contenedor blanco puro (#ffffff) para el logo oficial en Header y Footer */
+    .logo-shell {
+      background-color: #ffffff;
+      border-radius: 10px;
+      padding: 0.38rem 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 6px 18px -4px rgba(2, 6, 23, 0.65),
+        0 0 0 1px rgba(255, 255, 255, 0.92);
+      transition: transform 0.2s ease;
+    }
+
+    .logo-shell:hover {
+      transform: translateY(-1px);
+    }
+
+    .logo-shell-header img {
+      height: 36px;
+      width: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    .logo-shell-footer img {
+      height: 30px;
+      width: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* Enlaces directos de número telefónico +502 5646-6948 a WhatsApp */
+    .wa-number-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: #4ade80;
+      background: rgba(22, 163, 74, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.28);
+      padding: 0.35rem 0.7rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .wa-number-link:hover,
+    .wa-number-link:focus-visible {
+      color: #ffffff;
+      background: rgba(22, 163, 74, 0.28);
+      border-color: rgba(74, 222, 128, 0.65);
+      transform: translateY(-1px);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      outline: none;
+    }
+
+    .wa-number-link svg {
+      width: 15px;
+      height: 15px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* Botón sólido de WhatsApp */
+    .btn-whatsapp {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      background-color: var(--whatsapp);
+      color: var(--text-platinum);
+      font-weight: 600;
+      border: 1px solid rgba(74, 222, 128, 0.25);
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 24px -8px rgba(2, 6, 23, 0.8);
+      transition: background-color 0.2s ease, transform 0.18s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+    }
+
+    .btn-whatsapp:hover,
+    .btn-whatsapp:focus-visible {
+      background-color: var(--whatsapp-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px -8px rgba(22, 163, 74, 0.35);
+      outline: none;
+    }
+
+    .btn-whatsapp svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* Panel Ejecutivo Elevado (#0c1322 con backdrop blur) */
+    .exec-panel {
+      background: var(--bg-slate-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow:
+        0 22px 48px -16px rgba(2, 6, 23, 0.85),
+        inset 0 1px 0 0 rgba(248, 250, 252, 0.05);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease, box-shadow 0.28s ease;
+    }
+
+    /* ==========================================================================
+       6. BARRA DE NAVEGACIÓN SUPERIOR
+       ========================================================================== */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(6, 10, 19, 0.88);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .header-inner {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .desktop-nav {
+      display: none;
+      align-items: center;
+      gap: 1.75rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-steel);
+    }
+
+    .desktop-nav a:hover {
+      color: var(--text-platinum);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .header-wa-number {
+      display: none;
+      font-size: 0.78rem;
+    }
+
+    .header-cta-btn {
+      padding: 0.6rem 0.95rem;
+      font-size: 0.8125rem;
+    }
+
+    .mobile-menu-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: var(--bg-slate-solid);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-steel);
+      cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .mobile-menu-btn:hover {
+      color: var(--text-platinum);
+      border-color: rgba(59, 130, 246, 0.45);
+    }
+
+    .mobile-drawer {
+      display: none;
+      border-top: 1px solid var(--border-subtle);
+      background: rgba(6, 10, 19, 0.97);
+      padding: 1rem 1.25rem 1.25rem;
+    }
+
+    .mobile-drawer.is-open {
+      display: block;
+    }
+
+    .mobile-drawer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .mobile-drawer-links a {
+      display: block;
+      padding: 0.75rem 0.9rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-platinum);
+    }
+
+    .mobile-drawer-links a:hover {
+      background: var(--bg-slate-solid);
+    }
+
+    @media (min-width: 768px) {
+      .desktop-nav {
+        display: flex;
+      }
+      .mobile-menu-btn,
+      .mobile-drawer {
+        display: none !important;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .header-wa-number {
+        display: inline-flex;
+      }
+    }
+
+    /* ==========================================================================
+       7. SECCIÓN HERO (2 COLUMNAS RESPONSIVE)
+       ========================================================================== */
+    .hero-section {
+      padding: 2.75rem 0 3.75rem;
+    }
+
+    @media (min-width: 768px) {
+      .hero-section {
+        padding: 4rem 0 4.75rem;
+      }
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.25rem;
+      align-items: center;
+    }
+
+    @media (min-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: 7fr 5fr;
+        gap: 2.75rem;
+      }
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      background: rgba(12, 19, 34, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-platinum);
+      margin-bottom: 1.35rem;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--emerald);
+      flex-shrink: 0;
+      animation: execPulse 2.4s infinite;
+    }
+
+    @keyframes execPulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.65); }
+      70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .hero-title {
+      font-size: clamp(1.85rem, 3.6vw, 2.85rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      color: var(--text-platinum);
+      margin-bottom: 1.15rem;
+    }
+
+    .hero-description {
+      font-size: 1rem;
+      color: var(--text-steel);
+      max-width: 640px;
+      margin-bottom: 1.65rem;
+    }
+
+    @media (min-width: 640px) {
+      .hero-description {
+        font-size: 1.0625rem;
+      }
+    }
+
+    .hero-description strong {
+      color: var(--text-platinum);
+      font-weight: 600;
+    }
+
+    .domain-highlight {
+      color: var(--cobalt);
+      font-weight: 600;
+    }
+
+    /* Tarjeta de Progreso (78%) e Hitos Técnicos */
+    .maintenance-card {
+      padding: 1.25rem 1.35rem;
+      max-width: 600px;
+      margin-bottom: 1.65rem;
+    }
+
+    .progress-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.75rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .progress-label {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-platinum);
+    }
+
+    .progress-value {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--emerald);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-obsidian);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      margin-bottom: 1rem;
+    }
+
+    .progress-fill {
+      width: 78%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--cobalt-deep), var(--cobalt), var(--emerald));
+    }
+
+    .milestone-list {
+      list-style: none;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      font-size: 0.8rem;
+    }
+
+    .milestone-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      color: rgba(248, 250, 252, 0.9);
+    }
+
+    .milestone-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dot-emerald, .dot-cobalt, .dot-amber {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot-emerald { background: var(--emerald); }
+    .dot-cobalt { background: var(--cobalt); }
+    .dot-amber { background: var(--amber); }
+
+    .badge-mono {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .text-emerald { color: var(--emerald); }
+    .text-cobalt { color: var(--cobalt); }
+    .text-amber { color: var(--amber); }
+
+    /* Franja de Soporte Directo con Número Clicable dentro del Hero */
+    .maintenance-support-strip {
+      margin-top: 0.9rem;
+      padding-top: 0.85rem;
+      border-top: 1px dashed rgba(148, 163, 184, 0.2);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      font-size: 0.8rem;
+      color: var(--text-steel);
+    }
+
+    /* Botones CTA del Hero */
+    .hero-cta-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      width: 100%;
+    }
+
+    @media (min-width: 640px) {
+      .hero-cta-group {
+        flex-direction: row;
+        align-items: center;
+        width: auto;
+      }
+    }
+
+    .hero-wa-btn {
+      padding: 0.85rem 1.35rem;
+      font-size: 0.9rem;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.25rem;
+      border-radius: var(--radius-md);
+      background: rgba(12, 19, 34, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      color: var(--text-platinum);
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(30, 41, 59, 0.92);
+      border-color: rgba(59, 130, 246, 0.45);
+    }
+
+    /* ==========================================================================
+       8. COLUMNA DERECHA: TELEMETRÍA GUATEMALA (RELOJ UTC-6 + CLIMA EN VIVO)
+       ========================================================================== */
+    .telemetry-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .telemetry-top-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0 0.25rem;
+    }
+
+    .telemetry-top-header h2 {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-platinum);
+    }
+
+    .telemetry-top-header p {
+      font-size: 0.75rem;
+      color: var(--text-steel);
+    }
+
+    .noc-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      background: var(--bg-slate-solid);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--cobalt);
+      flex-shrink: 0;
+    }
+
+    .telemetry-card {
+      padding: 1.35rem;
+    }
+
+    .telemetry-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .telemetry-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .icon-badge-cobalt {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: rgba(59, 130, 246, 0.14);
+      border: 1px solid rgba(59, 130, 246, 0.32);
+      color: var(--cobalt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-badge-emerald {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.32);
+      color: var(--emerald);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .telemetry-card-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-platinum);
+    }
+
+    .utc-pill {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      background: var(--bg-obsidian);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-steel);
+    }
+
+    .clock-display {
+      font-family: var(--font-mono);
+      font-size: clamp(1.9rem, 3.4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-platinum);
+      font-variant-numeric: tabular-nums;
+      margin: 0.25rem 0;
+    }
+
+    .telemetry-card-foot {
+      margin-top: 0.85rem;
+      padding-top: 0.8rem;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-steel);
+    }
+
+    .gt-date-text {
+      text-transform: capitalize;
+      color: rgba(248, 250, 252, 0.92);
+    }
+
+    .gt-tz-text {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--cobalt);
+    }
+
+    /* Selector de Municipio/Ciudad de Guatemala */
+    .gt-city-select {
+      background-color: var(--bg-obsidian);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      color: var(--text-platinum);
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 2rem 0.5rem 0.75rem;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.65rem center;
+      background-size: 0.9rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .gt-city-select:hover,
+    .gt-city-select:focus {
+      border-color: var(--cobalt);
+      outline: none;
+    }
+
+    .weather-main-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 0.75rem 0;
+    }
+
+    .weather-icon-box {
+      width: 54px;
+      height: 54px;
+      border-radius: var(--radius-md);
+      background: var(--bg-obsidian);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .weather-temp-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .weather-temp {
+      font-family: var(--font-mono);
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--text-platinum);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .weather-city-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-steel);
+    }
+
+    .weather-condition {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--cobalt);
+      margin-top: 0.15rem;
+    }
+
+    .weather-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.9rem;
+      padding-top: 0.9rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .metric-pill {
+      background: rgba(6, 10, 19, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+    }
+
+    .metric-pill span:first-child {
+      color: var(--text-steel);
+    }
+
+    .metric-pill span:last-child {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-platinum);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ==========================================================================
+       9. TRES PILARES TECNOLÓGICOS (IDENTIDAD CROMÁTICA PROPIA POR SERVICIO)
+       ========================================================================== */
+    .specialties-section {
+      padding: 3.75rem 0 4.5rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .section-header {
+      max-width: 720px;
+      margin-bottom: 2.75rem;
+    }
+
+    .section-kicker {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-steel);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.55rem, 3vw, 2.25rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-platinum);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-steel);
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .services-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.75rem;
+      }
+    }
+
+    .service-card {
+      position: relative;
+      overflow: hidden;
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .service-card-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    /* Pilar 1: Infraestructura de Red (Azul Cobalto) */
+    .card-network {
+      background-image: radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.12), transparent 55%);
+    }
+    .card-network:hover {
+      transform: translateY(-4px);
+      border-color: rgba(59, 130, 246, 0.52);
+      box-shadow: 0 26px 52px -16px rgba(37, 99, 235, 0.24);
+    }
+    .card-network .service-card-bar {
+      background: linear-gradient(90deg, var(--cobalt-deep), var(--cobalt), #60a5fa);
+    }
+
+    /* Pilar 2: Ciberseguridad (Verde Esmeralda) */
+    .card-security {
+      background-image: radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.12), transparent 55%);
+    }
+    .card-security:hover {
+      transform: translateY(-4px);
+      border-color: rgba(16, 185, 129, 0.52);
+      box-shadow: 0 26px 52px -16px rgba(5, 150, 105, 0.24);
+    }
+    .card-security .service-card-bar {
+      background: linear-gradient(90deg, var(--emerald-deep), var(--emerald), #34d399);
+    }
+
+    /* Pilar 3: CCTV y Videovigilancia IP (Ámbar Ejecutivo) */
+    .card-cctv {
+      background-image: radial-gradient(circle at 100% 0%, rgba(245, 158, 11, 0.12), transparent 55%);
+    }
+    .card-cctv:hover {
+      transform: translateY(-4px);
+      border-color: rgba(245, 158, 11, 0.52);
+      box-shadow: 0 26px 52px -16px rgba(217, 119, 6, 0.24);
+    }
+    .card-cctv .service-card-bar {
+      background: linear-gradient(90deg, var(--amber-deep), var(--amber), #fbbf24);
+    }
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .card-cctv {
+        grid-column: span 2;
+      }
+    }
+
+    .service-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1.35rem;
+      padding-top: 0.25rem;
+    }
+
+    .service-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-network {
+      background: rgba(37, 99, 235, 0.18);
+      border: 1px solid rgba(59, 130, 246, 0.36);
+      color: var(--cobalt);
+    }
+
+    .icon-security {
+      background: rgba(5, 150, 105, 0.18);
+      border: 1px solid rgba(16, 185, 129, 0.36);
+      color: var(--emerald);
+    }
+
+    .icon-cctv {
+      background: rgba(217, 119, 6, 0.18);
+      border: 1px solid rgba(245, 158, 11, 0.36);
+      color: var(--amber);
+    }
+
+    .service-tag {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+    }
+
+    .tag-network {
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: var(--cobalt);
+    }
+
+    .tag-security {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--emerald);
+    }
+
+    .tag-cctv {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--amber);
+    }
+
+    .service-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-platinum);
+      margin-bottom: 0.7rem;
+    }
+
+    .service-desc {
+      font-size: 0.875rem;
+      color: var(--text-steel);
+      margin-bottom: 1.35rem;
+    }
+
+    .service-bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      font-size: 0.84rem;
+      color: rgba(248, 250, 252, 0.92);
+      margin-bottom: 1.65rem;
+    }
+
+    .service-bullets li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+    }
+
+    .service-bullets li span.bullet-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-top: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .service-wa-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border-radius: var(--radius-md);
+      background: rgba(6, 10, 19, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-platinum);
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .card-network .service-wa-btn:hover {
+      background: rgba(37, 99, 235, 0.2);
+      border-color: rgba(59, 130, 246, 0.55);
+    }
+
+    .card-security .service-wa-btn:hover {
+      background: rgba(5, 150, 105, 0.2);
+      border-color: rgba(16, 185, 129, 0.55);
+    }
+
+    .card-cctv .service-wa-btn:hover {
+      background: rgba(217, 119, 6, 0.2);
+      border-color: rgba(245, 158, 11, 0.55);
+    }
+
+    /* ==========================================================================
+       10. SECCIÓN DE CONTACTO DIRECTO Y FOOTER CORPORATIVO
+       ========================================================================== */
+    .contact-banner-section {
+      padding-bottom: 3.75rem;
+    }
+
+    .contact-banner {
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.35rem;
+    }
+
+    @media (min-width: 768px) {
+      .contact-banner {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 2rem 2.25rem;
+      }
+    }
+
+    .contact-banner-info h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-platinum);
+      margin-bottom: 0.35rem;
+    }
+
+    .contact-banner-info p {
+      font-size: 0.9rem;
+      color: var(--text-steel);
+    }
+
+    .contact-banner-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .site-footer {
+      border-top: 1px solid var(--border-subtle);
+      background: rgba(6, 10, 19, 0.94);
+      backdrop-filter: blur(16px);
+      padding: 2.5rem 0 5.75rem;
+    }
+
+    @media (min-width: 640px) {
+      .site-footer {
+        padding-bottom: 2.75rem;
+      }
+    }
+
+    .footer-top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      text-align: center;
+    }
+
+    @media (min-width: 768px) {
+      .footer-top {
+        flex-direction: row;
+        text-align: left;
+      }
+    }
+
+    .footer-brand-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.95rem;
+    }
+
+    @media (min-width: 640px) {
+      .footer-brand-group {
+        flex-direction: row;
+      }
+    }
+
+    .footer-company-name {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-platinum);
+    }
+
+    .footer-meta {
+      font-size: 0.8rem;
+      color: var(--text-steel);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      margin-top: 0.2rem;
+    }
+
+    @media (min-width: 640px) {
+      .footer-meta {
+        justify-content: flex-start;
+      }
+    }
+
+    .footer-meta a.email-link {
+      text-decoration: underline;
+      text-decoration-color: rgba(148, 163, 184, 0.4);
+      text-underline-offset: 3px;
+    }
+
+    .footer-meta a.email-link:hover {
+      color: var(--text-platinum);
+    }
+
+    .footer-bottom {
+      margin-top: 1.75rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      color: var(--text-steel);
+    }
+
+    @media (min-width: 640px) {
+      .footer-bottom {
+        flex-direction: row;
+      }
+    }
+
+    /* Botón Flotante Discreto de WhatsApp en Esquina Inferior Derecha */
+    .floating-wa-btn {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      z-index: 60;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.75rem 1.05rem;
+      border-radius: 999px;
+      background-color: var(--whatsapp);
+      color: var(--text-platinum);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      box-shadow: 0 18px 36px -8px rgba(2, 6, 23, 0.92);
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .floating-wa-btn:hover,
+    .floating-wa-btn:focus-visible {
+      background-color: var(--whatsapp-hover);
+      transform: scale(1.03);
+      outline: none;
+    }
+
+    .floating-wa-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .intro-splash,
+      .splash-card,
+      .splash-progress-fill,
+      .pulse-dot {
+        animation: none !important;
+        transition: none !important;
+      }
+      .splash-progress-fill {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       LIENZO DE FIBRA ÓPTICA DE ALTA PRECISIÓN (COMPARTIDO ENTRE SPLASH Y SITIO)
+       ======================================================================== -->
+  <canvas id="fiber-canvas" aria-hidden="true"></canvas>
+
+  <!-- ========================================================================
+       1. PANTALLA DE CARGA INICIAL (INTRO SPLASH SCREEN) CON LOGO OFICIAL
+       ======================================================================== -->
+  <div id="intro-splash" class="intro-splash" role="dialog" aria-label="Bienvenida a Conéctate Soporte y Tecnologías">
+    <div class="splash-card">
+      <!-- Placa Blanca Pura (#ffffff) preservando intacto el diseño y colores del logotipo -->
+      <div class="splash-logo-plate">
+        <img
+          src="logo.jpg"
+          alt="CONECTATE - ¡Innovación que conecta!"
+          onerror="renderBrandLogoSvg(this, 'splash')"
+        />
+      </div>
+
+      <!-- Barra Fina de Sincronización Óptica -->
+      <div class="splash-sync-box">
+        <div class="splash-progress-track" aria-hidden="true">
+          <div class="splash-progress-fill"></div>
+        </div>
+        <div class="splash-sync-label">
+          <span class="splash-sync-dot"></span>
+          <span>ESTABLECIENDO ENLACE SEGURO · CONECTATEGT.ONLINE</span>
+        </div>
+      </div>
+
+      <!-- Botón Discreto para Omitir la Pantalla Inicial -->
+      <button type="button" id="skip-splash-btn" class="splash-skip-btn">
+        Entrar ahora &rarr;
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       2. ESTRUCTURA PRINCIPAL DEL SITIO
+       ======================================================================== -->
+  <div class="app-shell">
+
+    <!-- BARRA DE NAVEGACIÓN SUPERIOR -->
+    <header class="site-header">
+      <div class="container header-inner">
+        <!-- Logotipo Oficial en Contenedor Blanco Puro (#ffffff) -->
+        <a href="#inicio" class="logo-shell logo-shell-header" aria-label="Inicio Conéctate Soporte y Tecnologías">
+          <img
+            src="logo.jpg"
+            alt="CONECTATE - ¡Innovación que conecta!"
+            onerror="renderBrandLogoSvg(this, 'header')"
+          />
+        </a>
+
+        <!-- Enlaces de Navegación Desktop -->
+        <nav class="desktop-nav" aria-label="Navegación principal">
+          <a href="#inicio">Inicio</a>
+          <a href="#telemetria">Telemetría GT</a>
+          <a href="#especialidades">Especialidades</a>
+          <a href="#contacto">Contacto</a>
+        </nav>
+
+        <!-- Número Clicable Directo a WhatsApp + Botón Contacto + Menú Móvil -->
+        <div class="header-actions">
+          <a
+            href="https://wa.me/50256466948?text=Hola%20Con%C3%A9ctate%2C%20me%20comunico%20desde%20conectategt.online%20para%20solicitar%20asistencia%20t%C3%A9cnica."
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Chatear por WhatsApp con Conéctate Soporte y Tecnologías al +502 5646-6948"
+            class="wa-number-link header-wa-number"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+            </svg>
+            <span>+502 5646-6948</span>
+          </a>
+
+          <a
+            href="https://wa.me/50256466948?text=Hola%20Con%C3%A9ctate%2C%20me%20comunico%20desde%20conectategt.online%20para%20solicitar%20asistencia%20t%C3%A9cnica."
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Abrir chat directo de WhatsApp con Conéctate Soporte y Tecnologías"
+            class="btn-whatsapp header-cta-btn"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+            </svg>
+            <span>WhatsApp</span>
+          </a>
+
+          <!-- Botón Menú Móvil -->
+          <button
+            type="button"
+            id="mobile-menu-toggle"
+            aria-expanded="false"
+            aria-controls="mobile-nav-drawer"
+            aria-label="Abrir menú de navegación"
+            class="mobile-menu-btn"
+          >
+            <svg id="icon-menu-open" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg id="icon-menu-close" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display: none;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Drawer Móvil -->
+      <nav id="mobile-nav-drawer" class="mobile-drawer" aria-label="Navegación móvil">
+        <div class="mobile-drawer-links">
+          <a href="#inicio" class="mobile-nav-link">Inicio</a>
+          <a href="#telemetria" class="mobile-nav-link">Telemetría GT</a>
+          <a href="#especialidades" class="mobile-nav-link">Especialidades</a>
+          <a href="#contacto" class="mobile-nav-link">Contacto Directo</a>
+        </div>
+        <a
+          href="https://wa.me/50256466948?text=Hola%20Con%C3%A9ctate%2C%20me%20comunico%20desde%20conectategt.online%20para%20solicitar%20asistencia%20t%C3%A9cnica."
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chatear por WhatsApp con Conéctate Soporte y Tecnologías al +502 5646-6948"
+          class="wa-number-link"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+          </svg>
+          <span>Chat Directo · +502 5646-6948</span>
+        </a>
+      </nav>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main style="flex: 1;">
+
+      <!-- SECCIÓN HERO Y TELEMETRÍA GUATEMALA (2 COLUMNAS RESPONSIVE) -->
+      <section id="inicio" class="hero-section">
+        <div class="container hero-grid">
+
+          <!-- COLUMNA IZQUIERDA: Ventana de Mantenimiento, Progreso 78% y Soporte Directo -->
+          <div>
+            <div class="status-pill">
+              <span class="pulse-dot"></span>
+              <span>VENTANA DE MANTENIMIENTO · NOC ACTIVO</span>
+            </div>
+
+            <h1 class="hero-title">
+              Actualización Estructural de Nuestra Infraestructura Digital
+            </h1>
+
+            <p class="hero-description">
+              En <strong>Conéctate Soporte y Tecnologías</strong> estamos ejecutando mejoras planificadas en nuestra plataforma web (<span class="domain-highlight">conectategt.online</span>) para optimizar rendimiento y seguridad. Nuestros equipos de ingeniería, soporte técnico y monitoreo 24/7 en Guatemala operan con total normalidad.
+            </p>
+
+            <!-- Tarjeta de Avance (78%), Hitos Técnicos y Número Clicable a WhatsApp -->
+            <div class="exec-panel maintenance-card">
+              <div class="progress-header">
+                <span class="progress-label">Avance del Despliegue de Plataforma</span>
+                <span class="progress-value">78% completado</span>
+              </div>
+
+              <div
+                class="progress-track"
+                role="progressbar"
+                aria-valuenow="78"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-label="Progreso de mantenimiento 78 por ciento"
+              >
+                <div class="progress-fill"></div>
+              </div>
+
+              <ul class="milestone-list">
+                <li class="milestone-item">
+                  <span class="milestone-left">
+                    <span class="dot-emerald"></span>
+                    <span>Respaldo de integridad y redundancia de nodos</span>
+                  </span>
+                  <span class="badge-mono text-emerald">[COMPLETADO]</span>
+                </li>
+                <li class="milestone-item">
+                  <span class="milestone-left">
+                    <span class="dot-cobalt"></span>
+                    <span>Despliegue de nueva arquitectura y enrutamiento DNS</span>
+                  </span>
+                  <span class="badge-mono text-cobalt">[EN CURSO]</span>
+                </li>
+                <li class="milestone-item">
+                  <span class="milestone-left">
+                    <span class="dot-amber"></span>
+                    <span>Auditoría SSL/TLS y verificación final de servicios</span>
+                  </span>
+                  <span class="badge-mono text-amber">[PROGRAMADO]</span>
+                </li>
+              </ul>
+
+              <!-- Número telefónico clicable directo a WhatsApp dentro de la tarjeta de soporte -->
+              <div class="maintenance-support-strip">
+                <span>Línea directa de ingeniería y soporte:</span>
+                <a
+                  href="https://wa.me/50256466948?text=Hola%20Con%C3%A9ctate%2C%20me%20comunico%20desde%20conectategt.online%20para%20solicitar%20asistencia%20t%C3%A9cnica."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Chatear por WhatsApp con Conéctate Soporte y Tecnologías al +502 5646-6948"
+                  class="wa-number-link"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+                  </svg>
+                  <span>+502 5646-6948</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Botones de Acción Principales -->
+            <div class="hero-cta-group">
+              <a
+                href="https://wa.me/50256466948?text=Hola%20Con%C3%A9ctate%2C%20me%20comunico%20desde%20conectategt.online%20para%20solicitar%20asistencia%20t%C3%A9cnica."
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Asistencia Directa WhatsApp al +502 5646-6948"
+                class="btn-whatsapp hero-wa-btn"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+                </svg>
+                <span>Asistencia Directa · +502 5646-6948</span>
+              </a>
+
+              <a href="#especialidades" class="btn-secondary">
+                <span>Ver Especialidades</span>
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- COLUMNA DERECHA: Panel de Telemetría de Guatemala en Vivo -->
+          <div id="telemetria" class="telemetry-stack">
+            <div class="telemetry-top-header">
+              <div>
+                <h2>Telemetría Guatemala · Operación Local</h2>
+                <p>Sincronización horaria UTC-6 y clima en tiempo real</p>
+              </div>
+              <span class="noc-badge">
+                <span class="dot-emerald"></span>
+                GT-NOC
+              </span>
+            </div>
+
+            <!-- Módulo A: Reloj Oficial en Vivo (America/Guatemala) -->
+            <div class="exec-panel telemetry-card">
+              <div class="telemetry-card-head">
+                <div class="telemetry-title-wrap">
+                  <div class="icon-badge-cobalt">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                  </div>
+                  <span class="telemetry-card-title">Hora Oficial en Guatemala</span>
+                </div>
+                <span class="utc-pill">UTC-6</span>
+              </div>
+
+              <div id="gt-clock" class="clock-display" aria-live="off">--:--:--</div>
+
+              <div class="telemetry-card-foot">
+                <span id="gt-date" class="gt-date-text">Sincronizando fecha oficial...</span>
+                <span class="gt-tz-text">America/Guatemala</span>
+              </div>
+            </div>
+
+            <!-- Módulo B: Clima en Tiempo Real (Open-Meteo API · San Juan Sacatepéquez por defecto) -->
+            <div class="exec-panel telemetry-card">
+              <div class="telemetry-card-head">
+                <div class="telemetry-title-wrap">
+                  <div class="icon-badge-emerald">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                    </svg>
+                  </div>
+                  <span class="telemetry-card-title">Condición Meteorológica</span>
+                </div>
+
+                <select
+                  id="gt-city-select"
+                  aria-label="Seleccionar municipio o ciudad de Guatemala"
+                  class="gt-city-select"
+                >
+                  <option value="14.7189,-90.6442,San Juan Sacatepéquez">San Juan Sacatepéquez</option>
+                  <option value="14.6349,-90.5069,Ciudad de Guatemala">Ciudad de Guatemala</option>
+                  <option value="14.8347,-91.5181,Quetzaltenango">Quetzaltenango</option>
+                  <option value="14.5586,-90.7295,Antigua Guatemala">Antigua Guatemala</option>
+                  <option value="14.3050,-90.7850,Escuintla">Escuintla</option>
+                  <option value="15.7278,-88.5944,Puerto Barrios">Puerto Barrios</option>
+                </select>
+              </div>
+
+              <div class="weather-main-row">
+                <div id="weather-icon-box" class="weather-icon-box">
+                  <svg width="28" height="28" fill="none" stroke="#3b82f6" stroke-width="1.8" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="weather-temp-row">
+                    <span id="weather-temp" class="weather-temp">--°C</span>
+                    <span id="weather-city-label" class="weather-city-label">San Juan Sacatepéquez</span>
+                  </div>
+                  <p id="weather-condition" class="weather-condition">Consultando estación meteorológica...</p>
+                </div>
+              </div>
+
+              <div class="weather-metrics-grid">
+                <div class="metric-pill">
+                  <span>Humedad</span>
+                  <span id="weather-humidity">--%</span>
+                </div>
+                <div class="metric-pill">
+                  <span>Viento</span>
+                  <span id="weather-wind">-- km/h</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           3. TRES PILARES TECNOLÓGICOS CON IDENTIDAD CROMÁTICA POR SERVICIO
+           ====================================================================== -->
+      <section id="especialidades" class="specialties-section">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-kicker">SOLUCIONES EMPRESARIALES · GUATEMALA</span>
+            <h2 class="section-title">Arquitectura y Especialidades Tecnológicas</h2>
+            <p class="section-subtitle">
+              Cada división de ingeniería opera bajo estándares empresariales dedicados para garantizar conectividad continua, defensa perimetral y supervisión visual de misión crítica.
+            </p>
+          </div>
+
+          <div class="services-grid">
+
+            <!-- PILAR 1: INFRAESTRUCTURA DE RED (Azul Cobalto: #2563eb / #3b82f6) -->
+            <article class="exec-panel service-card card-network">
+              <div class="service-card-bar"></div>
+              <div>
+                <div class="service-card-top">
+                  <div class="service-icon-box icon-network">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                      <rect x="2" y="3" width="20" height="5" rx="1.2"></rect>
+                      <rect x="2" y="16" width="20" height="5" rx="1.2"></rect>
+                      <circle cx="6" cy="5.5" r="0.8" fill="currentColor"></circle>
+                      <circle cx="9.5" cy="5.5" r="0.8" fill="currentColor"></circle>
+                      <circle cx="6" cy="18.5" r="0.8" fill="currentColor"></circle>
+                      <circle cx="9.5" cy="18.5" r="0.8" fill="currentColor"></circle>
+                      <path stroke-linecap="round" d="M12 8v8M7 12h10M7 12v4M17 12v4"></path>
+                    </svg>
+                  </div>
+                  <span class="service-tag tag-network">CORE NETWORK · L2/L3</span>
+                </div>
+
+                <h3 class="service-title">Infraestructura de Red</h3>
+                <p class="service-desc">
+                  Conectividad crítica de alto desempeño mediante enrutamiento empresarial, switching administrable L2/L3, cableado estructurado Cat6/6A y enlaces de fibra óptica.
+                </p>
+
+                <ul class="service-bullets">
+                  <li>
+                    <span class="bullet-dot dot-cobalt"></span>
+                    <span>Enrutamiento y switching empresarial L2/L3</span>
+                  </li>
+                  <li>
+                    <span class="bullet-dot dot-cobalt"></span>
+                    <span>Cableado estructurado certificado Cat6 / Cat6A</span>
+                  </li>
+                  <li>
+                    <span class="bullet-dot dot-cobalt"></span>
+                    <span>Backbone de fibra óptica y redundancia WAN</span>
+                  </li>
+                </ul>
+              </div>
+
+              <a
+                href="https://wa.me/50256466948?text=Hola%20Con%C3%A9ctate%2C%20deseo%20informaci%C3%B3n%20sobre%20sus%20servicios%20de%20Infraestructura%20de%20Red."
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Consultar Infraestructura de Red por WhatsApp al +502 5646-6948"
+                class="service-wa-btn"
+              >
+                <span>Consultar por WhatsApp</span>
+                <span class="text-cobalt" style="font-family: var(--font-mono);">+502 5646-6948 &rarr;</span>
+              </a>
+            </article>
+
+            <!-- PILAR 2: CIBERSEGURIDAD (Verde Esmeralda: #059669 / #10b981) -->
+            <article class="exec-panel service-card card-security">
+              <div class="service-card-bar"></div>
+              <div>
+                <div class="service-card-top">
+                  <div class="service-icon-box icon-security">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                      <rect x="9.5" y="10.5" width="5" height="4" rx="0.8"></rect>
+                      <path stroke-linecap="round" d="M10.5 10.5V9a1.5 1.5 0 013 0v1.5"></path>
+                    </svg>
+                  </div>
+                  <span class="service-tag tag-security">ZERO TRUST · NGFW</span>
+                </div>
+
+                <h3 class="service-title">Ciberseguridad</h3>
+                <p class="service-desc">
+                  Defensa perimetral de nueva generación mediante firewalls NGFW, túneles VPN Site-to-Site cifrados, segmentación VLAN y políticas de acceso Zero Trust.
+                </p>
+
+                <ul class="service-bullets">
+                  <li>
+                    <span class="bullet-dot dot-emerald"></span>
+                    <span>Firewalls perimetrales NGFW y prevención de intrusos</span>
+                  </li>
+                  <li>
+                    <span class="bullet-dot dot-emerald"></span>
+                    <span>VPN Site-to-Site cifradas para sucursales remotas</span>
+                  </li>
+                  <li>
+                    <span class="bullet-dot dot-emerald"></span>
+                    <span>Segmentación VLAN y control de acceso Zero Trust</span>
+                  </li>
+                </ul>
+              </div>
+
+              <a
+                href="https://wa.me/50256466948?text=Hola%20Con%C3%A9ctate%2C%20deseo%20informaci%C3%B3n%20sobre%20sus%20servicios%20de%20Ciberseguridad."
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Consultar Ciberseguridad por WhatsApp al +502 5646-6948"
+                class="service-wa-btn"
+              >
+                <span>Consultar por WhatsApp</span>
+                <span class="text-emerald" style="font-family: var(--font-mono);">+502 5646-6948 &rarr;</span>
+              </a>
+            </article>
+
+            <!-- PILAR 3: CCTV Y VIDEOVIGILANCIA IP (Ámbar Ejecutivo: #d97706 / #f59e0b) -->
+            <article class="exec-panel service-card card-cctv">
+              <div class="service-card-bar"></div>
+              <div>
+                <div class="service-card-top">
+                  <div class="service-icon-box icon-cctv">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" d="M3 7h18"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 7a7 7 0 0014 0"></path>
+                      <circle cx="12" cy="11" r="2.6"></circle>
+                      <path stroke-linecap="round" d="M8 19h8M12 14v5"></path>
+                    </svg>
+                  </div>
+                  <span class="service-tag tag-cctv">OPTICAL AI · NVR 24/7</span>
+                </div>
+
+                <h3 class="service-title">CCTV y Videovigilancia IP</h3>
+                <p class="service-desc">
+                  Supervisión óptica IP de alta definición, grabación NVR con redundancia RAID, analítica inteligente de perímetro y monitoreo continuo 24/7.
+                </p>
+
+                <ul class="service-bullets">
+                  <li>
+                    <span class="bullet-dot dot-amber"></span>
+                    <span>Cámaras IP de alta definición HD / 4K PoE</span>
+                  </li>
+                  <li>
+                    <span class="bullet-dot dot-amber"></span>
+                    <span>Grabación NVR redundante y retención empresarial</span>
+                  </li>
+                  <li>
+                    <span class="bullet-dot dot-amber"></span>
+                    <span>Analítica inteligente de perímetro y acceso 24/7</span>
+                  </li>
+                </ul>
+              </div>
+
+              <a
+                href="https://wa.me/50256466948?text=Hola%20Con%C3%A9ctate%2C%20deseo%20informaci%C3%B3n%20sobre%20sus%20servicios%20de%20CCTV%20y%20Videovigilancia%20IP."
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Consultar CCTV y Videovigilancia IP por WhatsApp al +502 5646-6948"
+                class="service-wa-btn"
+              >
+                <span>Consultar por WhatsApp</span>
+                <span class="text-amber" style="font-family: var(--font-mono);">+502 5646-6948 &rarr;</span>
+              </a>
+            </article>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           4. SECCIÓN DE CONTACTO DIRECTO CON NÚMERO CLICABLE A WHATSAPP
+           ====================================================================== -->
+      <section id="contacto" class="contact-banner-section">
+        <div class="container">
+          <div class="exec-panel contact-banner">
+            <div class="contact-banner-info">
+              <h2>Atención Directa de Ingeniería y Proyectos</h2>
+              <p>
+                Comunícate de inmediato con nuestro equipo técnico en Guatemala haciendo clic en nuestra línea directa de WhatsApp.
+              </p>
+            </div>
+
+            <div class="contact-banner-actions">
+              <a
+                href="https://wa.me/50256466948?text=Hola%20Con%C3%A9ctate%2C%20me%20comunico%20desde%20conectategt.online%20para%20solicitar%20asistencia%20t%C3%A9cnica."
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Chatear por WhatsApp con Conéctate Soporte y Tecnologías al +502 5646-6948"
+                class="wa-number-link"
+                style="padding: 0.72rem 1rem; font-size: 0.88rem;"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+                </svg>
+                <span>+502 5646-6948</span>
+              </a>
+
+              <a
+                href="https://wa.me/50256466948?text=Hola%20Con%C3%A9ctate%2C%20me%20comunico%20desde%20conectategt.online%20para%20solicitar%20asistencia%20t%C3%A9cnica."
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Iniciar conversación por WhatsApp con Conéctate Soporte y Tecnologías"
+                class="btn-whatsapp"
+                style="padding: 0.78rem 1.25rem; font-size: 0.86rem;"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+                </svg>
+                <span>Abrir Chat de WhatsApp</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ========================================================================
+         5. FOOTER CORPORATIVO CON LOGOTIPO OFICIAL Y NÚMERO CLICABLE
+         ======================================================================== -->
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-top">
+          <div class="footer-brand-group">
+            <a href="#inicio" class="logo-shell logo-shell-footer" aria-label="Volver al inicio CONECTATE">
+              <img
+                src="logo.jpg"
+                alt="CONECTATE - ¡Innovación que conecta!"
+                onerror="renderBrandLogoSvg(this, 'footer')"
+              />
+            </a>
+            <div>
+              <p class="footer-company-name">Conéctate Soporte y Tecnologías</p>
+              <div class="footer-meta">
+                <span class="domain-highlight">conectategt.online</span>
+                <span>·</span>
+                <a href="mailto:soporte@conectategt.online" class="email-link">soporte@conectategt.online</a>
+                <span>·</span>
+                <a
+                  href="https://wa.me/50256466948?text=Hola%20Con%C3%A9ctate%2C%20me%20comunico%20desde%20conectategt.online%20para%20solicitar%20asistencia%20t%C3%A9cnica."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Chatear por WhatsApp con Conéctate Soporte y Tecnologías al +502 5646-6948"
+                  class="wa-number-link"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+                  </svg>
+                  <span>+502 5646-6948</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <a
+            href="https://wa.me/50256466948?text=Hola%20Con%C3%A9ctate%2C%20me%20comunico%20desde%20conectategt.online%20para%20solicitar%20asistencia%20t%C3%A9cnica."
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Escribir por WhatsApp al +502 5646-6948"
+            class="btn-whatsapp"
+            style="padding: 0.72rem 1.15rem; font-size: 0.84rem;"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+            </svg>
+            <span>WhatsApp · +502 5646-6948</span>
+          </a>
+        </div>
+
+        <div class="footer-bottom">
+          <span>&copy; <span id="footer-year">2026</span> Conéctate Soporte y Tecnologías. Guatemala, Centroamérica.</span>
+          <span>¡Innovación que conecta!</span>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- BOTÓN FLOTANTE EN ESQUINA INFERIOR DERECHA -->
+  <a
+    href="https://wa.me/50256466948?text=Hola%20Con%C3%A9ctate%2C%20me%20comunico%20desde%20conectategt.online%20para%20solicitar%20asistencia%20t%C3%A9cnica."
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Chatear por WhatsApp con Conéctate Soporte y Tecnologías al +502 5646-6948"
+    class="floating-wa-btn"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+    </svg>
+    <span>+502 5646-6948</span>
+  </a>
+
+  <!-- ========================================================================
+       SCRIPTS: Logo Oficial SVG, Fibra Óptica de Alta Precisión, Splash, Reloj y Clima
+       ======================================================================== -->
+  <script>
+    /**
+     * 1. RESPALDO VECTORIAL SVG FIEL AL LOGOTIPO OFICIAL DE CONECTATE
+     * Preserva exactamente la C azul (#2C69B3), cortes diagonales, pistas de circuito
+     * verde lima (#97C222), texto CONECTATE (#2C69B3) y eslogan "¡Innovación que conecta!" (#1E3A5F).
+     */
+    function renderBrandLogoSvg(imgEl, placement) {
+      let heightPx = 36;
+      if (placement === 'splash') heightPx = 62;
+      if (placement === 'footer') heightPx = 30;
+
+      const wrapper = document.createElement('div');
+      wrapper.style.display = 'inline-flex';
+      wrapper.style.alignItems = 'center';
+      wrapper.style.justifyContent = 'center';
+      wrapper.style.userSelect = 'none';
+
+      wrapper.innerHTML = `
+        <svg viewBox="0 0 432 114" height="${heightPx}" style="width: auto; max-width: 100%; display: block;" role="img" aria-label="CONECTATE - ¡Innovación que conecta!">
+          <!-- Letra C gruesa en azul corporativo #2C69B3 -->
+          <path
+            d="M 88 25 A 42 42 0 1 0 88 88 L 76 76 A 25 25 0 1 1 76 37 Z"
+            fill="#2C69B3"
+          />
+          <!-- Dos cortes diagonales blancos en el extremo superior derecho de la C -->
+          <polygon points="71,13 76,13 66,34 61,34" fill="#FFFFFF" />
+          <polygon points="79,15 84,15 74,36 69,36" fill="#FFFFFF" />
+
+          <!-- Barra horizontal verde lima #97C222 atravesando la C -->
+          <rect x="13" y="48" width="33" height="17" fill="#97C222" />
+
+          <!-- 4 pistas de circuito impreso en verde lima #97C222 con nodos circulares -->
+          <polyline points="45,50 64,50 70,44 87,44" fill="none" stroke="#97C222" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="88.5" cy="44" r="2.7" fill="#97C222" />
+
+          <line x1="45" y1="54.5" x2="94" y2="54.5" stroke="#97C222" stroke-width="2.4" stroke-linecap="round" />
+          <circle cx="95.5" cy="54.5" r="2.7" fill="#97C222" />
+
+          <line x1="45" y1="59.5" x2="90" y2="59.5" stroke="#97C222" stroke-width="2.4" stroke-linecap="round" />
+          <circle cx="91.5" cy="59.5" r="2.7" fill="#97C222" />
+
+          <polyline points="45,63.5 64,63.5 70,69.5 85,69.5" fill="none" stroke="#97C222" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="86.5" cy="69.5" r="2.7" fill="#97C222" />
+
+          <!-- Texto ONECTATE en azul #2C69B3 -->
+          <text
+            x="103"
+            y="70"
+            fill="#2C69B3"
+            font-family="'Plus Jakarta Sans', Arial, sans-serif"
+            font-weight="800"
+            font-size="45"
+            letter-spacing="1"
+          >ONECTATE</text>
+
+          <!-- Eslogan cursivo en azul marino #1E3A5F -->
+          <text
+            x="162"
+            y="93"
+            fill="#1E3A5F"
+            font-family="Georgia, 'Times New Roman', serif"
+            font-style="italic"
+            font-weight="600"
+            font-size="21"
+          >¡Innovación que conecta!</text>
+        </svg>
+      `;
+
+      imgEl.replaceWith(wrapper);
+    }
+
+    /**
+     * 2. MOTOR DE FIBRA ÓPTICA DE ALTA PRECISIÓN (CANVAS HTML5)
+     * Renderiza haces de luz láser y paquetes de datos viajando por curvas ópticas
+     * suaves (conduits de fibra) y líneas de cuadrícula de precisión (32px) en:
+     * - Azul Cobalto (#3b82f6)
+     * - Verde Esmeralda (#10b981)
+     * - Destellos Ámbar (#f59e0b)
+     */
+    const FiberOpticEngine = (function () {
+      const canvas = document.getElementById('fiber-canvas');
+      if (!canvas) return { setSplashBoost: () => {} };
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return { setSplashBoost: () => {} };
+
+      const GRID_SIZE = 32;
+      const PALETTE = [
+        { rgb: '59, 130, 246' },  // Azul Cobalto (#3b82f6)
+        { rgb: '16, 185, 129' },  // Verde Esmeralda (#10b981)
+        { rgb: '245, 158, 11' },  // Ámbar (#f59e0b)
+      ];
+
+      const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      let prefersReducedMotion = reducedMotionQuery.matches;
+      let splashBoost = true;
+
+      let width = 0;
+      let height = 0;
+      let dpr = 1;
+      let fiberBundles = [];
+      let curveLasers = [];
+      let gridPackets = [];
+      let ambientNodes = [];
+      let rafId = null;
+
+      // Evalúa un punto en una curva Bézier cúbica en t ∈ [0, 1]
+      function cubicBezierPoint(t, p0, p1, p2, p3) {
+        const u = 1 - t;
+        const tt = t * t;
+        const uu = u * u;
+        const uuu = uu * u;
+        const ttt = tt * t;
+        return {
+          x: uuu * p0.x + 3 * uu * t * p1.x + 3 * u * tt * p2.x + ttt * p3.x,
+          y: uuu * p0.y + 3 * uu * t * p1.y + 3 * u * tt * p2.y + ttt * p3.y,
+        };
+      }
+
+      // Construye haces de fibra óptica curvos que atraviesan la pantalla con precisión
+      function buildFiberBundles() {
+        fiberBundles = [];
+        const bundleCount = width < 640 ? 4 : 6;
+        for (let i = 0; i < bundleCount; i++) {
+          const ratio = (i + 0.6) / bundleCount;
+          const yStart = height * (0.12 + ratio * 0.76);
+          const yEnd = height * (0.88 - ratio * 0.76);
+          const amp = (i % 2 === 0 ? 1 : -1) * Math.min(140, height * 0.18);
+
+          const p0 = { x: -40, y: yStart };
+          const p1 = { x: width * 0.33, y: yStart + amp };
+          const p2 = { x: width * 0.67, y: yEnd - amp };
+          const p3 = { x: width + 40, y: yEnd };
+
+          // Pre-muestrea 140 segmentos para dibujar estelas láser de altísima suavidad
+          const samples = [];
+          const steps = 140;
+          for (let s = 0; s <= steps; s++) {
+            samples.push(cubicBezierPoint(s / steps, p0, p1, p2, p3));
+          }
+
+          fiberBundles.push({
+            p0,
+            p1,
+            p2,
+            p3,
+            samples,
+            color: PALETTE[i % PALETTE.length],
+            junctionT: 0.25 + ((i * 0.17) % 0.55),
+          });
+        }
+      }
+
+      function createCurveLasers() {
+        curveLasers = [];
+        const lasersPerBundle = width < 640 ? 2 : 3;
+        fiberBundles.forEach((bundle, bIdx) => {
+          for (let k = 0; k < lasersPerBundle; k++) {
+            const color = PALETTE[(bIdx + k) % PALETTE.length];
+            curveLasers.push({
+              bundleIndex: bIdx,
+              t: (k / lasersPerBundle) + Math.random() * 0.2,
+              speed: (0.0022 + Math.random() * 0.0018) * (k % 2 === 0 ? 1 : -1),
+              tailLength: 0.13 + Math.random() * 0.07,
+              color,
+            });
+          }
+        });
+      }
+
+      function spawnGridPacket(randomStart = false) {
+        const cols = Math.max(2, Math.floor(width / GRID_SIZE));
+        const rows = Math.max(2, Math.floor(height / GRID_SIZE));
+        const horizontal = Math.random() > 0.45;
+        const color = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+        const speed = 1.4 + Math.random() * 1.7;
+        const length = 54 + Math.random() * 76;
+
+        if (horizontal) {
+          const dir = Math.random() > 0.5 ? 1 : -1;
+          const y = Math.floor(Math.random() * rows) * GRID_SIZE;
+          const x = randomStart ? Math.random() * width : dir === 1 ? -length : width + length;
+          return { horizontal: true, x, y, dir, speed, length, color };
+        } else {
+          const dir = Math.random() > 0.5 ? 1 : -1;
+          const x = Math.floor(Math.random() * cols) * GRID_SIZE;
+          const y = randomStart ? Math.random() * height : dir === 1 ? -length : height + length;
+          return { horizontal: false, x, y, dir, speed, length, color };
+        }
+      }
+
+      function createGridPackets() {
+        const count = width < 640 ? 10 : 18;
+        gridPackets = [];
+        for (let i = 0; i < count; i++) {
+          gridPackets.push(spawnGridPacket(true));
+        }
+      }
+
+      function createAmbientNodes() {
+        const area = width * height;
+        const count = Math.min(34, Math.max(14, Math.floor(area / 42000)));
+        ambientNodes = [];
+        for (let i = 0; i < count; i++) {
+          ambientNodes.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.25,
+            vy: (Math.random() - 0.5) * 0.25,
+            r: 1.1 + Math.random() * 1.1,
+            color: PALETTE[i % PALETTE.length],
+          });
+        }
+      }
+
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        buildFiberBundles();
+        createCurveLasers();
+        createGridPackets();
+        createAmbientNodes();
+      }
+
+      function drawStatic() {
+        ctx.clearRect(0, 0, width, height);
+        fiberBundles.forEach((b) => {
+          ctx.beginPath();
+          ctx.moveTo(b.p0.x, b.p0.y);
+          ctx.bezierCurveTo(b.p1.x, b.p1.y, b.p2.x, b.p2.y, b.p3.x, b.p3.y);
+          ctx.strokeStyle = `rgba(${b.color.rgb}, 0.16)`;
+          ctx.lineWidth = 1.1;
+          ctx.stroke();
+        });
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, width, height);
+        const intensity = splashBoost ? 1.35 : 0.92;
+
+        // A. Filamentos base de fibra óptica curva + nodos refractivos
+        for (let i = 0; i < fiberBundles.length; i++) {
+          const b = fiberBundles[i];
+          ctx.beginPath();
+          ctx.moveTo(b.p0.x, b.p0.y);
+          ctx.bezierCurveTo(b.p1.x, b.p1.y, b.p2.x, b.p2.y, b.p3.x, b.p3.y);
+          ctx.strokeStyle = `rgba(${b.color.rgb}, ${(0.11 * intensity).toFixed(3)})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          // Nodo refractivo en el conducto óptico
+          const jIdx = Math.floor(b.junctionT * (b.samples.length - 1));
+          const jp = b.samples[jIdx];
+          if (jp) {
+            ctx.beginPath();
+            ctx.arc(jp.x, jp.y, 2.2, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${b.color.rgb}, ${(0.35 * intensity).toFixed(3)})`;
+            ctx.fill();
+          }
+        }
+
+        // B. Haces de luz láser viajando sobre las curvas de fibra óptica
+        for (let i = 0; i < curveLasers.length; i++) {
+          const laser = curveLasers[i];
+          const bundle = fiberBundles[laser.bundleIndex];
+          if (!bundle) continue;
+
+          laser.t += laser.speed * (splashBoost ? 1.25 : 1.0);
+          if (laser.t > 1.18) laser.t = -0.18;
+          if (laser.t < -0.18) laser.t = 1.18;
+
+          const totalSamples = bundle.samples.length - 1;
+          const dir = laser.speed >= 0 ? 1 : -1;
+          const stepsCount = 18;
+
+          for (let s = 0; s < stepsCount; s++) {
+            const frac1 = s / stepsCount;
+            const frac2 = (s + 1) / stepsCount;
+            const t1 = laser.t - dir * laser.tailLength * (1 - frac1);
+            const t2 = laser.t - dir * laser.tailLength * (1 - frac2);
+
+            if (t1 < 0 || t1 > 1 || t2 < 0 || t2 > 1) continue;
+            const pt1 = bundle.samples[Math.floor(t1 * totalSamples)];
+            const pt2 = bundle.samples[Math.floor(t2 * totalSamples)];
+            if (!pt1 || !pt2) continue;
+
+            const alpha = Math.min(0.92, frac2 * 0.72 * intensity);
+            ctx.beginPath();
+            ctx.moveTo(pt1.x, pt1.y);
+            ctx.lineTo(pt2.x, pt2.y);
+            ctx.strokeStyle = `rgba(${laser.color.rgb}, ${alpha.toFixed(3)})`;
+            ctx.lineWidth = 1.2 + frac2 * 1.1;
+            ctx.stroke();
+          }
+
+          // Destello fotónico en la punta del haz
+          if (laser.t >= 0 && laser.t <= 1) {
+            const headPt = bundle.samples[Math.floor(laser.t * totalSamples)];
+            if (headPt) {
+              ctx.beginPath();
+              ctx.arc(headPt.x, headPt.y, splashBoost ? 2.4 : 1.9, 0, Math.PI * 2);
+              ctx.fillStyle = `rgba(${laser.color.rgb}, 0.95)`;
+              ctx.fill();
+            }
+          }
+        }
+
+        // C. Paquetes de datos sobre la cuadrícula de precisión (32px)
+        for (let i = 0; i < gridPackets.length; i++) {
+          const p = gridPackets[i];
+          if (p.horizontal) {
+            p.x += p.speed * p.dir;
+            const tailX = p.x - p.length * p.dir;
+            const grad = ctx.createLinearGradient(tailX, p.y, p.x, p.y);
+            grad.addColorStop(0, `rgba(${p.color.rgb}, 0)`);
+            grad.addColorStop(0.75, `rgba(${p.color.rgb}, ${(0.28 * intensity).toFixed(3)})`);
+            grad.addColorStop(1, `rgba(${p.color.rgb}, ${(0.72 * intensity).toFixed(3)})`);
+
+            ctx.beginPath();
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 1.3;
+            ctx.moveTo(tailX, p.y);
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${p.color.rgb}, 0.85)`;
+            ctx.fill();
+
+            if ((p.dir === 1 && p.x - p.length > width) || (p.dir === -1 && p.x + p.length < 0)) {
+              gridPackets[i] = spawnGridPacket(false);
+            }
+          } else {
+            p.y += p.speed * p.dir;
+            const tailY = p.y - p.length * p.dir;
+            const grad = ctx.createLinearGradient(p.x, tailY, p.x, p.y);
+            grad.addColorStop(0, `rgba(${p.color.rgb}, 0)`);
+            grad.addColorStop(0.75, `rgba(${p.color.rgb}, ${(0.28 * intensity).toFixed(3)})`);
+            grad.addColorStop(1, `rgba(${p.color.rgb}, ${(0.72 * intensity).toFixed(3)})`);
+
+            ctx.beginPath();
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 1.3;
+            ctx.moveTo(p.x, tailY);
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${p.color.rgb}, 0.85)`;
+            ctx.fill();
+
+            if ((p.dir === 1 && p.y - p.length > height) || (p.dir === -1 && p.y + p.length < 0)) {
+              gridPackets[i] = spawnGridPacket(false);
+            }
+          }
+        }
+
+        // D. Nodos ambientales sutiles
+        const maxDist = width < 640 ? 95 : 130;
+        for (let i = 0; i < ambientNodes.length; i++) {
+          const n = ambientNodes[i];
+          n.x += n.vx;
+          n.y += n.vy;
+          if (n.x < 0 || n.x > width) n.vx *= -1;
+          if (n.y < 0 || n.y > height) n.vy *= -1;
+
+          for (let j = i + 1; j < ambientNodes.length; j++) {
+            const m = ambientNodes[j];
+            const dist = Math.hypot(n.x - m.x, n.y - m.y);
+            if (dist < maxDist) {
+              const alpha = (1 - dist / maxDist) * 0.1;
+              ctx.beginPath();
+              ctx.strokeStyle = `rgba(148, 163, 184, ${alpha.toFixed(3)})`;
+              ctx.lineWidth = 0.7;
+              ctx.moveTo(n.x, n.y);
+              ctx.lineTo(m.x, m.y);
+              ctx.stroke();
+            }
+          }
+
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${n.color.rgb}, 0.38)`;
+          ctx.fill();
+        }
+
+        rafId = requestAnimationFrame(render);
+      }
+
+      resize();
+      if (prefersReducedMotion) {
+        drawStatic();
+      } else {
+        render();
+      }
+
+      window.addEventListener('resize', () => {
+        resize();
+        if (prefersReducedMotion) drawStatic();
+      });
+
+      reducedMotionQuery.addEventListener('change', (e) => {
+        prefersReducedMotion = e.matches;
+        if (rafId) cancelAnimationFrame(rafId);
+        if (prefersReducedMotion) {
+          drawStatic();
+        } else {
+          render();
+        }
+      });
+
+      return {
+        setSplashBoost(active) {
+          splashBoost = Boolean(active);
+        },
+      };
+    })();
+
+    /**
+     * 3. CONTROL DE LA PANTALLA DE CARGA INICIAL (INTRO SPLASH SCREEN)
+     * Muestra el logo oficial y la fibra óptica durante ~2.2 segundos con transición suave.
+     */
+    function initIntroSplash() {
+      const splash = document.getElementById('intro-splash');
+      const skipBtn = document.getElementById('skip-splash-btn');
+      if (!splash) return;
+
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let dismissed = false;
+
+      const dismissSplash = () => {
+        if (dismissed) return;
+        dismissed = true;
+        splash.classList.add('is-hidden');
+        FiberOpticEngine.setSplashBoost(false);
+        setTimeout(() => {
+          splash.style.display = 'none';
+        }, 700);
+      };
+
+      const displayDuration = prefersReduced ? 600 : 2200;
+      const autoTimer = setTimeout(dismissSplash, displayDuration);
+
+      if (skipBtn) {
+        skipBtn.addEventListener('click', () => {
+          clearTimeout(autoTimer);
+          dismissSplash();
+        });
+      }
+    }
+
+    /**
+     * 4. RELOJ OFICIAL DE GUATEMALA EN VIVO (AMERICA/GUATEMALA · UTC-6)
+     */
+    function syncGuatemalaClock() {
+      const now = new Date();
+      const clockNode = document.getElementById('gt-clock');
+      const dateNode = document.getElementById('gt-date');
+
+      try {
+        const timeStr = new Intl.DateTimeFormat('es-GT', {
+          timeZone: 'America/Guatemala',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        }).format(now);
+
+        const dateStr = new Intl.DateTimeFormat('es-GT', {
+          timeZone: 'America/Guatemala',
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        }).format(now);
+
+        if (clockNode) clockNode.textContent = timeStr;
+        if (dateNode) dateNode.textContent = dateStr;
+      } catch (err) {
+        const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+        const gtDate = new Date(utcMs - 6 * 3600000);
+        if (clockNode) clockNode.textContent = gtDate.toTimeString().slice(0, 8);
+      }
+    }
+
+    /**
+     * 5. CLIMA EN TIEMPO REAL DE GUATEMALA (OPEN-METEO API)
+     */
+    function translateWeatherCode(code) {
+      if (code === 0) return { label: 'Cielo despejado', icon: 'sun' };
+      if ([1, 2, 3].includes(code)) return { label: 'Parcialmente nublado', icon: 'cloudSun' };
+      if ([45, 48].includes(code)) return { label: 'Neblina dispersa', icon: 'cloud' };
+      if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return { label: 'Lluvia ligera a moderada', icon: 'rain' };
+      if ([95, 96, 99].includes(code)) return { label: 'Tormenta eléctrica', icon: 'storm' };
+      return { label: 'Condición atmosférica estable', icon: 'cloudSun' };
+    }
+
+    function getWeatherSvg(iconType) {
+      if (iconType === 'sun') {
+        return `<svg width="28" height="28" fill="none" stroke="#f59e0b" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>`;
+      }
+      if (iconType === 'rain') {
+        return `<svg width="28" height="28" fill="none" stroke="#3b82f6" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 16.2A4.5 4.5 0 0017.5 8h-1.8A7 7 0 104 14.9"></path><path d="M16 14v6M8 14v6M12 16v6"></path></svg>`;
+      }
+      if (iconType === 'storm') {
+        return `<svg width="28" height="28" fill="none" stroke="#10b981" stroke-width="1.8" viewBox="0 0 24 24"><path d="M19 16.9A5 5 0 0018 7h-1.26a8 8 0 10-11.62 9"></path><polyline points="13 11 9 17 15 17 11 23"></polyline></svg>`;
+      }
+      return `<svg width="28" height="28" fill="none" stroke="#3b82f6" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 116.71-9h1.79a4.5 4.5 0 110 9z"></path></svg>`;
+    }
+
+    async function fetchGuatemalaWeather(lat, lon, cityName) {
+      const tempNode = document.getElementById('weather-temp');
+      const condNode = document.getElementById('weather-condition');
+      const humNode = document.getElementById('weather-humidity');
+      const windNode = document.getElementById('weather-wind');
+      const cityNode = document.getElementById('weather-city-label');
+      const iconContainer = document.getElementById('weather-icon-box');
+
+      if (cityNode) cityNode.textContent = cityName;
+
+      try {
+        const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=America%2FGuatemala`;
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error('Error en respuesta meteorológica');
+
+        const payload = await response.json();
+        const current = payload.current;
+        const info = translateWeatherCode(current.weather_code);
+
+        if (tempNode) tempNode.textContent = `${Math.round(current.temperature_2m)}°C`;
+        if (condNode) condNode.textContent = info.label;
+        if (humNode) humNode.textContent = `${current.relative_humidity_2m}%`;
+        if (windNode) windNode.textContent = `${Math.round(current.wind_speed_10m)} km/h`;
+        if (iconContainer) iconContainer.innerHTML = getWeatherSvg(info.icon);
+      } catch (err) {
+        if (tempNode) tempNode.textContent = '21°C';
+        if (condNode) condNode.textContent = 'Clima templado (Datos locales)';
+        if (humNode) humNode.textContent = '64%';
+        if (windNode) windNode.textContent = '12 km/h';
+        if (iconContainer) iconContainer.innerHTML = getWeatherSvg('cloudSun');
+      }
+    }
+
+    /**
+     * 6. INICIALIZACIÓN GENERAL DE LA APLICACIÓN
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+      initIntroSplash();
+
+      const yearNode = document.getElementById('footer-year');
+      if (yearNode) yearNode.textContent = new Date().getFullYear();
+
+      syncGuatemalaClock();
+      setInterval(syncGuatemalaClock, 1000);
+
+      const citySelect = document.getElementById('gt-city-select');
+      if (citySelect) {
+        const updateWeather = () => {
+          const [lat, lon, city] = citySelect.value.split(',');
+          fetchGuatemalaWeather(lat, lon, city);
+        };
+        updateWeather();
+        citySelect.addEventListener('change', updateWeather);
+      }
+
+      const menuBtn = document.getElementById('mobile-menu-toggle');
+      const mobileDrawer = document.getElementById('mobile-nav-drawer');
+      const iconOpen = document.getElementById('icon-menu-open');
+      const iconClose = document.getElementById('icon-menu-close');
+
+      if (menuBtn && mobileDrawer) {
+        const toggleMenu = (forceClose = false) => {
+          const willOpen = forceClose ? false : !mobileDrawer.classList.contains('is-open');
+          mobileDrawer.classList.toggle('is-open', willOpen);
+          menuBtn.setAttribute('aria-expanded', String(willOpen));
+          if (iconOpen && iconClose) {
+            iconOpen.style.display = willOpen ? 'none' : 'block';
+            iconClose.style.display = willOpen ? 'block' : 'none';
+          }
+        };
+
+        menuBtn.addEventListener('click', () => toggleMenu(false));
+        mobileDrawer.querySelectorAll('.mobile-nav-link').forEach((link) => {
+          link.addEventListener('click', () => toggleMenu(true));
+        });
+      }
+    });
+  </script>
+</body>
+</html>
