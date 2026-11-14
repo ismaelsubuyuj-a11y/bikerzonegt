@@ -268,7 +268,7 @@ async function wx(){
 }
 
 /* ---------- Supabase: acceso y guardado ---------- */
-const SUPABASE_URL='https://zzeidteshnrqhsipexxg.supabase.co/rest/v1/'; // ej. https://abcdxyz.supabase.co
+const SUPABASE_URL='https://zzeidteshnrqhsipexxg.supabase.co'; // ej. https://abcdxyz.supabase.co
 const SUPABASE_KEY='sb_publishable_ljTwaNK0Pk3h_5bR-0inbA_KzrhVM4H'; // clave pública
 let sb=null,UID=null,PID=null,saveT=null,saving=false,lastSaved='',loading=false;
 try{if(!SUPABASE_URL.includes('PEGA')&&window.supabase)sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY)}catch(e){}
