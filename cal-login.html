@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora de canalización · Conéctate</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bgi:radial-gradient(circle at 12% 8%,rgba(47,94,168,.35),transparent 45%),radial-gradient(circle at 90% 95%,rgba(143,182,15,.22),transparent 42%),linear-gradient(160deg,#f3f7fd,#e3ecf9);--pn:rgba(255,255,255,.9);--pn2:#fff;--ink:#0f1c33;--mut:#566480;--ln:#d9e2f1;--in:#fff;--b:#2f5ea8;--b2:#1d3f78;--g:#8fb60f;--fb:47,94,168;--fg:143,182,15;--fa:.55;--ok:#15803d;--wn:#b45309;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bgi:radial-gradient(circle at 12% 8%,rgba(47,110,230,.5),transparent 48%),radial-gradient(circle at 90% 95%,rgba(164,205,30,.28),transparent 42%),linear-gradient(160deg,#040a1c,#0a2152 70%,#0b2d5c);--pn:rgba(9,22,52,.8);--pn2:#0b1a3b;--ink:#eef4ff;--mut:#9fb2d6;--ln:#1f3768;--in:#0e2147;--b:#4d8bf0;--b2:#2d67c8;--g:#b5d92a;--fb:70,140,255;--fg:181,217,42;--fa:.95;--ok:#4ade80;--wn:#fbbf24}}
+:root[data-theme="dark"]{--bgi:radial-gradient(circle at 12% 8%,rgba(47,110,230,.5),transparent 48%),radial-gradient(circle at 90% 95%,rgba(164,205,30,.28),transparent 42%),linear-gradient(160deg,#040a1c,#0a2152 70%,#0b2d5c);--pn:rgba(9,22,52,.8);--pn2:#0b1a3b;--ink:#eef4ff;--mut:#9fb2d6;--ln:#1f3768;--in:#0e2147;--b:#4d8bf0;--b2:#2d67c8;--g:#b5d92a;--fb:70,140,255;--fg:181,217,42;--fa:.95;--ok:#4ade80;--wn:#fbbf24}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;min-height:100dvh;background:var(--bgi) fixed,var(--bg0,#e9f0fa);color:var(--ink);font:400 15px/1.5 Barlow,system-ui,sans-serif}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:18px 16px 48px}
+body.auth .wrap{display:none}
+.logo{position:relative;overflow:hidden;background:#fff;border-radius:10px;aspect-ratio:590/210;flex:none}
+.logo img{position:absolute;left:-30.51%;top:-178.57%;width:162.71%;max-width:none;display:block}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+header .logo{width:176px}
+h1{font:800 clamp(22px,4vw,32px)/1.05 "Barlow Semi Condensed",sans-serif;margin:0}
+header p{margin:2px 0 0;color:var(--mut)}
+.hb{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{display:flex;gap:8px;align-items:center;background:var(--pn);border:1px solid var(--ln);border-radius:999px;padding:6px 14px;font-weight:600}
+.pill b{font:700 17px "Barlow Semi Condensed",sans-serif;font-variant-numeric:tabular-nums}
+h2{font:700 20px/1.1 "Barlow Semi Condensed",sans-serif;margin:0 0 12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px;font-size:13px;color:var(--mut)}.meta span{border-left:3px solid var(--g);padding-left:8px}.meta b{color:var(--ink);font-weight:600}
+@media print{header{display:none}}
+.card{background:var(--pn);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--ln);border-top:3px solid var(--b);border-radius:8px;padding:16px;box-shadow:0 14px 44px -24px rgba(var(--fb),.7)}
+.gr{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));margin-bottom:14px}
+.g2{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+label{display:block;font-weight:600;font-size:13px;color:var(--mut);margin:10px 0 4px}
+input,select,button{font:inherit;color:var(--ink)}
+input[type=text],input[type=password],input[type=number],select{width:100%;padding:9px 10px;background:var(--in);border:1px solid var(--ln);border-radius:5px}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--g);outline-offset:1px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
