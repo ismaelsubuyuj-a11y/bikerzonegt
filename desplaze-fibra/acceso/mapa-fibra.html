@@ -39,7 +39,12 @@ select,input[type=text],input[type=number],textarea{width:100%;padding:8px 10px;
 .pin{width:32px;height:32px;padding:5px;border-radius:50%;border:2px solid #fff;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.35)}
 .pin.sel{outline:3px solid #FACC15}
 .pin svg{width:100%;height:100%}
+.paso{width:20px;height:20px;border-radius:50%;background:#FACC15;border:2px solid #111;font-size:10px;font-weight:700;display:grid;place-items:center;color:#111;cursor:move}
 .leaflet-popup-content{font-size:13px;line-height:1.45}
+dialog{border:none;border-radius:12px;padding:22px;width:min(440px,92vw);color:var(--text);max-height:90vh;overflow:auto}
+dialog::backdrop{background:rgba(11,37,69,.5)}
+dialog h2{margin:0 0 8px;font-size:18px;color:var(--navy)}
+dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
 @media(max-width:860px){header{padding:12px 14px}header .brand{width:100%}aside{border-right:0;border-bottom:1px solid var(--line);max-height:50vh}#map{min-height:0;height:55vh}}
 @media(max-width:420px){.row{grid-template-columns:1fr}aside{padding:12px}}
 </style>
@@ -99,6 +104,15 @@ select,input[type=text],input[type=number],textarea{width:100%;padding:8px 10px;
       <button id="btn-conectar" class="btn" type="button">Conectar dos puntos</button>
       <p class="hint">Seleccione el origen y el destino sobre el mapa.</p>
 
+      <label style="font-weight:400;display:flex;gap:6px;align-items:center;margin-top:8px"><input id="paso-poste" type="checkbox" style="width:auto"> Crear poste en cada paso</label>
+      <div id="ruta-panel" hidden>
+        <p class="hint">Haga clic en el mapa para agregar pasos. Arrastre los números para ajustar el recorrido.</p>
+        <div class="row">
+          <button id="ruta-deshacer" class="btn" type="button">Quitar último</button>
+          <button id="ruta-cancelar" class="btn" type="button">Cancelar</button>
+        </div>
+        <button id="ruta-guardar" class="btn primary" type="button">Guardar recorrido</button>
+      </div>
       <div id="tf-form" hidden>
         <p class="hint" id="tf-ruta" style="font-weight:600;color:var(--navy)"></p>
         <label for="tf-tipo">Tipo de fibra</label>
@@ -145,6 +159,21 @@ select,input[type=text],input[type=number],textarea{width:100%;padding:8px 10px;
   <main id="map"></main>
 </div>
 
+<dialog id="editor">
+  <h2 id="ed-titulo"></h2>
+  <form id="ed-form">
+    <div id="ed-campos"></div>
+    <div id="ed-msg" class="msg error" hidden></div>
+    <div class="row">
+      <button id="ed-cancelar" class="btn" type="button">Cancelar</button>
+      <button class="btn primary" type="submit">Guardar cambios</button>
+    </div>
+  </form>
+</dialog>
+
+<div hidden>
+</div>
+
 <script>
 /* ===== CONFIGURACIÓN: mismos valores que en la página de acceso ===== */
 const CONFIG = {
@@ -164,16 +193,20 @@ const TIPOS = {
   mufa:    {nombre: "Mufa de empalme",       color: "#7C3AED", letra: "M"},
   nap:     {nombre: "Caja NAP (distribución)", color: "#0E9F6E", letra: "N"},
   reserva: {nombre: "Reserva de fibra",      color: "#B54708", letra: "R"},
-  cliente: {nombre: "Cliente (ONT)",         color: "#1D4ED8", letra: "C"}
+  cliente: {nombre: "Cliente (ONT)",         color: "#1D4ED8", letra: "C"},
+  odf: {nombre: "ODF (distribuidor de fibra)", color: "#0F766E", letra: "O"},
+  switch: {nombre: "Switch de fibra", color: "#4338CA", letra: "S"}
 };
 const ICONOS = {
+  odf: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1" stroke="#fff" stroke-width="2" fill="none"/><path d="M7 9h2M7 13h2M7 17h2M13 9h4M13 13h4M13 17h4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+  switch: '<svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="8" rx="2" stroke="#fff" stroke-width="2" fill="none"/><path d="M6 12h.01M10 12h.01M14 12h.01M18 12h.01" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>',
   poste: '<svg viewBox="0 0 24 24"><path d="M12 3v18M7 6h10M8.5 10h7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',
   mufa: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" stroke="#fff" stroke-width="2" fill="none"/><path d="M12 2v6M12 16v6M2 12h6M16 12h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
   nap: '<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" stroke="#fff" stroke-width="2" fill="none"/><path d="M7 10v4M12 10v4M17 10v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
   reserva: '<svg viewBox="0 0 24 24"><path d="M6 5h11a3 3 0 0 1 0 6H8a3 3 0 0 0 0 6h10" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',
   cliente: '<svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8H4z" stroke="#fff" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M10 19v-5h4v5" stroke="#fff" stroke-width="2" fill="none"/></svg>'
 };
-const PREFIJO = {poste: "POST", mufa: "MUF", nap: "NAP", reserva: "RES", cliente: "CLI"};
+const PREFIJO = {poste: "POST", mufa: "MUF", nap: "NAP", reserva: "RES", cliente: "CLI", odf: "ODF", switch: "SW"};
 
 function puertosLibres(nap) {
   const N = parseInt((nap.balanceador || "1x8").split("x")[1], 10);
@@ -253,11 +286,12 @@ const HILOS = [2, 4, 6, 8, 12, 24, 48, 96];
 const MENSAJES_MODO = {
   colocar: "Haga clic en el mapa para colocar el elemento seleccionado.",
   conectar: "Seleccione el punto de origen y después el de destino.",
+  ruta: "",
   idle: ""
 };
 
 let proyecto = "", tipos = [], puntos = [], tramos = [], desplazes = [];
-let modo = "idle", conexion = {desde: null, hasta: null};
+let modo = "idle", conexion = {desde: null, hasta: null, pasos: []}, rutaEdit = null;
 
 /* ----- Mapa: satélite (similar a Google Earth) y calles ----- */
 const map = L.map("map").setView([14.6349, -90.5069], 13);
@@ -270,6 +304,7 @@ const calles = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
 L.control.layers({"Satélite": satelite, "Calles": calles}).addTo(map);
 const capaTramos = L.layerGroup().addTo(map);
 const capaPuntos = L.layerGroup().addTo(map);
+const capaRuta = L.layerGroup().addTo(map);
 
 const setMsg = (text, type = "error") => {
   const m = $("msg");
@@ -322,8 +357,9 @@ function popupPunto(p) {
       (p.hilos_acometida ? `<br>Acometida: ${p.hilos_acometida === 2
         ? `dúplex, hilo 1 ${colorHilo(1).nombre} y hilo 2 ${colorHilo(2).nombre}`
         : `monofibra, hilo 1 ${colorHilo(1).nombre}`} · ${esc(tipoPorCodigo(p.fibra_acometida)?.nombre || p.fibra_acometida || "")}` : "") : "") +
+    (p.tipo === "odf" || p.tipo === "switch" ? `<br><b>Distribución de fibra</b>${resumenDistribucion(p)}` : "") +
     (p.tipo === "nap" ? resumenPuertos(p) + `<br><b>Colores de fibra en esta caja NAP</b>${tablaColoresNap(p)}` : "") +
-    `<br><button onclick="eliminarPunto('${p.id}')" style="margin-top:6px;color:#B42318">Eliminar elemento</button>`;
+    `<br><button onclick="editarPunto('${p.id}')" style="margin-top:6px;margin-right:8px">Editar</button><button onclick="eliminarPunto('${p.id}')" style="margin-top:6px;color:#B42318">Eliminar elemento</button>`;
 }
 
 function popupTramo(t) {
@@ -331,7 +367,7 @@ function popupTramo(t) {
   return `<b>${esc(a?.codigo)} → ${esc(b?.codigo)}</b><br>Fibra: ${esc(tipoPorCodigo(t.tipo_fibra)?.nombre || t.tipo_fibra)}` +
     `<br>Hilos: ${t.hilos}<br>Longitud: ${t.longitud_m} m<br>Estado: ${esc(t.estado)}` +
     (t.notas ? `<br>${esc(t.notas)}` : "") +
-    `<br><button onclick="eliminarTramo('${t.id}')" style="margin-top:6px;color:#B42318">Eliminar tramo</button>`;
+    `<br><button onclick="editarTramo('${t.id}')" style="margin-top:6px;margin-right:8px">Editar</button><button onclick="eliminarTramo('${t.id}')" style="margin-top:6px;color:#B42318">Eliminar tramo</button>`;
 }
 
 function render() {
@@ -342,7 +378,7 @@ function render() {
   tramos.forEach(t => {
     const a = puntoPorId(t.desde_id), b = puntoPorId(t.hasta_id);
     if (!a || !b) return;
-    L.polyline([[a.lat, a.lng], [b.lat, b.lng]], {
+    L.polyline([[a.lat, a.lng], ...(t.ruta || []).map(q => [q.lat, q.lng]), [b.lat, b.lng]], {
       color: COLOR_FIBRA[t.tipo_fibra] || "#111111", weight: 4, opacity: 0.9
     }).bindPopup(popupTramo(t)).addTo(capaTramos);
   });
@@ -356,12 +392,12 @@ function render() {
       iconSize: [32, 32], iconAnchor: [16, 16]
     });
     L.marker([p.lat, p.lng], {icon: icono, draggable: true})
-      .bindPopup(popupPunto(p))
       .on("click", () => clicMarcador(p))
       .on("dragend", e => moverPunto(p, e.target.getLatLng()))
       .addTo(capaPuntos);
   });
 
+  dibujarRutas();
   actualizarResumen();
 }
 
@@ -383,7 +419,9 @@ function actualizarResumen() {
 /* ----- Modos de trabajo ----- */
 function setModo(m) {
   modo = m;
-  conexion = {desde: null, hasta: null};
+  conexion = {desde: null, hasta: null, pasos: []};
+  rutaEdit = null;
+  $("ruta-panel").hidden = m !== "ruta";
   $("tf-form").hidden = true;
   $("btn-colocar").classList.toggle("on", m === "colocar");
   $("btn-conectar").classList.toggle("on", m === "conectar");
@@ -397,6 +435,8 @@ $("btn-conectar").addEventListener("click", () => setModo(modo === "conectar" ? 
 
 /* ----- Colocar elementos ----- */
 map.on("click", async e => {
+  if (modo === "conectar" && conexion.desde && !conexion.hasta) return agregarPaso(e.latlng, conexion);
+  if (modo === "ruta" && rutaEdit) return agregarPaso(e.latlng, rutaEdit);
   if (modo !== "colocar") return;
   if (!proyecto) return setMsg("Cargue el código del desplaze antes de colocar elementos.");
 
@@ -457,7 +497,8 @@ function clicMarcador(p) {
     L.popup({maxWidth: 280}).setLatLng([p.lat, p.lng]).setContent(listaGrupo(grupo)).openOn(map);
     return;
   }
-  clicPunto(p);
+  if (modo === "conectar") return clicPunto(p);
+  verPunto(p.id);
 }
 
 function listaGrupo(grupo) {
@@ -490,9 +531,245 @@ async function moverPunto(p, ll) {
   setMsg(`${p.codigo} movido a la nueva ubicación.`, "ok");
 }
 
+/* ===== Distribución desde ODF o Switch: hilo asignado a cada salida ===== */
+function resumenDistribucion(p) {
+  const salidas = tramos.filter(t => t.hilo_nap && (t.desde_id === p.id || t.hasta_id === p.id))
+    .sort((a, b) => a.hilo_nap - b.hilo_nap);
+  if (!salidas.length) return `<br><i>Sin salidas asignadas.</i>`;
+  return salidas.map(t => {
+    const otro = puntoPorId(t.desde_id === p.id ? t.hasta_id : t.desde_id);
+    const c = colorHilo(t.hilo_nap);
+    return `<br><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${c.hex};border:1px solid #888;vertical-align:middle"></span> ` +
+      `Hilo ${t.hilo_nap} · ${c.nombre} → ${esc(otro?.codigo)}`;
+  }).join("");
+}
+
+/* ===== Edición de elementos y tramos ===== */
+let editando = null;
+const BALANCEADORES = ["1x2", "1x4", "1x8", "1x16", "1x32"];
+
+function abrirEditor(titulo, campos) {
+  $("ed-titulo").textContent = titulo;
+  $("ed-campos").innerHTML = campos;
+  $("ed-msg").hidden = true;
+  $("editor").showModal();
+}
+
+function clienteCampos(p) {
+  const naps = puntos.filter(x => x.tipo === "nap");
+  return `<label for="ed-nap">Caja NAP</label><select id="ed-nap">${naps.map(n =>
+      `<option value="${n.id}"${n.id === p.nap_id ? " selected" : ""}>${esc(n.codigo)}</option>`).join("")}</select>` +
+    `<label for="ed-puerto">Puerto</label><select id="ed-puerto"></select>` +
+    `<label for="ed-acometida">Acometida</label><select id="ed-acometida">` +
+      `<option value="1"${p.hilos_acometida !== 2 ? " selected" : ""}>Monofibra (1 hilo)</option>` +
+      `<option value="2"${p.hilos_acometida === 2 ? " selected" : ""}>Dúplex (2 hilos)</option></select>` +
+    `<label for="ed-fibra">Tipo de fibra de la acometida</label><select id="ed-fibra">${tipos.map(t =>
+      `<option value="${esc(t.codigo)}"${t.codigo === (p.fibra_acometida || "G657A1") ? " selected" : ""}>${esc(t.nombre)}</option>`).join("")}</select>`;
+}
+
+function llenarPuertos(napId, selfId, actual) {
+  const nap = puntoPorId(napId);
+  if (!nap) { $("ed-puerto").innerHTML = ""; return; }
+  const N = parseInt((nap.balanceador || "1x8").split("x")[1], 10);
+  const ocupados = puntos.filter(c => c.nap_id === nap.id && c.id !== selfId);
+  $("ed-puerto").innerHTML = Array.from({length: N}, (_, i) => {
+    const k = i + 1, o = ocupados.find(c => c.puerto === k);
+    return `<option value="${k}"${k === actual ? " selected" : ""}${o ? " disabled" : ""}>Puerto ${k}${o ? " · " + esc(o.codigo) : ""}</option>`;
+  }).join("");
+}
+
+window.editarPunto = id => {
+  const p = puntoPorId(id);
+  if (!p) return;
+  map.closePopup();
+  editando = {tipo: "punto", id};
+  let campos = `<label for="ed-codigo">Código</label><input id="ed-codigo" type="text" value="${esc(p.codigo)}">` +
+    `<label for="ed-altura">Altura (m)</label><input id="ed-altura" type="number" step="0.5" min="0" value="${p.altura_m ?? ""}">` +
+    `<label for="ed-capacidad">Capacidad</label><input id="ed-capacidad" type="number" min="0" value="${p.capacidad ?? ""}">`;
+  if (p.tipo === "nap") campos += `<label for="ed-balanceador">Balanceador</label><select id="ed-balanceador">${
+    BALANCEADORES.map(b => `<option${b === (p.balanceador || "1x8") ? " selected" : ""}>${b}</option>`).join("")}</select>`;
+  if (p.tipo === "cliente") campos += clienteCampos(p);
+  campos += `<label for="ed-notas">Notas</label><input id="ed-notas" type="text" value="${esc(p.notas || "")}">`;
+  abrirEditor(`Editar ${TIPOS[p.tipo].nombre}`, campos);
+  if (p.tipo === "cliente") {
+    $("ed-nap").addEventListener("change", () => llenarPuertos($("ed-nap").value, p.id, null));
+    llenarPuertos(p.nap_id, p.id, p.puerto);
+  }
+};
+
+function llenarHiloNapEditor(t) {
+  const a = puntoPorId(t.desde_id), b = puntoPorId(t.hasta_id);
+  const cable = a?.tipo === "nap" ? b : a;
+  const total = parseInt($("ed-hilos").value, 10);
+  const usados = tramos.filter(x => x.id !== t.id && x.hilo_nap && cable &&
+    (x.desde_id === cable.id || x.hasta_id === cable.id)).map(x => x.hilo_nap);
+  $("ed-hilo-nap").innerHTML = Array.from({length: total}, (_, i) => {
+    const k = i + 1, u = usados.includes(k);
+    return `<option value="${k}"${k === t.hilo_nap ? " selected" : ""}${u ? " disabled" : ""}>Hilo ${k} · ${colorHilo(k).nombre}${u ? " (en uso)" : ""}</option>`;
+  }).join("");
+}
+
+window.editarTramo = id => {
+  const t = tramos.find(x => x.id === id);
+  if (!t) return;
+  map.closePopup();
+  editando = {tipo: "tramo", id};
+  const a = puntoPorId(t.desde_id), b = puntoPorId(t.hasta_id);
+  const conNap = a?.tipo === "nap" || b?.tipo === "nap";
+  const campos = `<p class="hint">${esc(a?.codigo)} → ${esc(b?.codigo)}</p>` +
+    `<label for="ed-fibra">Tipo de fibra</label><select id="ed-fibra">${tipos.map(x =>
+      `<option value="${esc(x.codigo)}"${x.codigo === t.tipo_fibra ? " selected" : ""}>${esc(x.nombre)}</option>`).join("")}</select>` +
+    `<label for="ed-hilos">Hilos del cable</label><select id="ed-hilos">${HILOS.map(n =>
+      `<option value="${n}"${n === t.hilos ? " selected" : ""}>${n} hilos</option>`).join("")}</select>` +
+    (conNap ? `<label for="ed-hilo-nap">Hilo que entra a la NAP</label><select id="ed-hilo-nap"></select>` : "") +
+    `<label for="ed-estado">Estado</label><select id="ed-estado">${[["planificado", "Planificado"], ["en_obra", "En obra"], ["instalado", "Instalado"]].map(([k, v]) =>
+      `<option value="${k}"${k === t.estado ? " selected" : ""}>${v}</option>`).join("")}</select>` +
+    `<label for="ed-notas">Notas</label><input id="ed-notas" type="text" value="${esc(t.notas || "")}">`;
+  abrirEditor("Editar tramo", campos + `<button type="button" id="ed-ruta" class="btn" style="margin-top:12px">Ajustar recorrido en el mapa</button>`);
+  $("ed-ruta").addEventListener("click", () => { $("editor").close(); iniciarRuta(t.id); });
+  if (conNap) {
+    llenarHiloNapEditor(t);
+    $("ed-hilos").addEventListener("change", () => llenarHiloNapEditor(t));
+  }
+};
+
+$("ed-cancelar").addEventListener("click", () => $("editor").close());
+
+$("ed-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const mostrarError = texto => { $("ed-msg").textContent = texto; $("ed-msg").hidden = false; };
+  if (!editando) return;
+
+  if (editando.tipo === "punto") {
+    const p = puntoPorId(editando.id);
+    const cambios = {
+      codigo: $("ed-codigo").value.trim(),
+      altura_m: $("ed-altura").value ? Number($("ed-altura").value) : null,
+      capacidad: $("ed-capacidad").value ? parseInt($("ed-capacidad").value, 10) : null,
+      notas: $("ed-notas").value.trim() || null
+    };
+    if (!cambios.codigo) return mostrarError("El código es obligatorio.");
+    if (p.tipo === "nap") cambios.balanceador = $("ed-balanceador").value;
+    if (p.tipo === "cliente") {
+      const nap = puntoPorId($("ed-nap").value);
+      const puerto = parseInt($("ed-puerto").value, 10);
+      if (!nap || !puerto) return mostrarError("Seleccione una caja NAP y un puerto.");
+      if (puntos.some(c => c.id !== p.id && c.nap_id === nap.id && c.puerto === puerto))
+        return mostrarError("Ese puerto ya está ocupado.");
+      Object.assign(cambios, {
+        nap_id: nap.id, puerto,
+        hilos_acometida: Number($("ed-acometida").value),
+        fibra_acometida: $("ed-fibra").value
+      });
+    }
+    const { error } = await sb.from("puntos_fibra").update(cambios).eq("id", p.id);
+    if (error) return mostrarError("No se pudo guardar. " + error.message);
+    Object.assign(p, cambios);
+  } else {
+    const t = tramos.find(x => x.id === editando.id);
+    const cambios = {
+      tipo_fibra: $("ed-fibra").value,
+      hilos: parseInt($("ed-hilos").value, 10),
+      estado: $("ed-estado").value,
+      notas: $("ed-notas").value.trim() || null
+    };
+    if ($("ed-hilo-nap")) {
+      cambios.hilo_nap = parseInt($("ed-hilo-nap").value, 10);
+      if (cambios.hilo_nap > cambios.hilos) return mostrarError("El hilo seleccionado supera los hilos del cable.");
+    }
+    const { error } = await sb.from("tramos_fibra").update(cambios).eq("id", t.id);
+    if (error) return mostrarError("No se pudo guardar. " + error.message);
+    Object.assign(t, cambios);
+  }
+
+  $("editor").close();
+  render();
+  setMsg("Cambios guardados.", "ok");
+});
+
+/* ===== Pasos intermedios del tramo (postes o puntos de recorrido) ===== */
+function longitudRuta(pts) {
+  let m = 0;
+  for (let i = 1; i < pts.length; i++)
+    m += L.latLng(pts[i - 1].lat, pts[i - 1].lng).distanceTo([pts[i].lat, pts[i].lng]);
+  return Math.round(m * CONFIG.HOLGURA);
+}
+
+async function agregarPaso(ll, destino) {
+  const paso = {lat: ll.lat, lng: ll.lng};
+  if ($("paso-poste").checked) {
+    const { data, error } = await sb.from("puntos_fibra")
+      .insert({proyecto, tipo: "poste", codigo: nuevoCodigo("poste"), lat: ll.lat, lng: ll.lng})
+      .select().single();
+    if (error) return setMsg("No se pudo crear el poste del paso. " + error.message);
+    puntos.push(data);
+    paso.poste_id = data.id;
+  }
+  destino.pasos.push(paso);
+  render();
+  setMsg(`Paso ${destino.pasos.length} agregado.`, "ok");
+}
+
+function dibujarPasos(pasos) {
+  pasos.forEach((paso, i) => {
+    L.marker([paso.lat, paso.lng], {
+      draggable: true,
+      icon: L.divIcon({className: "", html: `<div class="paso">${i + 1}</div>`, iconSize: [20, 20], iconAnchor: [10, 10]})
+    }).on("dragend", e => {
+      const ll = e.target.getLatLng();
+      paso.lat = ll.lat;
+      paso.lng = ll.lng;
+      render();
+    }).addTo(capaRuta);
+  });
+}
+
+function dibujarRutas() {
+  capaRuta.clearLayers();
+  if (modo === "conectar" && conexion.desde) {
+    const pts = [conexion.desde, ...conexion.pasos, conexion.hasta].filter(Boolean).map(p => [p.lat, p.lng]);
+    if (pts.length > 1) L.polyline(pts, {color: "#111827", weight: 3, dashArray: "6 6"}).addTo(capaRuta);
+    dibujarPasos(conexion.pasos);
+  }
+  if (modo === "ruta" && rutaEdit) {
+    const t = tramos.find(x => x.id === rutaEdit.id);
+    const a = puntoPorId(t?.desde_id), b = puntoPorId(t?.hasta_id);
+    if (!a || !b) return;
+    const pts = [a, ...rutaEdit.pasos, b].map(p => [p.lat, p.lng]);
+    L.polyline(pts, {color: "#111827", weight: 3, dashArray: "6 6"}).addTo(capaRuta);
+    dibujarPasos(rutaEdit.pasos);
+  }
+}
+
+function iniciarRuta(id) {
+  const t = tramos.find(x => x.id === id);
+  if (!t) return;
+  setModo("ruta");
+  rutaEdit = {id, pasos: JSON.parse(JSON.stringify(t.ruta || []))};
+  render();
+  setMsg("Haga clic en el mapa para agregar pasos y arrástrelos para ajustar el recorrido.", "ok");
+}
+
+$("ruta-deshacer").addEventListener("click", () => {
+  if (rutaEdit && rutaEdit.pasos.length) { rutaEdit.pasos.pop(); render(); }
+});
+$("ruta-cancelar").addEventListener("click", () => { setModo("idle"); setMsg("Ajuste de recorrido cancelado.", "ok"); });
+
+$("ruta-guardar").addEventListener("click", async () => {
+  const t = tramos.find(x => x.id === rutaEdit?.id);
+  if (!t) return;
+  const a = puntoPorId(t.desde_id), b = puntoPorId(t.hasta_id);
+  const cambios = {ruta: rutaEdit.pasos, longitud_m: longitudRuta([a, ...rutaEdit.pasos, b])};
+  const { error } = await sb.from("tramos_fibra").update(cambios).eq("id", t.id);
+  if (error) return setMsg("No se pudo guardar el recorrido. " + error.message);
+  Object.assign(t, cambios);
+  setModo("idle");
+  setMsg("Recorrido guardado.", "ok");
+});
+
 function metrosTramo() {
   const a = conexion.desde, b = conexion.hasta;
-  return Math.round(L.latLng(a.lat, a.lng).distanceTo([b.lat, b.lng]) * CONFIG.HOLGURA);
+  return longitudRuta([a, ...conexion.pasos, b]);
 }
 
 function actualizarInfoTramo() {
@@ -535,7 +812,8 @@ $("tf-guardar").addEventListener("click", async () => {
     longitud_m: metrosTramo(),
     estado: $("tf-estado").value,
     notas: $("tf-notas").value.trim() || null,
-    hilo_nap: hiloNap
+    hilo_nap: hiloNap,
+    ruta: conexion.pasos
   };
   btn.disabled = true;
   const { data, error } = await sb.from("tramos_fibra").insert(fila).select().single();
