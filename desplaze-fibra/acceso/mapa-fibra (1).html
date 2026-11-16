@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapa de fibra óptica · Desplaze Fibra Óptica</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js"></script>
+<style>
+:root{--navy:#0B2545;--navy2:#13315C;--teal:#13A89E;--bg:#F4F6F9;--text:#1F2933;--muted:#6B7785;--line:#D9DFE7;--danger:#B42318;--ok:#067647}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);font-size:14px;display:flex;flex-direction:column;background:var(--bg)}
+header{background:linear-gradient(160deg,var(--navy),var(--navy2));color:#fff;padding:12px 18px;display:flex;align-items:center;gap:14px}
+header .brand{font-weight:600;font-size:16px;margin-right:auto}
+header a{color:#C9D6E8;text-decoration:none;font-size:14px}
+header a:hover{color:#fff}
+.layout{flex:1;display:grid;grid-template-columns:320px 1fr;min-height:0}
+@media(max-width:860px){.layout{grid-template-columns:1fr;grid-template-rows:auto 60vh}}
+aside{background:#fff;border-right:1px solid var(--line);padding:16px;overflow-y:auto}
+.panel{border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:14px}
+h3{margin:0 0 8px;font-size:12px;color:var(--navy);text-transform:uppercase;letter-spacing:.6px}
+label{display:block;font-size:12px;font-weight:600;margin:10px 0 4px}
+select,input[type=text],input[type=number],textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{width:100%;margin-top:10px;padding:10px;border-radius:6px;border:1px solid var(--line);background:#fff;color:var(--navy);font:inherit;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.hint{font-size:12px;color:var(--muted);margin:8px 0 0}
+.stat{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.sw{display:inline-block;width:14px;height:4px;vertical-align:middle;margin-right:6px;border-radius:2px}
+.msg{font-size:13px;padding:8px 10px;border-radius:6px;margin-top:12px}
+.msg.error{background:#FEF3F2;color:var(--danger)}
+.msg.ok{background:#ECFDF3;color:var(--ok)}
+#map{height:100%;min-height:420px}
+.pin{width:26px;height:26px;border-radius:50%;border:2px solid #fff;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.pin.sel{outline:3px solid #FACC15}
+.leaflet-popup-content{font-size:13px;line-height:1.45}
+@media(max-width:860px){header{padding:12px 14px}header .brand{width:100%}aside{border-right:0;border-bottom:1px solid var(--line);max-height:50vh}#map{min-height:0;height:55vh}}
+@media(max-width:420px){.row{grid-template-columns:1fr}aside{padding:12px}}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand" id="brand"></span>
+  <a href="mis-desplazes.html">← Mis desplazes</a>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="panel">
+      <h3>Desplaze</h3>
+      <input id="proyecto" type="text" readonly>
+      <button id="btn-cargar" class="btn primary" type="button">Recargar desplaze</button>
+    </div>
+
+    <div class="panel">
+      <h3>Elementos de red</h3>
+      <label for="tipo">Tipo de elemento</label>
+      <select id="tipo"></select>
+      <div class="row">
+        <div>
+          <label for="altura">Altura (m)</label>
+          <input id="altura" type="number" step="0.5" min="0">
+        </div>
+        <div>
+          <label for="capacidad">Capacidad</label>
+          <input id="capacidad" type="number" min="0" placeholder="hilos o puertos">
+        </div>
+      </div>
+      <label for="notas">Notas</label>
+      <input id="notas" type="text" placeholder="Ej. Poste de CFE, frente a tienda">
+      <button id="btn-colocar" class="btn" type="button">Colocar elemento en el mapa</button>
+      <p class="hint">Al activar esta opción, haga clic en el mapa para ubicar el elemento.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Tramo de fibra</h3>
+      <button id="btn-conectar" class="btn" type="button">Conectar dos puntos</button>
+      <p class="hint">Seleccione el origen y el destino sobre el mapa.</p>
+
+      <div id="tf-form" hidden>
+        <p class="hint" id="tf-ruta" style="font-weight:600;color:var(--navy)"></p>
+        <label for="tf-tipo">Tipo de fibra</label>
+        <select id="tf-tipo"></select>
+        <div class="row">
+          <div>
+            <label for="tf-hilos">Hilos del cable</label>
+            <select id="tf-hilos"></select>
+          </div>
+          <div>
+            <label for="tf-estado">Estado</label>
+            <select id="tf-estado">
+              <option value="planificado">Planificado</option>
+              <option value="en_obra">En obra</option>
+              <option value="instalado">Instalado</option>
+            </select>
+          </div>
+        </div>
+        <label for="tf-notas">Notas</label>
+        <input id="tf-notas" type="text" placeholder="Ej. Ducto subterráneo, 2 cruces de calle">
+        <p class="hint" id="tf-info"></p>
+        <div class="row">
+          <button id="tf-cancelar" class="btn" type="button">Cancelar</button>
+          <button id="tf-guardar" class="btn primary" type="button">Guardar tramo</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Resumen</h3>
+      <div id="resumen-puntos"></div>
+      <h3 style="margin-top:14px">Fibra por tipo</h3>
+      <div id="resumen-fibra"></div>
+      <button id="btn-csv" class="btn" type="button">Exportar lista de materiales (CSV)</button>
+    </div>
+
+    <div id="msg" class="msg error" hidden></div>
+  </aside>
+
+  <main id="map"></main>
+</div>
+
+<script>
+/* ===== CONFIGURACIÓN: mismos valores que en la página de acceso ===== */
+const CONFIG = {
+  SUPABASE_URL: "https://msolmlaqpdjxiiclfgky.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_55-c2uJqIb0LukOzgCiAIQ_NcC2Cgef",
+  APP_NAME: "Desplaze Fibra Óptica",
+  LOGIN_URL: "index.html",
+  HOLGURA: 1.10
+};
+
+const sb = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+const TIPOS = {
+  poste:   {nombre: "Poste",                 color: "#475467", letra: "P"},
+  mufa:    {nombre: "Mufa de empalme",       color: "#7C3AED", letra: "M"},
+  nap:     {nombre: "Caja NAP (distribución)", color: "#0E9F6E", letra: "N"},
+  reserva: {nombre: "Reserva de fibra",      color: "#B54708", letra: "R"},
+  cliente: {nombre: "Cliente (ONT)",         color: "#1D4ED8", letra: "C"}
+};
+const PREFIJO = {poste: "POST", mufa: "MUF", nap: "NAP", reserva: "RES", cliente: "CLI"};
+const COLOR_FIBRA = {G652D: "#2563EB", G657A1: "#0D9488", G657A2: "#7C3AED", OM3: "#EA580C", OM4: "#DC2626"};
+const HILOS = [2, 4, 6, 8, 12, 24, 48, 96];
+const MENSAJES_MODO = {
+  colocar: "Haga clic en el mapa para colocar el elemento seleccionado.",
+  conectar: "Seleccione el punto de origen y después el de destino.",
+  idle: ""
+};
+
+let proyecto = "", tipos = [], puntos = [], tramos = [];
+let modo = "idle", conexion = {desde: null, hasta: null};
+
+/* ----- Mapa: satélite (similar a Google Earth) y calles ----- */
+const map = L.map("map").setView([14.6349, -90.5069], 13);
+const satelite = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+  maxZoom: 19, attribution: "Imágenes © Esri, Maxar, Earthstar Geographics"
+}).addTo(map);
+const calles = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19, attribution: "© OpenStreetMap"
+});
+L.control.layers({"Satélite": satelite, "Calles": calles}).addTo(map);
+const capaTramos = L.layerGroup().addTo(map);
+const capaPuntos = L.layerGroup().addTo(map);
+
+const setMsg = (text, type = "error") => {
+  const m = $("msg");
+  m.textContent = text;
+  m.className = "msg " + type;
+  m.hidden = !text;
+};
+
+const puntoPorId = id => puntos.find(p => p.id === id);
+const tipoPorCodigo = c => tipos.find(t => t.codigo === c);
+
+function nuevoCodigo(tipo) {
+  const usados = puntos.filter(p => p.tipo === tipo)
+    .map(p => parseInt(p.codigo.split("-").pop(), 10) || 0);
+  return PREFIJO[tipo] + "-" + String(Math.max(0, ...usados) + 1).padStart(3, "0");
+}
+
+/* Código de colores de hilos y tubos según TIA-598-C (12 colores por tubo) */
+const COLORES_HILO = ["Azul","Naranja","Verde","Marrón","Gris","Blanco","Rojo","Negro","Amarillo","Violeta","Rosa","Aqua"];
+const HEX_HILO = ["#1D4ED8","#EA580C","#16A34A","#78350F","#6B7280","#F9FAFB","#DC2626","#111827","#FACC15","#7C3AED","#EC4899","#06B6D4"];
+
+function colorHilo(n) {
+  const i = (n - 1) % 12;
+  return {nombre: COLORES_HILO[i], hex: HEX_HILO[i], tubo: Math.floor((n - 1) / 12) + 1};
+}
+
+function tablaColoresNap(p) {
+  const conectados = tramos.filter(t => t.desde_id === p.id || t.hasta_id === p.id);
+  if (!conectados.length) return `<p class="hint" style="margin:8px 0 0">Sin tramos conectados.</p>`;
+  return `<div style="max-height:220px;overflow:auto;margin-top:8px">` + conectados.map(t => {
+    const otro = puntoPorId(t.desde_id === p.id ? t.hasta_id : t.desde_id);
+    const filas = Array.from({length: t.hilos}, (_, k) => {
+      const c = colorHilo(k + 1);
+      return `<div style="display:flex;align-items:center;gap:6px;margin-top:2px">` +
+        `<span style="width:22px;text-align:right">${k + 1}</span>` +
+        `<i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${c.hex};border:1px solid #888"></i>` +
+        `${c.nombre} <span style="color:#6B7785">(tubo ${c.tubo})</span></div>`;
+    }).join("");
+    return `<div style="border-top:1px solid #D9DFE7;padding-top:6px;margin-top:8px"><b>${esc(otro?.codigo)}</b> · ${t.hilos} hilos · ${esc(tipoPorCodigo(t.tipo_fibra)?.nombre || t.tipo_fibra)}${filas}</div>`;
+  }).join("") + `</div>`;
+}
+
+function popupPunto(p) {
+  const t = TIPOS[p.tipo];
+  return `<b>${esc(p.codigo)}</b><br>${esc(t.nombre)}` +
+    (p.altura_m != null ? `<br>Altura: ${p.altura_m} m` : "") +
+    (p.capacidad != null ? `<br>Capacidad: ${p.capacidad}` : "") +
+    (p.notas ? `<br>${esc(p.notas)}` : "") +
+    (p.tipo === "nap" ? `<br><b>Colores de fibra en esta caja NAP</b>${tablaColoresNap(p)}` : "") +
+    `<br><button onclick="eliminarPunto('${p.id}')" style="margin-top:6px;color:#B42318">Eliminar elemento</button>`;
+}
+
+function popupTramo(t) {
+  const a = puntoPorId(t.desde_id), b = puntoPorId(t.hasta_id);
+  return `<b>${esc(a?.codigo)} → ${esc(b?.codigo)}</b><br>Fibra: ${esc(tipoPorCodigo(t.tipo_fibra)?.nombre || t.tipo_fibra)}` +
+    `<br>Hilos: ${t.hilos}<br>Longitud: ${t.longitud_m} m<br>Estado: ${esc(t.estado)}` +
+    (t.notas ? `<br>${esc(t.notas)}` : "") +
+    `<br><button onclick="eliminarTramo('${t.id}')" style="margin-top:6px;color:#B42318">Eliminar tramo</button>`;
+}
+
+function render() {
+  capaTramos.clearLayers();
+  capaPuntos.clearLayers();
+
+  tramos.forEach(t => {
+    const a = puntoPorId(t.desde_id), b = puntoPorId(t.hasta_id);
+    if (!a || !b) return;
+    L.polyline([[a.lat, a.lng], [b.lat, b.lng]], {
+      color: COLOR_FIBRA[t.tipo_fibra] || "#111111", weight: 4, opacity: 0.9
+    }).bindPopup(popupTramo(t)).addTo(capaTramos);
+  });
+
+  puntos.forEach(p => {
+    const sel = conexion.desde?.id === p.id || conexion.hasta?.id === p.id;
+    const t = TIPOS[p.tipo];
+    const icono = L.divIcon({
+      className: "",
+      html: `<div class="pin${sel ? " sel" : ""}" style="background:${t.color}">${t.letra}</div>`,
+      iconSize: [26, 26], iconAnchor: [13, 13]
+    });
+    L.marker([p.lat, p.lng], {icon: icono})
+      .bindPopup(popupPunto(p))
+      .on("click", () => clicPunto(p))
+      .addTo(capaPuntos);
+  });
+
+  actualizarResumen();
+}
+
+function actualizarResumen() {
+  const conteo = {};
+  puntos.forEach(p => conteo[p.tipo] = (conteo[p.tipo] || 0) + 1);
+  const metros = {};
+  tramos.forEach(t => metros[t.tipo_fibra] = (metros[t.tipo_fibra] || 0) + t.longitud_m);
+
+  $("resumen-puntos").innerHTML = Object.keys(TIPOS).map(k =>
+    `<div class="stat"><span>${esc(TIPOS[k].nombre)}</span><b>${conteo[k] || 0}</b></div>`).join("");
+
+  const filas = tipos.filter(t => metros[t.codigo]).map(t =>
+    `<div class="stat"><span><i class="sw" style="background:${COLOR_FIBRA[t.codigo] || "#111"}"></i>${esc(t.nombre)}</span>` +
+    `<b>${metros[t.codigo].toLocaleString("es-GT")} m</b></div>`);
+  $("resumen-fibra").innerHTML = filas.join("") || `<p class="hint">Sin tramos registrados.</p>`;
+}
+
+/* ----- Modos de trabajo ----- */
+function setModo(m) {
+  modo = m;
+  conexion = {desde: null, hasta: null};
+  $("tf-form").hidden = true;
+  $("btn-colocar").classList.toggle("on", m === "colocar");
+  $("btn-conectar").classList.toggle("on", m === "conectar");
+  map.getContainer().style.cursor = m === "colocar" ? "crosshair" : "";
+  render();
+  setMsg(MENSAJES_MODO[m], "ok");
+}
+
+$("btn-colocar").addEventListener("click", () => setModo(modo === "colocar" ? "idle" : "colocar"));
+$("btn-conectar").addEventListener("click", () => setModo(modo === "conectar" ? "idle" : "conectar"));
+
+/* ----- Colocar elementos ----- */
+map.on("click", async e => {
+  if (modo !== "colocar") return;
+  if (!proyecto) return setMsg("Cargue el código del desplaze antes de colocar elementos.");
+
+  const tipo = $("tipo").value;
+  const fila = {
+    proyecto, tipo,
+    codigo: nuevoCodigo(tipo),
+    lat: e.latlng.lat,
+    lng: e.latlng.lng,
+    altura_m: $("altura").value ? Number($("altura").value) : null,
+    capacidad: $("capacidad").value ? parseInt($("capacidad").value, 10) : null,
+    notas: $("notas").value.trim() || null
+  };
+  const { data, error } = await sb.from("puntos_fibra").insert(fila).select().single();
+  if (error) return setMsg("No se pudo guardar el elemento. " + error.message);
+
+  puntos.push(data);
+  render();
+  setMsg(`${data.codigo} guardado.`, "ok");
+});
+
+/* ----- Conectar tramos ----- */
+function clicPunto(p) {
+  if (modo !== "conectar" || conexion.hasta) return;
+  if (!conexion.desde) {
+    conexion.desde = p;
+    render();
+    return setMsg(`Origen: ${p.codigo}. Seleccione el punto de destino.`, "ok");
+  }
+  if (conexion.desde.id === p.id) return setMsg("Seleccione un punto distinto al origen.");
+  conexion.hasta = p;
+  render();
+  mostrarFormTramo();
+}
+
+function metrosTramo() {
+  const a = conexion.desde, b = conexion.hasta;
+  return Math.round(L.latLng(a.lat, a.lng).distanceTo([b.lat, b.lng]) * CONFIG.HOLGURA);
+}
+
+function actualizarInfoTramo() {
+  const t = tipoPorCodigo($("tf-tipo").value);
+  const m = metrosTramo();
+  const db = t ? (m / 1000 * t.atenuacion_db_km).toFixed(2) : "–";
+  $("tf-info").textContent = `Longitud estimada con holgura del ${Math.round((CONFIG.HOLGURA - 1) * 100)} %: ${m} m. ` +
+    `Atenuación de fibra estimada (${t ? t.ventana_nm : "–"} nm): ${db} dB.`;
+}
+
+function mostrarFormTramo() {
+  $("tf-ruta").textContent = `${conexion.desde.codigo} → ${conexion.hasta.codigo}`;
+  $("tf-tipo").innerHTML = tipos.map(t =>
+    `<option value="${esc(t.codigo)}">${esc(t.nombre)}</option>`).join("");
+  $("tf-hilos").innerHTML = HILOS.map(n => `<option value="${n}">${n} hilos</option>`).join("");
+  $("tf-form").hidden = false;
+  actualizarInfoTramo();
+}
+
+$("tf-tipo").addEventListener("change", actualizarInfoTramo);
+$("tf-cancelar").addEventListener("click", () => setModo("conectar"));
+
+$("tf-guardar").addEventListener("click", async () => {
+  const btn = $("tf-guardar");
+  const fila = {
+    proyecto,
+    desde_id: conexion.desde.id,
+    hasta_id: conexion.hasta.id,
+    tipo_fibra: $("tf-tipo").value,
+    hilos: parseInt($("tf-hilos").value, 10),
+    longitud_m: metrosTramo(),
+    estado: $("tf-estado").value,
+    notas: $("tf-notas").value.trim() || null
+  };
+  btn.disabled = true;
+  const { data, error } = await sb.from("tramos_fibra").insert(fila).select().single();
+  btn.disabled = false;
+  if (error) return setMsg("No se pudo guardar el tramo. " + error.message);
+
+  tramos.push(data);
+  $("tf-notas").value = "";
+  setModo("conectar");
+  setMsg("Tramo guardado. Puede conectar otro tramo.", "ok");
+});
+
+/* ----- Eliminar ----- */
+window.eliminarPunto = async id => {
+  if (!confirm("¿Eliminar este elemento? También se eliminarán los tramos conectados.")) return;
+  const { error } = await sb.from("puntos_fibra").delete().eq("id", id);
+  if (error) return setMsg("No se pudo eliminar. " + error.message);
+  puntos = puntos.filter(p => p.id !== id);
+  tramos = tramos.filter(t => t.desde_id !== id && t.hasta_id !== id);
+  map.closePopup();
+  render();
+  setMsg("Elemento eliminado.", "ok");
+};
+
+window.eliminarTramo = async id => {
+  if (!confirm("¿Eliminar este tramo?")) return;
+  const { error } = await sb.from("tramos_fibra").delete().eq("id", id);
+  if (error) return setMsg("No se pudo eliminar. " + error.message);
+  tramos = tramos.filter(t => t.id !== id);
+  map.closePopup();
+  render();
+  setMsg("Tramo eliminado.", "ok");
+};
+
+/* ----- Cargar desplaze ----- */
+$("btn-cargar").addEventListener("click", async () => {
+  proyecto = $("proyecto").value.trim();
+  if (!proyecto) return setMsg("Escriba el código del desplaze.");
+  setModo("idle");
+
+  const [p, t] = await Promise.all([
+    sb.from("puntos_fibra").select("*").eq("proyecto", proyecto).order("created_at"),
+    sb.from("tramos_fibra").select("*").eq("proyecto", proyecto).order("created_at")
+  ]);
+  if (p.error || t.error) return setMsg("No se pudo cargar el desplaze.");
+
+  puntos = p.data;
+  tramos = t.data;
+  render();
+  if (puntos.length) map.fitBounds(puntos.map(x => [x.lat, x.lng]), {padding: [40, 40]});
+  setMsg(`Desplaze ${proyecto} cargado: ${puntos.length} elementos y ${tramos.length} tramos.`, "ok");
+});
+
+/* ----- Exportar lista de materiales ----- */
+$("btn-csv").addEventListener("click", () => {
+  if (!tramos.length) return setMsg("No hay tramos para exportar.");
+  const cab = ["Desplaze", "Origen", "Destino", "Tipo de fibra", "Hilos", "Longitud (m)", "Estado"];
+  const filas = tramos.map(t => [
+    proyecto, puntoPorId(t.desde_id)?.codigo, puntoPorId(t.hasta_id)?.codigo,
+    t.tipo_fibra, t.hilos, t.longitud_m, t.estado
+  ]);
+  const csv = [cab, ...filas]
+    .map(f => f.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+  const url = URL.createObjectURL(new Blob(["\ufeff" + csv], {type: "text/csv;charset=utf-8"}));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `materiales-${proyecto}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+/* ----- Arranque: exige sesión y carga el catálogo de fibras ----- */
+async function init() {
+  $("brand").textContent = CONFIG.APP_NAME + " · Mapa de red";
+  $("tipo").innerHTML = Object.entries(TIPOS).map(([k, t]) =>
+    `<option value="${k}">${esc(t.nombre)}</option>`).join("");
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { location.href = CONFIG.LOGIN_URL; return; }
+    const { data, error } = await sb.from("fibra_tipos").select("*").order("codigo");
+    if (error) return setMsg("No se pudo cargar el catálogo de fibras. " + error.message);
+    tipos = data;
+    const pid = new URLSearchParams(location.search).get("proyecto");
+    if (pid) { $("proyecto").value = pid; $("btn-cargar").click(); }
+    else setMsg("Abra un desplaze desde la página Mis desplazes.", "ok");
+  } catch (err) {
+    setMsg("No se pudo conectar con el servicio. Intente de nuevo.");
+  }
+  actualizarResumen();
+}
+init();
+</script>
+</body>
+</html>

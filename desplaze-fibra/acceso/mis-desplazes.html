@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mis desplazes · Desplaze Fibra Óptica</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js"></script>
+<style>
+:root{--navy:#0B2545;--navy2:#13315C;--bg:#F4F6F9;--text:#1F2933;--muted:#6B7785;--line:#D9DFE7;--danger:#B42318;--ok:#067647}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.5}
+header{background:linear-gradient(160deg,var(--navy),var(--navy2));color:#fff;padding:14px clamp(14px,4vw,32px);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header .brand{font-weight:600;font-size:16px;margin-right:auto}
+header a{color:#C9D6E8;text-decoration:none;font-size:14px}
+main{max-width:1100px;margin:0 auto;padding:clamp(16px,4vw,32px)}
+h1{margin:0 0 4px;font-size:clamp(20px,4vw,24px);color:var(--navy)}
+.sub{margin:0 0 20px;color:var(--muted);font-size:14px}
+.box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:clamp(16px,3vw,24px);margin-bottom:24px}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:end}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:4px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff}
+.full{grid-column:1/-1}
+.btn{padding:10px 16px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--navy);font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;text-align:center}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.danger{color:var(--danger)}
+.btn:disabled{opacity:.6;cursor:wait}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:16px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.code{font-weight:700;color:var(--navy);font-size:13px;letter-spacing:.4px;overflow-wrap:anywhere}
+.badge{font-size:12px;padding:3px 10px;border-radius:999px;background:#EEF2F7;color:var(--navy);white-space:nowrap}
+.badge.en_obra{background:#FEF0C7;color:#93370D}
+.badge.finalizado{background:#D1FADF;color:var(--ok)}
+h2{margin:0;font-size:17px;overflow-wrap:anywhere}
+.desc,.meta{margin:0;color:var(--muted);font-size:13px}
+.acciones{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:10px}
+.acciones .btn{flex:1 1 auto;text-align:center}
+.acciones select{flex:1 1 140px;width:auto}
+.msg{font-size:14px;padding:10px 12px;border-radius:8px;margin-bottom:16px}
+.msg.error{background:#FEF3F2;color:var(--danger)}
+.msg.ok{background:#ECFDF3;color:var(--ok)}
+.vacio{color:var(--muted);padding:24px 0;grid-column:1/-1}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand" id="brand"></span>
+  <a href="index.html">← Volver al panel</a>
+</header>
+
+<main>
+  <h1>Mis desplazes</h1>
+  <p class="sub">Solo usted puede ver y modificar estos proyectos.</p>
+  <div id="msg" class="msg error" hidden></div>
+
+  <section class="box">
+    <form id="crear" class="form">
+      <div>
+        <label for="c-codigo">Código</label>
+        <input id="c-codigo" required maxlength="30" placeholder="DF-2026-014">
+      </div>
+      <div>
+        <label for="c-nombre">Nombre del desplaze</label>
+        <input id="c-nombre" required maxlength="120" placeholder="Zona 4, colonia...">
+      </div>
+      <div>
+        <label for="c-estado">Estado</label>
+        <select id="c-estado">
+          <option value="en_diseno">En diseño</option>
+          <option value="en_obra">En obra</option>
+          <option value="finalizado">Finalizado</option>
+        </select>
+      </div>
+      <div class="full">
+        <label for="c-desc">Descripción</label>
+        <textarea id="c-desc" rows="2" placeholder="Motivo del desplaze, observaciones, cliente afectado"></textarea>
+      </div>
+      <div>
+        <button id="c-btn" class="btn primary" type="submit" style="width:100%">Crear desplaze</button>
+      </div>
+    </form>
+  </section>
+
+  <div id="lista" class="grid"></div>
+</main>
+
+<script>
+/* ===== CONFIGURACIÓN: mismos valores que en la página de acceso ===== */
+const CONFIG = {
+  SUPABASE_URL: "https://msolmlaqpdjxiiclfgky.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_55-c2uJqIb0LukOzgCiAIQ_NcC2Cgef",
+  APP_NAME: "Desplaze Fibra Óptica",
+  LOGIN_URL: "index.html"
+};
+
+const sb = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ESTADOS = {en_diseno: "En diseño", en_obra: "En obra", finalizado: "Finalizado"};
+
+const setMsg = (text, type = "error") => {
+  const m = $("msg");
+  m.textContent = text;
+  m.className = "msg " + type;
+  m.hidden = !text;
+};
+
+const fecha = iso => new Date(iso).toLocaleDateString("es-GT", {day: "2-digit", month: "short", year: "numeric"});
+
+function tarjeta(x, np, nt) {
+  return `<article class="card">
+    <div class="top"><span class="code">${esc(x.codigo)}</span><span class="badge ${x.estado}">${ESTADOS[x.estado]}</span></div>
+    <h2>${esc(x.nombre)}</h2>
+    ${x.descripcion ? `<p class="desc">${esc(x.descripcion)}</p>` : ""}
+    <p class="meta">${np} elementos · ${nt} tramos · Actualizado ${fecha(x.updated_at)}</p>
+    <div class="acciones">
+      <a class="btn primary" href="mapa-fibra.html?proyecto=${encodeURIComponent(x.codigo)}">Abrir mapa</a>
+      <select class="estado" data-id="${x.id}" aria-label="Estado del desplaze">
+        ${Object.entries(ESTADOS).map(([k, v]) => `<option value="${k}"${k === x.estado ? " selected" : ""}>${v}</option>`).join("")}
+      </select>
+      <button class="btn danger" data-del="${x.id}" data-codigo="${esc(x.codigo)}" type="button">Eliminar</button>
+    </div>
+  </article>`;
+}
+
+async function cargar() {
+  const [p, pu, tr] = await Promise.all([
+    sb.from("proyectos").select("*").order("updated_at", {ascending: false}),
+    sb.from("puntos_fibra").select("proyecto"),
+    sb.from("tramos_fibra").select("proyecto")
+  ]);
+  if (p.error || pu.error || tr.error) return setMsg("No se pudieron cargar los desplazes.");
+
+  const cP = {}, cT = {};
+  pu.data.forEach(r => cP[r.proyecto] = (cP[r.proyecto] || 0) + 1);
+  tr.data.forEach(r => cT[r.proyecto] = (cT[r.proyecto] || 0) + 1);
+
+  $("lista").innerHTML = p.data.length
+    ? p.data.map(x => tarjeta(x, cP[x.codigo] || 0, cT[x.codigo] || 0)).join("")
+    : `<p class="vacio">Aún no tiene desplazes. Cree el primero en el formulario superior.</p>`;
+}
+
+/* ----- Crear desplaze ----- */
+$("crear").addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn = $("c-btn");
+  btn.disabled = true;
+  const { error } = await sb.from("proyectos").insert({
+    codigo: $("c-codigo").value.trim(),
+    nombre: $("c-nombre").value.trim(),
+    descripcion: $("c-desc").value.trim() || null,
+    estado: $("c-estado").value
+  });
+  btn.disabled = false;
+  if (error) return setMsg(error.code === "23505"
+    ? "Ya existe un desplaze con ese código en su cuenta."
+    : "No se pudo crear el desplaze. " + error.message);
+  e.target.reset();
+  setMsg("Desplaze creado correctamente.", "ok");
+  cargar();
+});
+
+/* ----- Cambiar estado ----- */
+$("lista").addEventListener("change", async e => {
+  if (!e.target.classList.contains("estado")) return;
+  const { error } = await sb.from("proyectos")
+    .update({estado: e.target.value, updated_at: new Date().toISOString()})
+    .eq("id", e.target.dataset.id);
+  if (error) return setMsg("No se pudo actualizar el estado.");
+  setMsg("Estado actualizado.", "ok");
+  cargar();
+});
+
+/* ----- Eliminar desplaze con sus elementos y tramos ----- */
+$("lista").addEventListener("click", async e => {
+  const b = e.target.closest("[data-del]");
+  if (!b) return;
+  const codigo = b.dataset.codigo;
+  if (!confirm(`¿Eliminar el desplaze ${codigo} con todos sus elementos y tramos? No se puede deshacer.`)) return;
+  await sb.from("tramos_fibra").delete().eq("proyecto", codigo);
+  await sb.from("puntos_fibra").delete().eq("proyecto", codigo);
+  const { error } = await sb.from("proyectos").delete().eq("id", b.dataset.del);
+  if (error) return setMsg("No se pudo eliminar el desplaze. " + error.message);
+  setMsg(`Desplaze ${codigo} eliminado.`, "ok");
+  cargar();
+});
+
+/* ----- Arranque: exige sesión ----- */
+(async () => {
+  $("brand").textContent = CONFIG.APP_NAME + " · Mis desplazes";
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { location.href = CONFIG.LOGIN_URL; return; }
+    await cargar();
+  } catch (err) {
+    setMsg("No se pudo conectar con el servicio. Intente de nuevo.");
+  }
+})();
+</script>
+</body>
+</html>
