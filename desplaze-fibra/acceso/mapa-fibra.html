@@ -115,6 +115,9 @@ dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
       </div>
       <div id="tf-form" hidden>
         <p class="hint" id="tf-ruta" style="font-weight:600;color:var(--navy)"></p>
+        <div id="f-continuar" hidden>
+          <label style="font-weight:400;display:flex;gap:6px;align-items:center"><input id="tf-continuar" type="checkbox" style="width:auto"> Continuar el cable con los hilos restantes de la NAP</label>
+        </div>
         <label for="tf-tipo">Tipo de fibra</label>
         <select id="tf-tipo"></select>
         <div class="row">
@@ -250,8 +253,8 @@ function actualizarPuertos() {
 }
 
 function napDelTramo() {
-  if (conexion.desde?.tipo === "nap") return conexion.desde;
   if (conexion.hasta?.tipo === "nap") return conexion.hasta;
+  if (conexion.desde?.tipo === "nap") return conexion.desde;
   return null;
 }
 
@@ -276,8 +279,8 @@ function actualizarHilosNap() {
   const total = parseInt($("tf-hilos").value, 10);
   const usados = hilosUsados(cableDelTramo());
   $("tf-hilo-nap").innerHTML = `<option value="auto">Automático (siguiente libre)</option>` +
-    Array.from({length: total}, (_, i) => {
-      const k = i + 1, c = colorHilo(k), u = usados.includes(k);
+    (conexion.fibras || Array.from({length: total}, (_, i) => i + 1)).map(k => {
+      const c = colorHilo(k), u = usados.includes(k);
       return `<option value="${k}"${u ? " disabled" : ""}>Hilo ${k} · ${c.nombre}${u ? " (en uso)" : ""}</option>`;
     }).join("");
 }
@@ -336,14 +339,14 @@ function tablaColoresNap(p) {
   if (!conectados.length) return `<p class="hint" style="margin:8px 0 0">Sin tramos conectados.</p>`;
   return `<div style="max-height:220px;overflow:auto;margin-top:8px">` + conectados.map(t => {
     const otro = puntoPorId(t.desde_id === p.id ? t.hasta_id : t.desde_id);
-    const filas = Array.from({length: t.hilos}, (_, k) => {
-      const c = colorHilo(k + 1);
+    const filas = fibrasDe(t).map(k => {
+      const c = colorHilo(k);
       return `<div style="display:flex;align-items:center;gap:6px;margin-top:2px">` +
-        `<span style="width:22px;text-align:right">${k + 1}</span>` +
+        `<span style="width:22px;text-align:right">${k}</span>` +
         `<i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${c.hex};border:1px solid #888"></i>` +
         `${c.nombre} <span style="color:#6B7785">(tubo ${c.tubo})</span></div>`;
     }).join("");
-    return `<div style="border-top:1px solid #D9DFE7;padding-top:6px;margin-top:8px"><b>${esc(otro?.codigo)}</b> · ${t.hilos} hilos${t.hilo_nap ? ` · Entra en hilo ${t.hilo_nap} (${colorHilo(t.hilo_nap).nombre})` : ""} · ${esc(tipoPorCodigo(t.tipo_fibra)?.nombre || t.tipo_fibra)}${filas}</div>`;
+    return `<div style="border-top:1px solid #D9DFE7;padding-top:6px;margin-top:8px"><b>${esc(otro?.codigo)}</b> · ${t.hilos} hilos${t.hilo_nap && extremoNap(t) === p.id ? ` · Entra en hilo ${t.hilo_nap} (${colorHilo(t.hilo_nap).nombre})` : ""} · ${esc(tipoPorCodigo(t.tipo_fibra)?.nombre || t.tipo_fibra)}${filas}</div>`;
   }).join("") + `</div>`;
 }
 
@@ -603,8 +606,8 @@ function llenarHiloNapEditor(t) {
   const total = parseInt($("ed-hilos").value, 10);
   const usados = tramos.filter(x => x.id !== t.id && x.hilo_nap && cable &&
     (x.desde_id === cable.id || x.hasta_id === cable.id)).map(x => x.hilo_nap);
-  $("ed-hilo-nap").innerHTML = Array.from({length: total}, (_, i) => {
-    const k = i + 1, u = usados.includes(k);
+  $("ed-hilo-nap").innerHTML = fibrasDe({...t, hilos: total}).map(k => {
+    const u = usados.includes(k);
     return `<option value="${k}"${k === t.hilo_nap ? " selected" : ""}${u ? " disabled" : ""}>Hilo ${k} · ${colorHilo(k).nombre}${u ? " (en uso)" : ""}</option>`;
   }).join("");
 }
@@ -767,6 +770,32 @@ $("ruta-guardar").addEventListener("click", async () => {
   setMsg("Recorrido guardado.", "ok");
 });
 
+/* ===== Continuidad del cable: los hilos no usados en una NAP siguen a la siguiente ===== */
+function extremoNap(t) {
+  const a = puntoPorId(t.desde_id), b = puntoPorId(t.hasta_id);
+  if (a?.tipo === "nap") return a.id;
+  if (b?.tipo === "nap") return b.id;
+  return null;
+}
+
+function fibrasDe(t) {
+  return t.fibras || Array.from({length: t.hilos}, (_, i) => i + 1);
+}
+
+function aplicarContinuidad() {
+  conexion.fibras = null;
+  if ($("tf-continuar").checked && conexion.padre) {
+    conexion.fibras = fibrasDe(conexion.padre).filter(f => f !== conexion.padre.hilo_nap);
+    $("tf-hilos").innerHTML = `<option value="${conexion.fibras.length}">${conexion.fibras.length} hilos restantes</option>`;
+    $("tf-hilos").disabled = true;
+  } else {
+    $("tf-hilos").innerHTML = HILOS.map(n => `<option value="${n}">${n} hilos</option>`).join("");
+    $("tf-hilos").disabled = false;
+  }
+  actualizarInfoTramo();
+  actualizarHilosNap();
+}
+
 function metrosTramo() {
   const a = conexion.desde, b = conexion.hasta;
   return longitudRuta([a, ...conexion.pasos, b]);
@@ -786,6 +815,11 @@ function mostrarFormTramo() {
     `<option value="${esc(t.codigo)}">${esc(t.nombre)}</option>`).join("");
   $("tf-hilos").innerHTML = HILOS.map(n => `<option value="${n}">${n} hilos</option>`).join("");
   $("tf-form").hidden = false;
+  const nap = conexion.desde?.tipo === "nap" ? conexion.desde : null;
+  conexion.padre = nap && conexion.hasta?.tipo === "nap"
+    ? tramos.find(t => extremoNap(t) === nap.id && t.hilo_nap) || null : null;
+  $("f-continuar").hidden = !conexion.padre;
+  $("tf-continuar").checked = false;
   actualizarInfoTramo();
   actualizarHilosNap();
 }
@@ -799,7 +833,7 @@ $("tf-guardar").addEventListener("click", async () => {
   let hiloNap = null;
   if (nap) {
     const v = $("tf-hilo-nap").value;
-    hiloNap = v === "auto" ? hiloLibre(total, cable) : Number(v);
+    hiloNap = v === "auto" ? (conexion.fibras ? conexion.fibras[0] : hiloLibre(total, cable)) : Number(v);
     if (!hiloNap || hilosUsados(cable).includes(hiloNap))
       return setMsg("No hay un hilo libre disponible. Seleccione otro hilo o reduzca los conflictos.");
   }
@@ -813,7 +847,9 @@ $("tf-guardar").addEventListener("click", async () => {
     estado: $("tf-estado").value,
     notas: $("tf-notas").value.trim() || null,
     hilo_nap: hiloNap,
-    ruta: conexion.pasos
+    ruta: conexion.pasos,
+    fibras: conexion.fibras,
+    continua_de: conexion.fibras ? conexion.padre.id : null
   };
   btn.disabled = true;
   const { data, error } = await sb.from("tramos_fibra").insert(fila).select().single();
@@ -911,6 +947,7 @@ async function init() {
     $("tipo").addEventListener("change", actualizarFormElemento);
     $("nap-cliente").addEventListener("change", actualizarPuertos);
     $("tf-hilos").addEventListener("change", actualizarHilosNap);
+    $("tf-continuar").addEventListener("change", aplicarContinuidad);
     const pid = new URLSearchParams(location.search).get("proyecto");
     if (pid) { $("proyecto").value = pid; $("btn-cargar").click(); }
     else setMsg("Escriba o seleccione un desplaze guardado para cargarlo.", "ok");
