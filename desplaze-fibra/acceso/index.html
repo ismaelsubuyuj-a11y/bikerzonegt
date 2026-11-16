@@ -46,6 +46,12 @@ input:focus{outline:2px solid var(--teal);outline-offset:0;border-color:transpar
 .email{font-weight:600;color:var(--navy);word-break:break-all;margin:0 0 22px}
 .actions{display:grid;gap:10px}
 .placeholder{margin-top:26px;padding:18px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:13px;text-align:center}
+.profile{display:flex;align-items:center;gap:16px;margin:0 0 24px}
+.profile .email{margin:0;font-size:13px;font-weight:400;color:var(--muted)}
+.uname{font-weight:700;color:var(--navy);margin:0;font-size:17px;word-break:break-all}
+.avatar{position:relative;width:64px;height:64px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-size:24px;overflow:hidden;flex:none}
+.avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+a.btn{display:block;text-align:center;text-decoration:none;box-sizing:border-box;padding:12px}
 dialog{border:none;border-radius:14px;padding:28px;width:min(420px,92vw);color:var(--text)}
 dialog::backdrop{background:rgba(11,37,69,.5)}
 dialog h2{margin:0 0 4px;font-size:20px;color:var(--navy)}
@@ -105,9 +111,15 @@ dialog .row .btn{margin-top:18px}
 
     <!-- Vista con sesión iniciada -->
     <div class="card" id="session-view" hidden>
-      <p class="welcome">Sesión iniciada como</p>
-      <p class="email" id="user-email"></p>
+      <div class="profile">
+        <div class="avatar"><img id="user-avatar" alt="" hidden><span id="user-initial"></span></div>
+        <div>
+          <p class="uname" id="user-name"></p>
+          <p class="email" id="user-email"></p>
+        </div>
+      </div>
       <div class="actions">
+        <a class="btn btn-primary" href="mod-user.html">Editar datos de usuario</a>
         <button id="open-pass" class="btn btn-ghost" type="button">Cambiar contraseña</button>
         <button id="logout-btn" class="btn btn-primary" type="button">Cerrar sesión</button>
       </div>
@@ -155,10 +167,23 @@ const setMsg = (el, text, type = "error") => {
   el.hidden = !text;
 };
 const showLogin = () => { $("login-view").hidden = false; $("session-view").hidden = true; };
-const showSession = user => {
+const showSession = async user => {
   $("login-view").hidden = true;
   $("session-view").hidden = false;
   $("user-email").textContent = user.email;
+  const { data: p } = await sb.from("profiles")
+    .select("username, avatar_path, updated_at")
+    .eq("id", user.id).maybeSingle();
+  const hasPhoto = !!(p && p.avatar_path);
+  const img = $("user-avatar");
+  if (hasPhoto) {
+    img.src = sb.storage.from("avatars").getPublicUrl(p.avatar_path).data.publicUrl +
+      "?v=" + encodeURIComponent(p.updated_at || "");
+  }
+  img.hidden = !hasPhoto;
+  $("user-initial").hidden = hasPhoto;
+  $("user-initial").textContent = ((p && p.username) || user.email).charAt(0).toUpperCase();
+  $("user-name").textContent = (p && p.username) || "Sin nombre de usuario";
 };
 
 /* ----- Inicio de sesión ----- */
