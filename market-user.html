@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CONECTATE - ¡Innovación que conecta! | Tecnología en Guatemala</title>
+
+  <!-- Google Fonts: Inter & Plus Jakarta Sans para UI limpia estilo Apple/iShop + Dancing Script para el eslogan -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Supabase JS v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Configuración de Tailwind con colores corporativos CONECTATE -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+            script: ['Dancing Script', 'cursive'],
+          },
+          colors: {
+            conectate: {
+              blue: '#2F66A9',
+              blueDark: '#234F85',
+              navy: '#1E3A5F',
+              green: '#96C11F',
+              greenDark: '#7FA617',
+              bg: '#F5F5F7',
+            }
+          },
+          boxShadow: {
+            'apple': '0 4px 24px -2px rgba(0, 0, 0, 0.05), 0 1px 3px 0 rgba(0, 0, 0, 0.03)',
+            'apple-hover': '0 16px 36px -6px rgba(47, 102, 169, 0.14), 0 4px 12px -2px rgba(0, 0, 0, 0.05)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Estilos base minimalistas y personalizados */
+    body {
+      background-color: #F5F5F7;
+      color: #1D1D1F;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ocultar barra de scroll en categorías horizontales manteniendo funcionalidad */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Animaciones suaves para modales y tarjetas */
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .animate-modal {
+      animation: fadeSlideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Estilo del eslogan cursivo exacto del logo */
+    .logo-slogan {
+      font-family: 'Dancing Script', cursive;
+      letter-spacing: 0.01em;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-[#2F66A9] selection:text-white">
+
+  <!-- ===================================================================== -->
+  <!-- 1. BARRA SUPERIOR DE ANUNCIOS ESTILO ISHOP GUATEMALA                   -->
+  <!-- ===================================================================== -->
+  <div class="bg-[#1E3A5F] text-white text-xs sm:text-[13px] font-medium py-2 px-4 text-center tracking-wide">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+      <span class="inline-flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-[#96C11F] animate-pulse"></span>
+        Envíos a toda Guatemala
+      </span>
+      <span class="opacity-40">•</span>
+      <span>Garantía oficial Conectate</span>
+      <span class="opacity-40 hidden sm:inline">•</span>
+      <span class="hidden sm:inline text-[#d8eba3]">Compra y publica tecnología</span>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 2. HEADER PRINCIPAL STICKY CON LOGOTIPO SVG EXACTO DE CONECTATE       -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20 gap-3 sm:gap-6">
+
+        <!-- LOGOTIPO OFICIAL CONECTATE (RECREACIÓN FIEL EN SVG) -->
+        <a href="#" onclick="resetFilters(event)" class="flex items-center shrink-0 group focus:outline-none" aria-label="CONECTATE Inicio">
+          <svg class="h-12 sm:h-14 w-auto transition-transform duration-300 group-hover:scale-[1.02]" viewBox="0 0 430 118" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Letra 'C' geométrica gruesa azul (#2F66A9) con muescas diagonales características -->
+            <path d="M 96 29 A 44 44 0 1 0 96 89 L 83 76 A 26 26 0 1 1 83 42 Z" fill="#2F66A9" />
+            <!-- Muescas superiores e inferiores en el brazo derecho de la 'C' -->
+            <line x1="82" y1="22" x2="94" y2="35" stroke="#FFFFFF" stroke-width="2.6" />
+            <line x1="87" y1="19" x2="99" y2="32" stroke="#FFFFFF" stroke-width="2.6" />
+            <line x1="82" y1="96" x2="94" y2="83" stroke="#FFFFFF" stroke-width="2.6" />
+            <line x1="87" y1="99" x2="99" y2="86" stroke="#FFFFFF" stroke-width="2.6" />
+
+            <!-- Franja horizontal verde lima (#96C11F) atravesando el centro izquierdo de la 'C' -->
+            <rect x="14" y="51" width="34" height="16" fill="#96C11F" />
+            <!-- Líneas blancas sutiles separando la franja verde del azul -->
+            <line x1="14" y1="50.5" x2="48" y2="50.5" stroke="#FFFFFF" stroke-width="2" />
+            <line x1="14" y1="67.5" x2="48" y2="67.5" stroke="#FFFFFF" stroke-width="2" />
+
+            <!-- Líneas de circuito impreso saliendo desde la franja verde hacia la derecha -->
+            <!-- Pista 1 (superior) -->
+            <path d="M 48 53.5 H 74 L 84 43.5 H 100" stroke="#2F66A9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="102" cy="43.5" r="2.8" fill="#96C11F" />
+
+            <!-- Pista 2 (media-superior) -->
+            <path d="M 48 56.5 H 78 L 86 49.5 H 97" stroke="#96C11F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="99" cy="49.5" r="2.6" fill="#96C11F" />
+
+            <!-- Pista 3 (central recta) -->
+            <path d="M 48 59.5 H 106" stroke="#96C11F" stroke-width="2.4" stroke-linecap="round" />
+            <circle cx="108.5" cy="59.5" r="3" fill="#96C11F" />
+
+            <!-- Pista 4 (media-inferior) -->
+            <path d="M 48 62.5 H 78 L 86 69.5 H 97" stroke="#96C11F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="99" cy="69.5" r="2.6" fill="#96C11F" />
+
+            <!-- Pista 5 (inferior) -->
+            <path d="M 48 65.5 H 74 L 84 75.5 H 100" stroke="#2F66A9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="102" cy="75.5" r="2.8" fill="#96C11F" />
+
+            <!-- Texto 'ONECTATE' en tipografía sans-serif bold azul (#2F66A9) -->
+            <text x="115" y="75" fill="#2F66A9" font-family="'Plus Jakarta Sans', 'Inter', sans-serif" font-weight="800" font-size="43" letter-spacing="1.5">ONECTATE</text>
+
+            <!-- Eslogan '¡Innovación que conecta!' en tipografía cursiva elegante (#1E3A5F) -->
+            <text x="152" y="103" fill="#1E3A5F" font-family="'Dancing Script', cursive" font-weight="700" font-size="25.5">¡Innovación que conecta!</text>
+          </svg>
+        </a>
+
+        <!-- BUSCADOR EN TIEMPO REAL (DESKTOP) -->
+        <div class="hidden md:flex flex-1 max-w-md relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            id="searchInputDesktop"
+            oninput="handleSearch(this.value)"
+            placeholder="Buscar iPhone, MacBook, AirPods, accesorios..."
+            class="w-full bg-[#F5F5F7] hover:bg-slate-200/70 focus:bg-white text-sm text-slate-800 placeholder-slate-400 rounded-full pl-10 pr-9 py-2.5 border border-transparent focus:border-[#2F66A9] focus:ring-4 focus:ring-[#2F66A9]/10 transition-all outline-none"
+          />
+          <button
+            id="clearSearchBtn"
+            onclick="clearSearch()"
+            class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+            title="Limpiar búsqueda"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- ACCIONES DEL HEADER: SUPABASE + PUBLICAR PRODUCTO + CARRITO -->
+        <div class="flex items-center gap-2 sm:gap-3">
+
+          <!-- Botón Estado / Conectar Supabase -->
+          <button
+            onclick="openSupabaseModal()"
+            id="supabaseStatusBtn"
+            class="flex items-center gap-2 px-3 py-2 rounded-full text-xs sm:text-[13px] font-semibold border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition-all shadow-xs"
+            title="Configurar conexión con Supabase"
+          >
+            <span id="supabaseStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+            <span id="supabaseStatusText" class="hidden sm:inline">Modo Local</span>
+            <span class="sm:hidden">DB</span>
+          </button>
+
+          <!-- Botón Destacado '+ Publicar Producto' -->
+          <button
+            onclick="openPublishModal()"
+            class="flex items-center gap-1.5 bg-[#2F66A9] hover:bg-[#234F85] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold px-3.5 sm:px-4 py-2.5 rounded-full shadow-sm hover:shadow transition-all cursor-pointer"
+          >
+            <svg class="w-4 h-4 text-[#96C11F]" fill="none" stroke="currentColor" stroke-width="2.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span>Publicar<span class="hidden lg:inline"> Producto</span></span>
+          </button>
+
+          <!-- Botón Carrito Lateral -->
+          <button
+            onclick="toggleCartDrawer(true)"
+            class="relative p-2.5 rounded-full bg-[#F5F5F7] hover:bg-slate-200/80 text-slate-800 transition-all cursor-pointer"
+            aria-label="Abrir carrito de compras"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+            </svg>
+            <span
+              id="cartBadge"
+              class="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-[#96C11F] text-[#1E3A5F] text-[11px] font-extrabold flex items-center justify-center shadow-xs"
+            >
+              0
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- BUSCADOR EN MÓVIL -->
+      <div class="pb-3 md:hidden">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            id="searchInputMobile"
+            oninput="handleSearch(this.value)"
+            placeholder="Buscar productos tecnológicos..."
+            class="w-full bg-[#F5F5F7] focus:bg-white text-sm text-slate-800 placeholder-slate-400 rounded-full pl-10 pr-4 py-2 border border-transparent focus:border-[#2F66A9] outline-none"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- BARRA DE CATEGORÍAS ESTILO ISHOP -->
+    <nav class="bg-white border-t border-slate-100">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div id="categoryBar" class="flex items-center gap-2 sm:gap-3 py-2.5 overflow-x-auto no-scrollbar">
+          <!-- Renderizado dinámicamente por JS -->
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- 3. BANNER HERO ESTILO ISHOP GUATEMALA                                 -->
+  <!-- ===================================================================== -->
+  <section class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+    <div class="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white via-[#F8FAFC] to-[#EBF2FA] border border-slate-200/70 shadow-apple p-6 sm:p-10 lg:p-12">
+      <!-- Decoración sutil de circuitos en el fondo -->
+      <div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-[#2F66A9]/5 blur-2xl pointer-events-none"></div>
+      <div class="absolute right-1/4 -bottom-20 w-72 h-72 rounded-full bg-[#96C11F]/10 blur-2xl pointer-events-none"></div>
+
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Columna de Texto -->
+        <div class="lg:col-span-7 space-y-5">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200/80 shadow-2xs">
+            <span class="w-2 h-2 rounded-full bg-[#96C11F]"></span>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#2F66A9]">Tienda Oficial & Marketplace GT</span>
+          </div>
+
+          <h1 class="font-display text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#1D1D1F] tracking-tight leading-[1.12]">
+            Tecnología de vanguardia con el respaldo de <span class="text-[#2F66A9]">CONECTATE</span>.
+          </h1>
+
+          <p class="text-slate-600 text-base sm:text-lg max-w-2xl leading-relaxed">
+            Descubre lo último en smartphones, laptops, audio y smart home en Guatemala, o publica tus propios dispositivos tecnológicos en nuestra comunidad verificada.
+          </p>
+
+          <div class="flex flex-wrap items-center gap-3.5 pt-2">
+            <a
+              href="#catalogo"
+              class="inline-flex items-center justify-center gap-2 bg-[#2F66A9] hover:bg-[#234F85] text-white font-semibold text-sm sm:text-base px-6 py-3.5 rounded-full shadow-sm hover:shadow-md transition-all"
+            >
+              <span>Explorar Catálogo</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
+              </svg>
+            </a>
+
+            <button
+              onclick="openPublishModal()"
+              class="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-[#1E3A5F] font-semibold text-sm sm:text-base px-6 py-3.5 rounded-full border border-slate-200 shadow-2xs hover:border-[#2F66A9]/40 transition-all cursor-pointer"
+            >
+              <span class="w-2.5 h-2.5 rounded-full bg-[#96C11F]"></span>
+              <span>Vender / Cargar Producto</span>
+            </button>
+          </div>
+
+          <!-- Beneficios rápidos estilo iShop -->
+          <div class="grid grid-cols-3 gap-3 pt-4 border-t border-slate-200/70 max-w-xl">
+            <div>
+              <p class="text-xs sm:text-sm font-bold text-[#1E3A5F]">Visacuotas</p>
+              <p class="text-[11px] sm:text-xs text-slate-500">Hasta 18 cuotas sin recargo</p>
+            </div>
+            <div>
+              <p class="text-xs sm:text-sm font-bold text-[#1E3A5F]">Entrega Rápida</p>
+              <p class="text-[11px] sm:text-xs text-slate-500">Capital y departamentos</p>
+            </div>
+            <div>
+              <p class="text-xs sm:text-sm font-bold text-[#1E3A5F]">100% Seguro</p>
+              <p class="text-[11px] sm:text-xs text-slate-500">Tienda y comunidad activa</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna Visual Destacada -->
+        <div class="lg:col-span-5">
+          <div class="relative bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/70 shadow-apple">
+            <div class="flex items-center justify-between mb-3">
+              <span class="px-2.5 py-1 rounded-full bg-[#96C11F]/20 text-[#1E3A5F] text-xs font-bold">Destacado del mes</span>
+              <span class="text-xs font-semibold text-[#2F66A9]">Entrega Inmediata</span>
+            </div>
+            <div class="aspect-[4/3] rounded-2xl bg-[#F5F5F7] overflow-hidden flex items-center justify-center p-4">
+              <img
+                src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80"
+                alt="iPhone 16 Pro Max Titanio"
+                onerror="this.onerror=null; this.src=getFallbackSvg('iPhone 16 Pro Max');"
+                class="w-full h-full object-cover rounded-xl hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <div class="mt-4 flex items-center justify-between gap-2">
+              <div>
+                <h2 class="font-display font-bold text-slate-900 text-base sm:text-lg">iPhone 16 Pro Max 256GB</h2>
+                <p class="text-xs text-slate-500">Titanio Natural • Garantía Oficial Conectate</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-slate-400">Desde</p>
+                <p class="font-display font-extrabold text-[#2F66A9] text-base sm:text-lg">Q 12,499.00</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- 4. CATÁLOGO PRINCIPAL Y TABS DE ORIGEN (OFICIAL VS MARKETPLACE)       -->
+  <!-- ===================================================================== -->
+  <main id="catalogo" class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+
+    <!-- Controles superiores: Tabs de Origen + Ordenamiento + Contador -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      <!-- Tabs de Origen de Productos -->
+      <div class="inline-flex p-1.5 bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-x-auto no-scrollbar">
+        <button
+          onclick="setSourceFilter('all')"
+          id="tab-all"
+          class="source-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer bg-[#2F66A9] text-white shadow-xs"
+        >
+          Todos los productos
+        </button>
+        <button
+          onclick="setSourceFilter('official')"
+          id="tab-official"
+          class="source-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer text-slate-600 hover:text-slate-900 flex items-center gap-1.5"
+        >
+          <span class="w-2 h-2 rounded-full bg-[#2F66A9]"></span>
+          Tienda Oficial Conectate
+        </button>
+        <button
+          onclick="setSourceFilter('community')"
+          id="tab-community"
+          class="source-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer text-slate-600 hover:text-slate-900 flex items-center gap-1.5"
+        >
+          <span class="w-2 h-2 rounded-full bg-[#96C11F]"></span>
+          Marketplace Usuarios
+        </button>
+      </div>
+
+      <!-- Contador de resultados y ordenamiento -->
+      <div class="flex items-center justify-between sm:justify-end gap-3">
+        <span id="resultsCount" class="text-xs sm:text-sm text-slate-500 font-medium">
+          Mostrando 0 productos
+        </span>
+
+        <select
+          id="sortSelect"
+          onchange="handleSort(this.value)"
+          class="bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium text-slate-700 focus:border-[#2F66A9] outline-none cursor-pointer"
+        >
+          <option value="newest">Más recientes</option>
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Banner Informativo si Supabase está conectado -->
+    <div id="supabaseSyncBanner" class="hidden mb-6 bg-white border border-[#96C11F]/50 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-[#96C11F]/20 text-[#1E3A5F] flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-[#1E3A5F]">Conectado en vivo con Supabase</p>
+          <p class="text-xs text-slate-500">Todos los productos que publiques o edites se sincronizan automáticamente en la nube.</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 self-end sm:self-center">
+        <button onclick="fetchProductsFromSupabase()" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer">
+          Actualizar ahora
+        </button>
+      </div>
+    </div>
+
+    <!-- Estado de Carga (Skeleton) -->
+    <div id="loadingGrid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-white rounded-3xl p-5 border border-slate-100 animate-pulse space-y-4">
+        <div class="aspect-square bg-slate-200 rounded-2xl"></div>
+        <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+        <div class="h-5 bg-slate-200 rounded w-3/4"></div>
+        <div class="h-8 bg-slate-200 rounded w-full"></div>
+      </div>
+      <div class="bg-white rounded-3xl p-5 border border-slate-100 animate-pulse space-y-4">
+        <div class="aspect-square bg-slate-200 rounded-2xl"></div>
+        <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+        <div class="h-5 bg-slate-200 rounded w-3/4"></div>
+        <div class="h-8 bg-slate-200 rounded w-full"></div>
+      </div>
+      <div class="bg-white rounded-3xl p-5 border border-slate-100 animate-pulse space-y-4 hidden sm:block">
+        <div class="aspect-square bg-slate-200 rounded-2xl"></div>
+        <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+        <div class="h-5 bg-slate-200 rounded w-3/4"></div>
+        <div class="h-8 bg-slate-200 rounded w-full"></div>
+      </div>
+      <div class="bg-white rounded-3xl p-5 border border-slate-100 animate-pulse space-y-4 hidden lg:block">
+        <div class="aspect-square bg-slate-200 rounded-2xl"></div>
+        <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+        <div class="h-5 bg-slate-200 rounded w-3/4"></div>
+        <div class="h-8 bg-slate-200 rounded w-full"></div>
+      </div>
+    </div>
+
+    <!-- GRILLA DE PRODUCTOS -->
+    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <!-- Renderizado dinámico de tarjetas de producto -->
+    </div>
+
+    <!-- ESTADO VACÍO (Cuando no hay coincidencias o tabla vacía) -->
+    <div id="emptyState" class="hidden bg-white rounded-3xl border border-slate-200/70 p-10 sm:p-14 text-center max-w-xl mx-auto my-8 shadow-apple">
+      <div class="w-16 h-16 rounded-2xl bg-[#2F66A9]/10 text-[#2F66A9] flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+      </div>
+      <h3 class="font-display text-xl font-bold text-slate-900 mb-2">No encontramos productos aquí</h3>
+      <p class="text-sm text-slate-500 mb-6">
+        Intenta cambiar los filtros de búsqueda o sé el primero en publicar un producto tecnológico en esta categoría.
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-3">
+        <button onclick="resetFilters()" class="px-5 py-2.5 rounded-full text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer">
+          Ver todos los productos
+        </button>
+        <button onclick="openPublishModal()" class="px-5 py-2.5 rounded-full text-sm font-semibold bg-[#2F66A9] hover:bg-[#234F85] text-white transition-colors cursor-pointer">
+          + Publicar Producto
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- 5. FOOTER CORPORATIVO CONECTATE                                       -->
+  <!-- ===================================================================== -->
+  <footer class="bg-white border-t border-slate-200/80 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <!-- Marca -->
+        <div class="md:col-span-2 space-y-4">
+          <svg class="h-12 w-auto" viewBox="0 0 430 118" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 96 29 A 44 44 0 1 0 96 89 L 83 76 A 26 26 0 1 1 83 42 Z" fill="#2F66A9" />
+            <line x1="82" y1="22" x2="94" y2="35" stroke="#FFFFFF" stroke-width="2.6" />
+            <line x1="87" y1="19" x2="99" y2="32" stroke="#FFFFFF" stroke-width="2.6" />
+            <line x1="82" y1="96" x2="94" y2="83" stroke="#FFFFFF" stroke-width="2.6" />
+            <line x1="87" y1="99" x2="99" y2="86" stroke="#FFFFFF" stroke-width="2.6" />
+            <rect x="14" y="51" width="34" height="16" fill="#96C11F" />
+            <line x1="14" y1="50.5" x2="48" y2="50.5" stroke="#FFFFFF" stroke-width="2" />
+            <line x1="14" y1="67.5" x2="48" y2="67.5" stroke="#FFFFFF" stroke-width="2" />
+            <path d="M 48 53.5 H 74 L 84 43.5 H 100" stroke="#2F66A9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="102" cy="43.5" r="2.8" fill="#96C11F" />
+            <path d="M 48 56.5 H 78 L 86 49.5 H 97" stroke="#96C11F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="99" cy="49.5" r="2.6" fill="#96C11F" />
+            <path d="M 48 59.5 H 106" stroke="#96C11F" stroke-width="2.4" stroke-linecap="round" />
+            <circle cx="108.5" cy="59.5" r="3" fill="#96C11F" />
+            <path d="M 48 62.5 H 78 L 86 69.5 H 97" stroke="#96C11F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="99" cy="69.5" r="2.6" fill="#96C11F" />
+            <path d="M 48 65.5 H 74 L 84 75.5 H 100" stroke="#2F66A9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="102" cy="75.5" r="2.8" fill="#96C11F" />
+            <text x="115" y="75" fill="#2F66A9" font-family="'Plus Jakarta Sans', 'Inter', sans-serif" font-weight="800" font-size="43" letter-spacing="1.5">ONECTATE</text>
+            <text x="152" y="103" fill="#1E3A5F" font-family="'Dancing Script', cursive" font-weight="700" font-size="25.5">¡Innovación que conecta!</text>
+          </svg>
+          <p class="text-sm text-slate-500 max-w-md leading-relaxed">
+            Tu destino tecnológico en Guatemala. Equipos originales garantizados y un espacio seguro para que nuestra comunidad compre y venda tecnología.
+          </p>
+        </div>
+
+        <!-- Categorías -->
+        <div>
+          <h4 class="font-display font-bold text-slate-900 text-sm mb-3">Categorías</h4>
+          <ul class="space-y-2 text-sm text-slate-500">
+            <li><button onclick="selectCategory('Smartphones')" class="hover:text-[#2F66A9] cursor-pointer">Smartphones</button></li>
+            <li><button onclick="selectCategory('Laptops & Tablets')" class="hover:text-[#2F66A9] cursor-pointer">Laptops & Tablets</button></li>
+            <li><button onclick="selectCategory('Audio')" class="hover:text-[#2F66A9] cursor-pointer">Audio & Audífonos</button></li>
+            <li><button onclick="selectCategory('Smart Home')" class="hover:text-[#2F66A9] cursor-pointer">Smart Home</button></li>
+            <li><button onclick="selectCategory('Accesorios')" class="hover:text-[#2F66A9] cursor-pointer">Accesorios</button></li>
+          </ul>
+        </div>
+
+        <!-- Plataforma -->
+        <div>
+          <h4 class="font-display font-bold text-slate-900 text-sm mb-3">Plataforma</h4>
+          <ul class="space-y-2 text-sm text-slate-500">
+            <li><button onclick="openPublishModal()" class="hover:text-[#2F66A9] cursor-pointer">Publicar un producto</button></li>
+            <li><button onclick="openSupabaseModal()" class="hover:text-[#2F66A9] cursor-pointer">Conectar base de datos Supabase</button></li>
+            <li><button onclick="setSourceFilter('official')" class="hover:text-[#2F66A9] cursor-pointer">Tienda Oficial Conectate</button></li>
+            <li><button onclick="setSourceFilter('community')" class="hover:text-[#2F66A9] cursor-pointer">Marketplace Comunidad</button></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-100 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <p>© 2026 CONECTATE Guatemala. Todos los derechos reservados.</p>
+        <p>Precios expresados en Quetzales Guatemaltecos (GTQ - Q)</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 1: PUBLICAR / CARGAR PRODUCTO (DUEÑO Y USUARIOS)                -->
+  <!-- ===================================================================== -->
+  <div id="publishModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs overflow-y-auto">
+    <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden animate-modal my-8">
+      <!-- Header Modal -->
+      <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-[#2F66A9]">Catálogo & Marketplace</span>
+          <h3 class="font-display text-xl font-extrabold text-slate-900">Cargar / Publicar Producto</h3>
+        </div>
+        <button onclick="closePublishModal()" class="p-2 rounded-full hover:bg-slate-200/70 text-slate-500 transition-colors cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Formulario -->
+      <form id="publishForm" onsubmit="handlePublishSubmit(event)" class="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+
+        <!-- Tipo de Publicador -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">¿Quién publica este producto?</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label class="relative flex items-center gap-3 p-3.5 rounded-2xl border-2 border-[#2F66A9] bg-[#2F66A9]/5 cursor-pointer transition-all" id="pubCardOfficial">
+              <input type="radio" name="publisher_type" value="official" checked onchange="togglePublisherFields('official')" class="sr-only" />
+              <div class="w-9 h-9 rounded-xl bg-[#2F66A9] text-white flex items-center justify-center shrink-0 font-display font-extrabold text-sm">C</div>
+              <div>
+                <p class="text-sm font-bold text-slate-900">Tienda Oficial Conectate</p>
+                <p class="text-xs text-slate-500">Inventario oficial con garantía</p>
+              </div>
+            </label>
+
+            <label class="relative flex items-center gap-3 p-3.5 rounded-2xl border-2 border-slate-200 hover:border-slate-300 bg-white cursor-pointer transition-all" id="pubCardCommunity">
+              <input type="radio" name="publisher_type" value="community" onchange="togglePublisherFields('community')" class="sr-only" />
+              <div class="w-9 h-9 rounded-xl bg-[#96C11F]/25 text-[#1E3A5F] flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-bold text-slate-900">Usuario / Comunidad</p>
+                <p class="text-xs text-slate-500">Publicación de cliente o vendedor</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Nombre del Producto y Categoría -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Nombre del producto *</label>
+            <input
+              type="text"
+              id="prodName"
+              required
+              placeholder="Ej. iPhone 16 Pro 256GB Titanio"
+              class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-[#2F66A9] focus:ring-4 focus:ring-[#2F66A9]/10 outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Categoría *</label>
+            <select
+              id="prodCategory"
+              required
+              class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm bg-white focus:border-[#2F66A9] focus:ring-4 focus:ring-[#2F66A9]/10 outline-none"
+            >
+              <option value="Smartphones">Smartphones</option>
+              <option value="Laptops & Tablets">Laptops & Tablets</option>
+              <option value="Audio">Audio</option>
+              <option value="Smart Home">Smart Home</option>
+              <option value="Accesorios">Accesorios</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Precio (Q), Estado y Stock -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Precio en Quetzales (Q) *</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-sm font-bold text-[#2F66A9]">Q</span>
+              <input
+                type="number"
+                id="prodPrice"
+                step="0.01"
+                min="1"
+                required
+                placeholder="4500.00"
+                class="w-full rounded-xl border border-slate-200 pl-8 pr-3.5 py-2.5 text-sm font-semibold focus:border-[#2F66A9] focus:ring-4 focus:ring-[#2F66A9]/10 outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Estado del equipo *</label>
+            <select
+              id="prodCondition"
+              class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm bg-white focus:border-[#2F66A9] outline-none"
+            >
+              <option value="Nuevo">Nuevo (Sellado)</option>
+              <option value="Seminuevo">Seminuevo (Excelente estado)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Stock disponible *</label>
+            <input
+              type="number"
+              id="prodStock"
+              min="1"
+              value="1"
+              required
+              class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-[#2F66A9] outline-none"
+            />
+          </div>
+        </div>
+
+        <!-- Datos del Vendedor y WhatsApp -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/70">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Nombre del vendedor / tienda *</label>
+            <input
+              type="text"
+              id="prodSellerName"
+              value="Tienda Oficial Conectate"
+              required
+              placeholder="Tu nombre o tienda"
+              class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm focus:border-[#2F66A9] outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Teléfono / WhatsApp Guatemala</label>
+            <input
+              type="tel"
+              id="prodSellerPhone"
+              placeholder="Ej. 5512-3456"
+              class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm focus:border-[#2F66A9] outline-none"
+            />
+          </div>
+        </div>
+
+        <!-- Carga de Imagen: Drag & Drop + Archivo + URL Alternativa -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Fotografía del producto</label>
+
+          <div
+            id="dropZone"
+            ondragover="handleDragOver(event)"
+            ondragleave="handleDragLeave(event)"
+            ondrop="handleDrop(event)"
+            onclick="document.getElementById('prodImageFile').click()"
+            class="border-2 border-dashed border-slate-300 hover:border-[#2F66A9] bg-slate-50/60 hover:bg-[#2F66A9]/5 rounded-2xl p-4 text-center cursor-pointer transition-all"
+          >
+            <input type="file" id="prodImageFile" accept="image/*" onchange="handleFileSelect(event)" class="hidden" />
+
+            <!-- Vista previa cuando hay imagen -->
+            <div id="imagePreviewContainer" class="hidden flex-col items-center gap-2">
+              <img id="imagePreview" src="" alt="Vista previa" class="h-32 w-auto object-contain rounded-xl shadow-xs bg-white p-1" />
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-[#2F66A9]">Imagen lista (optimizada)</span>
+                <button type="button" onclick="clearUploadedImage(event)" class="text-xs text-red-500 hover:underline font-medium">Quitar</button>
+              </div>
+            </div>
+
+            <!-- Estado inicial Drag & Drop -->
+            <div id="dropZonePlaceholder" class="py-2 space-y-1.5">
+              <div class="w-10 h-10 rounded-full bg-white shadow-2xs border border-slate-200 flex items-center justify-center mx-auto text-[#2F66A9]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                </svg>
+              </div>
+              <p class="text-xs sm:text-sm font-semibold text-slate-700">Arrastra una foto aquí o haz clic para subir desde tu dispositivo</p>
+              <p class="text-[11px] text-slate-400">JPG, PNG o WebP • Compresión automática inteligente</p>
+            </div>
+          </div>
+
+          <!-- Opción alternativa: URL de imagen -->
+          <div class="mt-2.5">
+            <input
+              type="url"
+              id="prodImageUrl"
+              oninput="handleUrlPreview(this.value)"
+              placeholder="O pega aquí una URL de imagen (https://...)"
+              class="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs text-slate-700 focus:border-[#2F66A9] outline-none"
+            />
+          </div>
+        </div>
+
+        <!-- Descripción Detallada -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Descripción y especificaciones *</label>
+          <textarea
+            id="prodDescription"
+            rows="3"
+            required
+            placeholder="Describe capacidad, color, accesorios incluidos, garantía o detalles relevantes..."
+            class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-[#2F66A9] focus:ring-4 focus:ring-[#2F66A9]/10 outline-none resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <button
+            type="button"
+            onclick="closePublishModal()"
+            class="px-5 py-2.5 rounded-full text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            id="publishSubmitBtn"
+            class="px-6 py-2.5 rounded-full text-sm font-semibold bg-[#2F66A9] hover:bg-[#234F85] text-white shadow-sm transition-all flex items-center gap-2 cursor-pointer"
+          >
+            <span>Publicar Producto</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 2: CONFIGURACIÓN E INTEGRACIÓN REAL CON SUPABASE                -->
+  <!-- ===================================================================== -->
+  <div id="supabaseModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs overflow-y-auto">
+    <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden animate-modal my-8">
+      <!-- Header -->
+      <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-[#1E3A5F] text-white">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-[#96C11F] text-[#1E3A5F] flex items-center justify-center font-extrabold">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-display text-lg sm:text-xl font-extrabold">Conectar Base de Datos Supabase</h3>
+            <p class="text-xs text-slate-300">Sincroniza tu catálogo y publicaciones de usuarios en la nube</p>
+          </div>
+        </div>
+        <button onclick="closeSupabaseModal()" class="p-2 rounded-full hover:bg-white/10 text-white transition-colors cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5 max-h-[82vh] overflow-y-auto">
+        <!-- Estado Actual -->
+        <div id="supabaseModalStatusBox" class="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <span id="modalDot" class="w-3 h-3 rounded-full bg-amber-500"></span>
+            <div>
+              <p id="modalStatusTitle" class="text-sm font-bold text-slate-900">Actualmente en Modo Local (localStorage)</p>
+              <p id="modalStatusDesc" class="text-xs text-slate-600">Ingresa tus credenciales de proyecto Supabase para activar la base de datos real.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario Credenciales -->
+        <form onsubmit="saveSupabaseConfig(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">SUPABASE_URL *</label>
+            <input
+              type="url"
+              id="sbUrlInput"
+              required
+              placeholder="https://tu-proyecto-id.supabase.co"
+              class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm font-mono focus:border-[#2F66A9] focus:ring-4 focus:ring-[#2F66A9]/10 outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">SUPABASE_ANON_KEY (Public Key) *</label>
+            <input
+              type="password"
+              id="sbKeyInput"
+              required
+              placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm font-mono focus:border-[#2F66A9] focus:ring-4 focus:ring-[#2F66A9]/10 outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Nombre de la tabla</label>
+            <input
+              type="text"
+              id="sbTableInput"
+              value="products"
+              required
+              placeholder="products"
+              class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm font-mono focus:border-[#2F66A9] outline-none"
+            />
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <button
+                type="submit"
+                class="px-5 py-2.5 rounded-full text-sm font-semibold bg-[#2F66A9] hover:bg-[#234F85] text-white shadow-sm transition-all cursor-pointer"
+              >
+                Guardar y Conectar
+              </button>
+
+              <button
+                type="button"
+                id="migrateLocalBtn"
+                onclick="migrateLocalToSupabase()"
+                class="hidden px-4 py-2.5 rounded-full text-xs sm:text-sm font-semibold bg-[#96C11F] hover:bg-[#7FA617] text-[#1E3A5F] transition-all cursor-pointer"
+              >
+                Subir productos locales a Supabase
+              </button>
+            </div>
+
+            <button
+              type="button"
+              id="disconnectSbBtn"
+              onclick="disconnectSupabase()"
+              class="hidden px-4 py-2 rounded-full text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+            >
+              Desconectar
+            </button>
+          </div>
+        </form>
+
+        <!-- Sección SQL de Configuración en 1 Clic -->
+        <div class="border-t border-slate-200 pt-4">
+          <div class="flex items-center justify-between mb-2">
+            <button
+              type="button"
+              onclick="toggleSqlBox()"
+              class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#2F66A9] hover:underline cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+              </svg>
+              <span>Ver SQL de configuración (Crear tabla + Políticas RLS)</span>
+            </button>
+
+            <button
+              type="button"
+              onclick="copySqlScript()"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors cursor-pointer"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+              </svg>
+              <span id="copySqlText">Copiar SQL</span>
+            </button>
+          </div>
+
+          <div id="sqlCodeContainer" class="mt-2">
+            <p class="text-xs text-slate-500 mb-2">
+              Pega este script en el <strong>SQL Editor</strong> de tu panel de Supabase y haz clic en <em>Run</em> para dejar la tabla lista al instante:
+            </p>
+            <pre id="supabaseSqlCode" class="bg-slate-900 text-emerald-300 text-[11px] sm:text-xs font-mono p-4 rounded-2xl overflow-x-auto leading-relaxed select-all">-- 1. Crear tabla de productos para CONECTATE Guatemala
+CREATE TABLE IF NOT EXISTS public.products (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+  name TEXT NOT NULL,
+  category TEXT NOT NULL,
+  price NUMERIC(12, 2) NOT NULL,
+  publisher_type TEXT NOT NULL DEFAULT 'official',
+  seller_name TEXT NOT NULL,
+  seller_phone TEXT,
+  condition TEXT NOT NULL DEFAULT 'Nuevo',
+  stock INTEGER NOT NULL DEFAULT 1,
+  description TEXT,
+  image_url TEXT
+);
+
+-- 2. Activar seguridad a nivel de fila (RLS)
+ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+
+-- 3. Políticas públicas para leer y publicar productos
+CREATE POLICY "Lectura publica de productos"
+ON public.products FOR SELECT USING (true);
+
+CREATE POLICY "Insercion publica de productos"
+ON public.products FOR INSERT WITH CHECK (true);</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 3: DETALLE DE PRODUCTO                                          -->
+  <!-- ===================================================================== -->
+  <div id="productDetailModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs overflow-y-auto">
+    <div class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden animate-modal my-8">
+      <div class="relative grid grid-cols-1 md:grid-cols-2">
+        <!-- Botón cerrar -->
+        <button onclick="closeDetailModal()" class="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/90 hover:bg-slate-100 text-slate-600 shadow-xs border border-slate-200/60 transition-colors cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <!-- Imagen del Producto -->
+        <div class="bg-[#F5F5F7] p-6 sm:p-8 flex items-center justify-center min-h-[280px]">
+          <img
+            id="detailImage"
+            src=""
+            alt="Producto"
+            class="max-h-72 w-auto object-contain rounded-2xl drop-shadow-sm"
+          />
+        </div>
+
+        <!-- Información y Compra -->
+        <div class="p-6 sm:p-8 flex flex-col justify-between space-y-5">
+          <div class="space-y-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="detailPublisherBadge" class="px-2.5 py-1 rounded-full text-[11px] font-bold"></span>
+              <span id="detailConditionBadge" class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700"></span>
+            </div>
+
+            <p id="detailCategory" class="text-xs font-bold uppercase tracking-wider text-[#2F66A9]"></p>
+            <h3 id="detailTitle" class="font-display text-2xl font-extrabold text-slate-900 leading-tight"></h3>
+            <p id="detailPrice" class="font-display text-2xl sm:text-3xl font-extrabold text-[#2F66A9]"></p>
+
+            <p id="detailDescription" class="text-sm text-slate-600 leading-relaxed pt-1"></p>
+
+            <div class="pt-3 border-t border-slate-100 space-y-1.5 text-xs text-slate-500">
+              <p><strong class="text-slate-700">Publicado por:</strong> <span id="detailSeller"></span></p>
+              <p><strong class="text-slate-700">Disponibilidad:</strong> <span id="detailStock" class="text-emerald-600 font-semibold"></span></p>
+            </div>
+          </div>
+
+          <div class="space-y-2.5 pt-2">
+            <button
+              id="detailAddToCartBtn"
+              class="w-full py-3.5 px-5 rounded-full bg-[#2F66A9] hover:bg-[#234F85] text-white font-semibold text-sm shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+              </svg>
+              <span>Agregar al Carrito</span>
+            </button>
+
+            <a
+              id="detailContactBtn"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="w-full py-3 px-5 rounded-full bg-[#96C11F]/20 hover:bg-[#96C11F]/30 text-[#1E3A5F] font-bold text-sm transition-all flex items-center justify-center gap-2"
+            >
+              <span>Contactar al vendedor por WhatsApp</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- DRAWER LATERAL: CARRITO DE COMPRAS                                    -->
+  <!-- ===================================================================== -->
+  <div id="cartDrawerBackdrop" onclick="toggleCartDrawer(false)" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs transition-opacity"></div>
+  <aside id="cartDrawer" class="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-out flex flex-col">
+    <!-- Header Carrito -->
+    <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+      <div>
+        <h3 class="font-display text-lg font-extrabold text-slate-900">Tu Bolsa de Compras</h3>
+        <p class="text-xs text-slate-500">CONECTATE Guatemala</p>
+      </div>
+      <button onclick="toggleCartDrawer(false)" class="p-2 rounded-full hover:bg-slate-100 text-slate-500 cursor-pointer">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Lista de Items -->
+    <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-6 space-y-4">
+      <!-- Renderizado por JS -->
+    </div>
+
+    <!-- Resumen y Checkout -->
+    <div id="cartFooter" class="border-t border-slate-200/80 p-6 bg-slate-50/80 space-y-4">
+      <div class="space-y-1.5 text-sm">
+        <div class="flex justify-between text-slate-500">
+          <span>Envío en Guatemala</span>
+          <span class="font-semibold text-emerald-600">Gratis</span>
+        </div>
+        <div class="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t border-slate-200/70">
+          <span>Total estimado</span>
+          <span id="cartTotalAmount" class="text-[#2F66A9]">Q 0.00</span>
+        </div>
+      </div>
+
+      <button
+        onclick="handleCheckout()"
+        class="w-full py-3.5 px-6 rounded-full bg-[#2F66A9] hover:bg-[#234F85] text-white font-semibold text-sm shadow-sm transition-all cursor-pointer"
+      >
+        Finalizar Pedido
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===================================================================== -->
+  <!-- TOAST DE NOTIFICACIONES ELEGANTES                                     -->
+  <!-- ===================================================================== -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- ===================================================================== -->
+  <!-- LÓGICA JAVASCRIPT: ESTADO, SUPABASE, IMÁGENES Y RENDERIZADO           -->
+  <!-- ===================================================================== -->
+  <script>
+    // -----------------------------------------------------------------------
+    // 1. CONSTANTES Y DATOS INICIALES (ESTILO ISHOP GUATEMALA)
+    // -----------------------------------------------------------------------
+    const CATEGORIES = [
+      'Todos',
+      'Smartphones',
+      'Laptops & Tablets',
+      'Audio',
+      'Smart Home',
+      'Accesorios'
+    ];
+
+    const STORAGE_KEYS = {
+      PRODUCTS: 'conectate_products_v1',
+      CART: 'conectate_cart_v1',
+      SB_URL: 'conectate_sb_url',
+      SB_KEY: 'conectate_sb_key',
+      SB_TABLE: 'conectate_sb_table'
+    };
+
+    const INITIAL_PRODUCTS = [
+      {
+        id: 'init-1',
+        name: 'iPhone 16 Pro Max 256GB - Titanio Natural',
+        category: 'Smartphones',
+        price: 12499.00,
+        publisher_type: 'official',
+        seller_name: 'Tienda Oficial Conectate',
+        seller_phone: '50222001100',
+        condition: 'Nuevo',
+        stock: 8,
+        description: 'Pantalla Super Retina XDR de 6.9 pulgadas, chip A18 Pro, Control de Cámara y grabación Dolby Vision 4K a 120 cps. Incluye 1 año de garantía oficial.',
+        image_url: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString()
+      },
+      {
+        id: 'init-2',
+        name: 'MacBook Air M3 13" (16GB RAM / 512GB SSD)',
+        category: 'Laptops & Tablets',
+        price: 11899.00,
+        publisher_type: 'official',
+        seller_name: 'Tienda Oficial Conectate',
+        seller_phone: '50222001100',
+        condition: 'Nuevo',
+        stock: 5,
+        description: 'Diseño ultradelgado en aluminio Medianoche, batería de hasta 18 horas, pantalla Liquid Retina y potencia extraordinaria con el chip Apple M3.',
+        image_url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString()
+      },
+      {
+        id: 'init-3',
+        name: 'AirPods Pro (2.ª generación) con estuche USB-C',
+        category: 'Audio',
+        price: 2199.00,
+        publisher_type: 'official',
+        seller_name: 'Tienda Oficial Conectate',
+        seller_phone: '50222001100',
+        condition: 'Nuevo',
+        stock: 15,
+        description: 'Cancelación Activa de Ruido hasta 2 veces superior, Audio Espacial personalizado y resistencia al polvo, sudor y agua (IP54).',
+        image_url: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=800&q=80',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 10).toISOString()
+      },
+      {
+        id: 'init-4',
+        name: 'iPad Pro M4 11" Wi-Fi 256GB Gris Espacial',
+        category: 'Laptops & Tablets',
+        price: 9450.00,
+        publisher_type: 'official',
+        seller_name: 'Tienda Oficial Conectate',
+        seller_phone: '50222001100',
+        condition: 'Nuevo',
+        stock: 4,
+        description: 'Pantalla Ultra Retina XDR OLED en tándem, diseño increíblemente fino de 5.3 mm y compatibilidad con Apple Pencil Pro.',
+        image_url: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 14).toISOString()
+      },
+      {
+        id: 'init-5',
+        name: 'Apple Watch Series 10 GPS 46mm Aluminio',
+        category: 'Accesorios',
+        price: 3899.00,
+        publisher_type: 'official',
+        seller_name: 'Tienda Oficial Conectate',
+        seller_phone: '50222001100',
+        condition: 'Nuevo',
+        stock: 10,
+        description: 'La pantalla más grande y el diseño más delgado en un Apple Watch. Sensores avanzados de salud, sueño y entrenamiento acuático.',
+        image_url: 'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?auto=format&fit=crop&w=800&q=80',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 20).toISOString()
+      },
+      {
+        id: 'init-6',
+        name: 'HomePod mini - Blanco Espacial',
+        category: 'Smart Home',
+        price: 999.00,
+        publisher_type: 'official',
+        seller_name: 'Tienda Oficial Conectate',
+        seller_phone: '50222001100',
+        condition: 'Nuevo',
+        stock: 12,
+        description: 'Sonido envolvente de 360 grados, asistente inteligente Siri y centro de control para todos tus accesorios HomeKit.',
+        image_url: 'https://images.unsplash.com/photo-1589492477829-5e65395b66cc?auto=format&fit=crop&w=800&q=80',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 28).toISOString()
+      },
+      {
+        id: 'init-7',
+        name: 'Samsung Galaxy S24 Ultra 512GB Titanium Gray',
+        category: 'Smartphones',
+        price: 7850.00,
+        publisher_type: 'community',
+        seller_name: 'Carlos Méndez (Zona 10)',
+        seller_phone: '50255112233',
+        condition: 'Seminuevo',
+        stock: 1,
+        description: 'Liberado de fábrica, incluye caja original, S-Pen y protector de pantalla. Batería al 98%, cero rayones.',
+        image_url: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=800&q=80',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 35).toISOString()
+      },
+      {
+        id: 'init-8',
+        name: 'Sony WH-1000XM5 Cancelación de Ruido',
+        category: 'Audio',
+        price: 2450.00,
+        publisher_type: 'community',
+        seller_name: 'Sofía Ramírez',
+        seller_phone: '50244889900',
+        condition: 'Seminuevo',
+        stock: 2,
+        description: 'Audífonos inalámbricos con la mejor cancelación de ruido del mercado, estuche rígido original y cable de carga incluidos.',
+        image_url: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&w=800&q=80',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString()
+      }
+    ];
+
+    // -----------------------------------------------------------------------
+    // 2. ESTADO GLOBAL DE LA APLICACIÓN
+    // -----------------------------------------------------------------------
+    let state = {
+      products: [],
+      cart: [],
+      selectedCategory: 'Todos',
+      sourceFilter: 'all', // 'all' | 'official' | 'community'
+      searchQuery: '',
+      sortBy: 'newest',
+      uploadedImageBase64: '',
+      supabaseClient: null,
+      isSupabaseConnected: false,
+      supabaseConfig: {
+        url: '',
+        key: '',
+        table: 'products'
+      }
+    };
+
+    // -----------------------------------------------------------------------
+    // 3. UTILIDADES DE FORMATO Y FALLBACKS SVG
+    // -----------------------------------------------------------------------
+    function formatQuetzales(amount) {
+      const num = Number(amount) || 0;
+      return 'Q ' + num.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function getFallbackSvg(label = 'CONECTATE') {
+      const cleanLabel = encodeURIComponent(label.slice(0, 22));
+      return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23F5F5F7"/><circle cx="200" cy="130" r="38" fill="%232F66A9" opacity="0.15"/><path d="M185 130h30M200 115v30" stroke="%232F66A9" stroke-width="4" stroke-linecap="round"/><text x="200" y="195" font-family="sans-serif" font-size="14" font-weight="bold" fill="%231E3A5F" text-anchor="middle">${cleanLabel}</text></svg>`;
+    }
+
+    function showToast(title, message = '', type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'pointer-events-auto bg-white border border-slate-200/90 shadow-xl rounded-2xl p-4 flex items-start gap-3 animate-modal';
+
+      const iconBg = type === 'success'
+        ? 'bg-[#96C11F]/20 text-[#1E3A5F]'
+        : type === 'error'
+          ? 'bg-red-100 text-red-600'
+          : 'bg-[#2F66A9]/15 text-[#2F66A9]';
+
+      const iconSvg = type === 'success'
+        ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>`
+        : type === 'error'
+          ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>`
+          : `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>`;
+
+      toast.innerHTML = `
+        <div class="w-8 h-8 rounded-xl ${iconBg} flex items-center justify-center shrink-0 mt-0.5">
+          ${iconSvg}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-bold text-slate-900">${title}</p>
+          ${message ? `<p class="text-xs text-slate-500 mt-0.5 leading-relaxed">${message}</p>` : ''}
+        </div>
+      `;
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(8px)';
+        toast.style.transition = 'all 0.25s ease';
+        setTimeout(() => toast.remove(), 260);
+      }, 3600);
+    }
+
+    // -----------------------------------------------------------------------
+    // 4. INICIALIZACIÓN Y PERSISTENCIA (LOCAL + SUPABASE)
+    // -----------------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', async () => {
+      renderCategories();
+      loadCartFromStorage();
+
+      // Verificar si existen credenciales de Supabase guardadas
+      const savedUrl = localStorage.getItem(STORAGE_KEYS.SB_URL);
+      const savedKey = localStorage.getItem(STORAGE_KEYS.SB_KEY);
+      const savedTable = localStorage.getItem(STORAGE_KEYS.SB_TABLE) || 'products';
+
+      if (savedUrl && savedKey) {
+        document.getElementById('sbUrlInput').value = savedUrl;
+        document.getElementById('sbKeyInput').value = savedKey;
+        document.getElementById('sbTableInput').value = savedTable;
+        await initSupabaseConnection(savedUrl, savedKey, savedTable, true);
+      } else {
+        loadProductsFromLocalStorage();
+      }
+
+      // Cerrar modales con tecla Escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closePublishModal();
+          closeSupabaseModal();
+          closeDetailModal();
+          toggleCartDrawer(false);
+        }
+      });
+    });
+
+    function loadProductsFromLocalStorage() {
+      const raw = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+      if (raw) {
+        try {
+          state.products = JSON.parse(raw);
+        } catch {
+          state.products = [...INITIAL_PRODUCTS];
+        }
+      } else {
+        state.products = [...INITIAL_PRODUCTS];
+        saveProductsToLocalStorage();
+      }
+      renderProducts();
+    }
+
+    function saveProductsToLocalStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(state.products));
+      } catch (err) {
+        console.warn('Almacenamiento local lleno:', err);
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 5. INTEGRACIÓN REAL CON SUPABASE
+    // -----------------------------------------------------------------------
+    async function initSupabaseConnection(url, key, table, silent = false) {
+      try {
+        if (!window.supabase) {
+          throw new Error('La librería de Supabase aún no se ha cargado.');
+        }
+
+        const client = window.supabase.createClient(url, key);
+        state.supabaseClient = client;
+        state.supabaseConfig = { url, key, table };
+
+        // Probar lectura de la tabla
+        const { data, error } = await client
+          .from(table)
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          throw error;
+        }
+
+        state.isSupabaseConnected = true;
+        localStorage.setItem(STORAGE_KEYS.SB_URL, url);
+        localStorage.setItem(STORAGE_KEYS.SB_KEY, key);
+        localStorage.setItem(STORAGE_KEYS.SB_TABLE, table);
+
+        updateSupabaseUI(true);
+
+        if (data && data.length > 0) {
+          state.products = data;
+        } else {
+          // Si la tabla en Supabase está vacía, mantenemos vista limpia pero ofrecemos migrar
+          state.products = [];
+          if (!silent) {
+            showToast(
+              'Conectado a Supabase',
+              'Tu tabla está vacía. Puedes subir los productos de muestra o publicar uno nuevo.',
+              'info'
+            );
+          }
+        }
+
+        renderProducts();
+        if (!silent && data && data.length > 0) {
+          showToast('Supabase Conectado', `Se sincronizaron ${data.length} productos desde la nube.`, 'success');
+        }
+        return true;
+      } catch (err) {
+        console.error('Error conectando con Supabase:', err);
+        state.isSupabaseConnected = false;
+        updateSupabaseUI(false);
+        loadProductsFromLocalStorage();
+
+        showToast(
+          'No se pudo leer la tabla en Supabase',
+          err.message || 'Verifica tu URL, Anon Key y ejecuta el SQL de configuración.',
+          'error'
+        );
+        return false;
+      }
+    }
+
+    async function fetchProductsFromSupabase() {
+      if (!state.isSupabaseConnected || !state.supabaseClient) return;
+      document.getElementById('loadingGrid').classList.remove('hidden');
+      document.getElementById('productsGrid').classList.add('hidden');
+
+      try {
+        const { data, error } = await state.supabaseClient
+          .from(state.supabaseConfig.table)
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        state.products = data || [];
+        renderProducts();
+        showToast('Catálogo actualizado', 'Datos sincronizados con Supabase.', 'success');
+      } catch (err) {
+        showToast('Error al actualizar', err.message, 'error');
+      } finally {
+        document.getElementById('loadingGrid').classList.add('hidden');
+        document.getElementById('productsGrid').classList.remove('hidden');
+      }
+    }
+
+    async function saveSupabaseConfig(e) {
+      e.preventDefault();
+      const url = document.getElementById('sbUrlInput').value.trim();
+      const key = document.getElementById('sbKeyInput').value.trim();
+      const table = document.getElementById('sbTableInput').value.trim() || 'products';
+
+      const ok = await initSupabaseConnection(url, key, table, false);
+      if (ok) {
+        closeSupabaseModal();
+      }
+    }
+
+    async function migrateLocalToSupabase() {
+      if (!state.isSupabaseConnected || !state.supabaseClient) return;
+
+      const localRaw = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+      const sourceItems = localRaw ? JSON.parse(localRaw) : INITIAL_PRODUCTS;
+
+      if (!sourceItems.length) {
+        showToast('Sin productos locales', 'No hay productos locales para migrar.', 'info');
+        return;
+      }
+
+      const btn = document.getElementById('migrateLocalBtn');
+      const originalText = btn.textContent;
+      btn.textContent = 'Sincronizando...';
+      btn.disabled = true;
+
+      try {
+        const rowsToInsert = sourceItems.map((item) => ({
+          name: item.name,
+          category: item.category,
+          price: Number(item.price),
+          publisher_type: item.publisher_type || 'official',
+          seller_name: item.seller_name || 'Tienda Oficial Conectate',
+          seller_phone: item.seller_phone || '',
+          condition: item.condition || 'Nuevo',
+          stock: Number(item.stock) || 1,
+          description: item.description || '',
+          image_url: item.image_url || ''
+        }));
+
+        const { error } = await state.supabaseClient
+          .from(state.supabaseConfig.table)
+          .insert(rowsToInsert);
+
+        if (error) throw error;
+
+        await fetchProductsFromSupabase();
+        showToast('¡Migración exitosa!', `${rowsToInsert.length} productos subidos a Supabase.`, 'success');
+        closeSupabaseModal();
+      } catch (err) {
+        showToast('Error al migrar productos', err.message, 'error');
+      } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    function disconnectSupabase() {
+      localStorage.removeItem(STORAGE_KEYS.SB_URL);
+      localStorage.removeItem(STORAGE_KEYS.SB_KEY);
+      localStorage.removeItem(STORAGE_KEYS.SB_TABLE);
+      state.supabaseClient = null;
+      state.isSupabaseConnected = false;
+      document.getElementById('sbUrlInput').value = '';
+      document.getElementById('sbKeyInput').value = '';
+      updateSupabaseUI(false);
+      loadProductsFromLocalStorage();
+      showToast('Modo Local activado', 'Se desconectó Supabase.', 'info');
+      closeSupabaseModal();
+    }
+
+    function updateSupabaseUI(connected) {
+      const dot = document.getElementById('supabaseStatusDot');
+      const text = document.getElementById('supabaseStatusText');
+      const btn = document.getElementById('supabaseStatusBtn');
+      const banner = document.getElementById('supabaseSyncBanner');
+      const modalBox = document.getElementById('supabaseModalStatusBox');
+      const modalDot = document.getElementById('modalDot');
+      const modalTitle = document.getElementById('modalStatusTitle');
+      const modalDesc = document.getElementById('modalStatusDesc');
+      const disconnectBtn = document.getElementById('disconnectSbBtn');
+      const migrateBtn = document.getElementById('migrateLocalBtn');
+
+      if (connected) {
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-[#96C11F] animate-pulse';
+        text.textContent = 'Supabase Conectado';
+        btn.className = 'flex items-center gap-2 px-3 py-2 rounded-full text-xs sm:text-[13px] font-semibold border border-[#96C11F]/60 bg-[#96C11F]/15 text-[#1E3A5F] transition-all cursor-pointer';
+        banner.classList.remove('hidden');
+
+        modalBox.className = 'p-4 rounded-2xl bg-[#96C11F]/15 border border-[#96C11F]/50 flex items-center justify-between gap-3';
+        modalDot.className = 'w-3 h-3 rounded-full bg-[#96C11F]';
+        modalTitle.textContent = 'Conectado a Supabase en tiempo real';
+        modalDesc.textContent = `Tabla activa: "${state.supabaseConfig.table}"`;
+        disconnectBtn.classList.remove('hidden');
+        migrateBtn.classList.remove('hidden');
+      } else {
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400';
+        text.textContent = 'Modo Local';
+        btn.className = 'flex items-center gap-2 px-3 py-2 rounded-full text-xs sm:text-[13px] font-semibold border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition-all cursor-pointer';
+        banner.classList.add('hidden');
+
+        modalBox.className = 'p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3';
+        modalDot.className = 'w-3 h-3 rounded-full bg-amber-500';
+        modalTitle.textContent = 'Actualmente en Modo Local (localStorage)';
+        modalDesc.textContent = 'Ingresa tus credenciales de proyecto Supabase para activar la base de datos real.';
+        disconnectBtn.classList.add('hidden');
+        migrateBtn.classList.add('hidden');
+      }
+    }
+
+    function copySqlScript() {
+      const sqlText = document.getElementById('supabaseSqlCode').innerText;
+      const textarea = document.createElement('textarea');
+      textarea.value = sqlText;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+
+      try {
+        document.execCommand('copy');
+        const label = document.getElementById('copySqlText');
+        label.textContent = '¡SQL Copiado!';
+        showToast('SQL copiado al portapapeles', 'Pégalo en el SQL Editor de tu proyecto Supabase.', 'success');
+        setTimeout(() => {
+          label.textContent = 'Copiar SQL';
+        }, 2500);
+      } catch {
+        showToast('No se pudo copiar automáticamente', 'Selecciona el código manualmente y presiona Ctrl+C.', 'error');
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    }
+
+    function toggleSqlBox() {
+      const container = document.getElementById('sqlCodeContainer');
+      container.classList.toggle('hidden');
+    }
+
+    // -----------------------------------------------------------------------
+    // 6. FILTROS, BÚSQUEDA Y RENDERIZADO DE CATÁLOGO
+    // -----------------------------------------------------------------------
+    function renderCategories() {
+      const bar = document.getElementById('categoryBar');
+      bar.innerHTML = CATEGORIES.map((cat) => {
+        const isActive = state.selectedCategory === cat;
+        return `
+          <button
+            onclick="selectCategory('${cat}')"
+            class="px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all cursor-pointer ${
+              isActive
+                ? 'bg-[#1D1D1F] text-white shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }"
+          >
+            ${cat}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectCategory(cat) {
+      state.selectedCategory = cat;
+      renderCategories();
+      renderProducts();
+    }
+
+    function setSourceFilter(source) {
+      state.sourceFilter = source;
+      document.querySelectorAll('.source-tab').forEach((btn) => {
+        btn.className = 'source-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer text-slate-600 hover:text-slate-900 flex items-center gap-1.5';
+      });
+      const activeTab = document.getElementById(`tab-${source}`);
+      if (activeTab) {
+        activeTab.className = 'source-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer bg-[#2F66A9] text-white shadow-xs flex items-center gap-1.5';
+      }
+      renderProducts();
+    }
+
+    function handleSearch(val) {
+      state.searchQuery = val.trim().toLowerCase();
+      const desk = document.getElementById('searchInputDesktop');
+      const mob = document.getElementById('searchInputMobile');
+      if (desk && desk.value !== val) desk.value = val;
+      if (mob && mob.value !== val) mob.value = val;
+
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (clearBtn) {
+        clearBtn.classList.toggle('hidden', val.length === 0);
+      }
+      renderProducts();
+    }
+
+    function clearSearch() {
+      handleSearch('');
+    }
+
+    function handleSort(val) {
+      state.sortBy = val;
+      renderProducts();
+    }
+
+    function resetFilters(e) {
+      if (e) e.preventDefault();
+      state.selectedCategory = 'Todos';
+      state.sourceFilter = 'all';
+      state.searchQuery = '';
+      document.getElementById('searchInputDesktop').value = '';
+      document.getElementById('searchInputMobile').value = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      renderCategories();
+      setSourceFilter('all');
+    }
+
+    function getFilteredProducts() {
+      return state.products
+        .filter((p) => {
+          const matchCategory = state.selectedCategory === 'Todos' || p.category === state.selectedCategory;
+          const matchSource = state.sourceFilter === 'all' || p.publisher_type === state.sourceFilter;
+          const matchSearch =
+            !state.searchQuery ||
+            p.name.toLowerCase().includes(state.searchQuery) ||
+            (p.description && p.description.toLowerCase().includes(state.searchQuery)) ||
+            (p.seller_name && p.seller_name.toLowerCase().includes(state.searchQuery)) ||
+            p.category.toLowerCase().includes(state.searchQuery);
+
+          return matchCategory && matchSource && matchSearch;
+        })
+        .sort((a, b) => {
+          if (state.sortBy === 'price-asc') return Number(a.price) - Number(b.price);
+          if (state.sortBy === 'price-desc') return Number(b.price) - Number(a.price);
+          return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+        });
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById('productsGrid');
+      const empty = document.getElementById('emptyState');
+      const countLabel = document.getElementById('resultsCount');
+
+      const list = getFilteredProducts();
+      countLabel.textContent = `Mostrando ${list.length} ${list.length === 1 ? 'producto' : 'productos'}`;
+
+      if (list.length === 0) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+
+      grid.innerHTML = list
+        .map((product) => {
+          const isOfficial = product.publisher_type === 'official';
+          const badgeHtml = isOfficial
+            ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#2F66A9]/10 text-[#2F66A9]">
+                 <span class="w-1.5 h-1.5 rounded-full bg-[#2F66A9]"></span> Oficial Conectate
+               </span>`
+            : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#96C11F]/20 text-[#1E3A5F]">
+                 <span class="w-1.5 h-1.5 rounded-full bg-[#96C11F]"></span> Comunidad
+               </span>`;
+
+          const conditionPill =
+            product.condition === 'Nuevo'
+              ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-[#96C11F] text-[#1E3A5F]">Nuevo</span>`
+              : `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-700">Seminuevo</span>`;
+
+          const imgSrc = product.image_url || getFallbackSvg(product.name);
+
+          return `
+            <article class="group bg-white rounded-3xl border border-slate-200/70 shadow-apple hover:shadow-apple-hover transition-all duration-300 flex flex-col overflow-hidden">
+              <!-- Imagen clicable para abrir detalle -->
+              <div onclick="openDetailModal('${product.id}')" class="relative aspect-square bg-[#F5F5F7] p-5 flex items-center justify-center overflow-hidden cursor-pointer">
+                <div class="absolute top-3.5 left-3.5 z-10 flex items-center gap-1.5">
+                  ${conditionPill}
+                </div>
+                <img
+                  src="${imgSrc}"
+                  alt="${product.name}"
+                  onerror="this.onerror=null; this.src=getFallbackSvg('${product.name.replace(/'/g, '')}');"
+                  class="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+
+              <!-- Contenido de la tarjeta -->
+              <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between gap-2">
+                    ${badgeHtml}
+                    <span class="text-[11px] font-medium text-slate-400">${product.category}</span>
+                  </div>
+
+                  <h3
+                    onclick="openDetailModal('${product.id}')"
+                    class="font-display font-bold text-slate-900 text-base leading-snug line-clamp-2 group-hover:text-[#2F66A9] transition-colors cursor-pointer"
+                  >
+                    ${product.name}
+                  </h3>
+
+                  <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                    ${product.description || 'Tecnología garantizada en CONECTATE Guatemala.'}
+                  </p>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 space-y-3">
+                  <div class="flex items-end justify-between">
+                    <div>
+                      <p class="text-[11px] text-slate-400 truncate max-w-[140px]">Por: ${product.seller_name}</p>
+                      <p class="font-display font-extrabold text-lg sm:text-xl text-[#1D1D1F]">
+                        ${formatQuetzales(product.price)}
+                      </p>
+                    </div>
+                    <span class="text-[11px] font-medium text-slate-400">Stock: ${product.stock || 1}</span>
+                  </div>
+
+                  <div class="grid grid-cols-5 gap-2">
+                    <button
+                      onclick="openDetailModal('${product.id}')"
+                      class="col-span-2 py-2.5 px-3 rounded-full border border-slate-200 hover:border-[#2F66A9] text-slate-700 hover:text-[#2F66A9] text-xs font-semibold transition-colors cursor-pointer"
+                    >
+                      Ver más
+                    </button>
+                    <button
+                      onclick="addToCart('${product.id}')"
+                      class="col-span-3 py-2.5 px-3 rounded-full bg-[#2F66A9] hover:bg-[#234F85] active:scale-[0.98] text-white text-xs font-semibold shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                      <span>Agregar</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          `;
+        })
+        .join('');
+    }
+
+    // -----------------------------------------------------------------------
+    // 7. CARGA Y COMPRESIÓN DE IMÁGENES + PUBLICACIÓN DE PRODUCTOS
+    // -----------------------------------------------------------------------
+    function togglePublisherFields(type) {
+      const cardOfficial = document.getElementById('pubCardOfficial');
+      const cardCommunity = document.getElementById('pubCardCommunity');
+      const sellerInput = document.getElementById('prodSellerName');
+
+      if (type === 'official') {
+        cardOfficial.className = 'relative flex items-center gap-3 p-3.5 rounded-2xl border-2 border-[#2F66A9] bg-[#2F66A9]/5 cursor-pointer transition-all';
+        cardCommunity.className = 'relative flex items-center gap-3 p-3.5 rounded-2xl border-2 border-slate-200 hover:border-slate-300 bg-white cursor-pointer transition-all';
+        sellerInput.value = 'Tienda Oficial Conectate';
+      } else {
+        cardCommunity.className = 'relative flex items-center gap-3 p-3.5 rounded-2xl border-2 border-[#96C11F] bg-[#96C11F]/10 cursor-pointer transition-all';
+        cardOfficial.className = 'relative flex items-center gap-3 p-3.5 rounded-2xl border-2 border-slate-200 hover:border-slate-300 bg-white cursor-pointer transition-all';
+        if (sellerInput.value === 'Tienda Oficial Conectate') {
+          sellerInput.value = '';
+        }
+      }
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      document.getElementById('dropZone').classList.add('border-[#2F66A9]', 'bg-[#2F66A9]/10');
+    }
+
+    function handleDragLeave(e) {
+      e.preventDefault();
+      document.getElementById('dropZone').classList.remove('border-[#2F66A9]', 'bg-[#2F66A9]/10');
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      document.getElementById('dropZone').classList.remove('border-[#2F66A9]', 'bg-[#2F66A9]/10');
+      const file = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (file) processImageFile(file);
+    }
+
+    function handleFileSelect(e) {
+      const file = e.target.files && e.target.files[0];
+      if (file) processImageFile(file);
+    }
+
+    // Compresión automática en Canvas para guardar sin problemas en localStorage o Supabase
+    function processImageFile(file) {
+      if (!file.type.startsWith('image/')) {
+        showToast('Formato no válido', 'Por favor selecciona una imagen JPG, PNG o WebP.', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 720;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.78);
+          state.uploadedImageBase64 = compressedDataUrl;
+
+          document.getElementById('imagePreview').src = compressedDataUrl;
+          document.getElementById('imagePreviewContainer').classList.remove('hidden');
+          document.getElementById('imagePreviewContainer').classList.add('flex');
+          document.getElementById('dropZonePlaceholder').classList.add('hidden');
+          document.getElementById('prodImageUrl').value = '';
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleUrlPreview(url) {
+      if (url && url.startsWith('http')) {
+        state.uploadedImageBase64 = '';
+        document.getElementById('imagePreview').src = url;
+        document.getElementById('imagePreviewContainer').classList.remove('hidden');
+        document.getElementById('imagePreviewContainer').classList.add('flex');
+        document.getElementById('dropZonePlaceholder').classList.add('hidden');
+      } else if (!state.uploadedImageBase64) {
+        clearUploadedImage();
+      }
+    }
+
+    function clearUploadedImage(e) {
+      if (e) e.stopPropagation();
+      state.uploadedImageBase64 = '';
+      document.getElementById('prodImageFile').value = '';
+      document.getElementById('imagePreview').src = '';
+      document.getElementById('imagePreviewContainer').classList.add('hidden');
+      document.getElementById('imagePreviewContainer').classList.remove('flex');
+      document.getElementById('dropZonePlaceholder').classList.remove('hidden');
+    }
+
+    async function handlePublishSubmit(e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById('publishSubmitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Publicando...</span>';
+
+      const publisherType = document.querySelector('input[name="publisher_type"]:checked').value;
+      const name = document.getElementById('prodName').value.trim();
+      const category = document.getElementById('prodCategory').value;
+      const price = parseFloat(document.getElementById('prodPrice').value);
+      const condition = document.getElementById('prodCondition').value;
+      const stock = parseInt(document.getElementById('prodStock').value, 10) || 1;
+      const sellerName = document.getElementById('prodSellerName').value.trim();
+      const sellerPhone = document.getElementById('prodSellerPhone').value.trim();
+      const description = document.getElementById('prodDescription').value.trim();
+      const urlInput = document.getElementById('prodImageUrl').value.trim();
+
+      const finalImage = state.uploadedImageBase64 || urlInput || getFallbackSvg(name);
+
+      const newProductPayload = {
+        name,
+        category,
+        price,
+        publisher_type: publisherType,
+        seller_name: sellerName,
+        seller_phone: sellerPhone,
+        condition,
+        stock,
+        description,
+        image_url: finalImage
+      };
+
+      try {
+        if (state.isSupabaseConnected && state.supabaseClient) {
+          // Insertar directamente en Supabase
+          const { data, error } = await state.supabaseClient
+            .from(state.supabaseConfig.table)
+            .insert([newProductPayload])
+            .select();
+
+          if (error) throw error;
+
+          if (data && data[0]) {
+            state.products.unshift(data[0]);
+          } else {
+            await fetchProductsFromSupabase();
+          }
+          showToast('¡Producto publicado en Supabase!', `"${name}" ya está visible para todos.`, 'success');
+        } else {
+          // Guardar en Modo Local (localStorage)
+          const localProduct = {
+            ...newProductPayload,
+            id: 'prod-' + Date.now(),
+            created_at: new Date().toISOString()
+          };
+          state.products.unshift(localProduct);
+          saveProductsToLocalStorage();
+          showToast('¡Producto publicado!', `"${name}" se agregó al catálogo local.`, 'success');
+        }
+
+        renderProducts();
+        closePublishModal();
+        document.getElementById('publishForm').reset();
+        clearUploadedImage();
+        togglePublisherFields('official');
+      } catch (err) {
+        console.error('Error al publicar:', err);
+        showToast('Error al guardar producto', err.message || 'Intenta nuevamente.', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Publicar Producto</span>';
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 8. MODALES (PUBLICAR, SUPABASE, DETALLE DE PRODUCTO)
+    // -----------------------------------------------------------------------
+    function openPublishModal() {
+      const modal = document.getElementById('publishModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closePublishModal() {
+      const modal = document.getElementById('publishModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function openSupabaseModal() {
+      const modal = document.getElementById('supabaseModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeSupabaseModal() {
+      const modal = document.getElementById('supabaseModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function openDetailModal(productId) {
+      const product = state.products.find((p) => String(p.id) === String(productId));
+      if (!product) return;
+
+      const isOfficial = product.publisher_type === 'official';
+      const pubBadge = document.getElementById('detailPublisherBadge');
+      if (isOfficial) {
+        pubBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-[#2F66A9]/10 text-[#2F66A9]';
+        pubBadge.textContent = 'Tienda Oficial Conectate';
+      } else {
+        pubBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-[#96C11F]/25 text-[#1E3A5F]';
+        pubBadge.textContent = 'Marketplace Comunidad';
+      }
+
+      document.getElementById('detailConditionBadge').textContent = product.condition || 'Nuevo';
+      document.getElementById('detailCategory').textContent = product.category;
+      document.getElementById('detailTitle').textContent = product.name;
+      document.getElementById('detailPrice').textContent = formatQuetzales(product.price);
+      document.getElementById('detailDescription').textContent = product.description || 'Producto disponible en CONECTATE Guatemala.';
+      document.getElementById('detailSeller').textContent = product.seller_name;
+      document.getElementById('detailStock').textContent = `${product.stock || 1} unidades disponibles`;
+
+      const imgEl = document.getElementById('detailImage');
+      imgEl.src = product.image_url || getFallbackSvg(product.name);
+      imgEl.onerror = function () {
+        this.onerror = null;
+        this.src = getFallbackSvg(product.name);
+      };
+
+      const addBtn = document.getElementById('detailAddToCartBtn');
+      addBtn.onclick = () => {
+        addToCart(product.id);
+        closeDetailModal();
+      };
+
+      // Enlace de WhatsApp formateado para Guatemala (+502)
+      const contactBtn = document.getElementById('detailContactBtn');
+      const rawPhone = (product.seller_phone || '50222001100').replace(/\D/g, '');
+      const fullPhone = rawPhone.startsWith('502') ? rawPhone : `502${rawPhone}`;
+      const waText = encodeURIComponent(`Hola, me interesa el producto "${product.name}" (${formatQuetzales(product.price)}) publicado en CONECTATE Guatemala.`);
+      contactBtn.href = `https://wa.me/${fullPhone}?text=${waText}`;
+
+      const modal = document.getElementById('productDetailModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeDetailModal() {
+      const modal = document.getElementById('productDetailModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // -----------------------------------------------------------------------
+    // 9. CARRITO DE COMPRAS LATERAL (DRAWER)
+    // -----------------------------------------------------------------------
+    function loadCartFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEYS.CART);
+        state.cart = raw ? JSON.parse(raw) : [];
+      } catch {
+        state.cart = [];
+      }
+      renderCart();
+    }
+
+    function saveCartToStorage() {
+      localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(state.cart));
+    }
+
+    function addToCart(productId) {
+      const product = state.products.find((p) => String(p.id) === String(productId));
+      if (!product) return;
+
+      const existing = state.cart.find((item) => String(item.id) === String(productId));
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        state.cart.push({
+          id: product.id,
+          name: product.name,
+          price: Number(product.price),
+          image_url: product.image_url,
+          seller_name: product.seller_name,
+          qty: 1
+        });
+      }
+
+      saveCartToStorage();
+      renderCart();
+      showToast('Agregado al carrito', product.name, 'success');
+    }
+
+    function updateCartQty(productId, delta) {
+      const idx = state.cart.findIndex((item) => String(item.id) === String(productId));
+      if (idx === -1) return;
+
+      state.cart[idx].qty += delta;
+      if (state.cart[idx].qty <= 0) {
+        state.cart.splice(idx, 1);
+      }
+      saveCartToStorage();
+      renderCart();
+    }
+
+    function renderCart() {
+      const container = document.getElementById('cartItemsContainer');
+      const badge = document.getElementById('cartBadge');
+      const totalEl = document.getElementById('cartTotalAmount');
+      const footer = document.getElementById('cartFooter');
+
+      const totalItems = state.cart.reduce((sum, item) => sum + item.qty, 0);
+      const totalMoney = state.cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+      badge.textContent = totalItems;
+      totalEl.textContent = formatQuetzales(totalMoney);
+
+      if (state.cart.length === 0) {
+        footer.classList.add('hidden');
+        container.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-center py-12 space-y-3">
+            <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+              </svg>
+            </div>
+            <p class="font-display font-bold text-slate-800">Tu bolsa está vacía</p>
+            <p class="text-xs text-slate-500 max-w-xs">Explora nuestro catálogo tecnológico y agrega tus dispositivos favoritos.</p>
+          </div>
+        `;
+        return;
+      }
+
+      footer.classList.remove('hidden');
+      container.innerHTML = state.cart
+        .map(
+          (item) => `
+          <div class="flex gap-3.5 bg-slate-50 p-3.5 rounded-2xl border border-slate-200/70">
+            <img
+              src="${item.image_url || getFallbackSvg(item.name)}"
+              alt="${item.name}"
+              onerror="this.onerror=null; this.src=getFallbackSvg('${item.name.replace(/'/g, '')}');"
+              class="w-16 h-16 rounded-xl object-cover bg-white border border-slate-200/60 shrink-0"
+            />
+            <div class="flex-1 min-w-0">
+              <h4 class="text-xs sm:text-sm font-bold text-slate-900 truncate">${item.name}</h4>
+              <p class="text-[11px] text-slate-400 truncate">${item.seller_name}</p>
+              <p class="text-sm font-extrabold text-[#2F66A9] mt-1">${formatQuetzales(item.price)}</p>
+
+              <div class="flex items-center gap-2 mt-2">
+                <button onclick="updateCartQty('${item.id}', -1)" class="w-6 h-6 rounded-lg bg-white border border-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center hover:bg-slate-100 cursor-pointer">-</button>
+                <span class="text-xs font-bold text-slate-800 min-w-[20px] text-center">${item.qty}</span>
+                <button onclick="updateCartQty('${item.id}', 1)" class="w-6 h-6 rounded-lg bg-white border border-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center hover:bg-slate-100 cursor-pointer">+</button>
+              </div>
+            </div>
+          </div>
+        `
+        )
+        .join('');
+    }
+
+    function toggleCartDrawer(open) {
+      const drawer = document.getElementById('cartDrawer');
+      const backdrop = document.getElementById('cartDrawerBackdrop');
+
+      if (open) {
+        backdrop.classList.remove('hidden');
+        drawer.classList.remove('translate-x-full');
+      } else {
+        drawer.classList.add('translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    function handleCheckout() {
+      if (state.cart.length === 0) return;
+      const total = state.cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+      state.cart = [];
+      saveCartToStorage();
+      renderCart();
+      toggleCartDrawer(false);
+      showToast(
+        '¡Pedido confirmado en CONECTATE!',
+        `Tu orden por ${formatQuetzales(total)} ha sido registrada. Un asesor de Guatemala te contactará pronto.`,
+        'success'
+      );
+    }
+  </script>
+</body>
+</html>
