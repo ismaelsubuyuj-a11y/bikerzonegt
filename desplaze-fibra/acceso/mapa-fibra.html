@@ -36,8 +36,9 @@ select,input[type=text],input[type=number],textarea{width:100%;padding:8px 10px;
 .msg.error{background:#FEF3F2;color:var(--danger)}
 .msg.ok{background:#ECFDF3;color:var(--ok)}
 #map{height:100%;min-height:420px}
-.pin{width:26px;height:26px;border-radius:50%;border:2px solid #fff;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.pin{width:32px;height:32px;padding:5px;border-radius:50%;border:2px solid #fff;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.35)}
 .pin.sel{outline:3px solid #FACC15}
+.pin svg{width:100%;height:100%}
 .leaflet-popup-content{font-size:13px;line-height:1.45}
 @media(max-width:860px){header{padding:12px 14px}header .brand{width:100%}aside{border-right:0;border-bottom:1px solid var(--line);max-height:50vh}#map{min-height:0;height:55vh}}
 @media(max-width:420px){.row{grid-template-columns:1fr}aside{padding:12px}}
@@ -63,6 +64,16 @@ select,input[type=text],input[type=number],textarea{width:100%;padding:8px 10px;
       <h3>Elementos de red</h3>
       <label for="tipo">Tipo de elemento</label>
       <select id="tipo"></select>
+      <div id="f-nap" hidden>
+        <label for="balanceador">Balanceador (divisor)</label>
+        <select id="balanceador"><option>1x2</option><option>1x4</option><option selected>1x8</option><option>1x16</option><option>1x32</option></select>
+      </div>
+      <div id="f-cliente" hidden>
+        <label for="nap-cliente">Caja NAP asignada</label>
+        <select id="nap-cliente"></select>
+        <label for="puerto">Puerto del NAP</label>
+        <select id="puerto"></select>
+      </div>
       <div class="row">
         <div>
           <label for="altura">Altura (m)</label>
@@ -101,6 +112,10 @@ select,input[type=text],input[type=number],textarea{width:100%;padding:8px 10px;
               <option value="instalado">Instalado</option>
             </select>
           </div>
+        </div>
+        <div id="f-hilo-nap" hidden>
+          <label for="tf-hilo-nap">Hilo que entra a la NAP</label>
+          <select id="tf-hilo-nap"></select>
         </div>
         <label for="tf-notas">Notas</label>
         <input id="tf-notas" type="text" placeholder="Ej. Ducto subterráneo, 2 cruces de calle">
@@ -147,7 +162,86 @@ const TIPOS = {
   reserva: {nombre: "Reserva de fibra",      color: "#B54708", letra: "R"},
   cliente: {nombre: "Cliente (ONT)",         color: "#1D4ED8", letra: "C"}
 };
+const ICONOS = {
+  poste: '<svg viewBox="0 0 24 24"><path d="M12 3v18M7 6h10M8.5 10h7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',
+  mufa: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" stroke="#fff" stroke-width="2" fill="none"/><path d="M12 2v6M12 16v6M2 12h6M16 12h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+  nap: '<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" stroke="#fff" stroke-width="2" fill="none"/><path d="M7 10v4M12 10v4M17 10v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+  reserva: '<svg viewBox="0 0 24 24"><path d="M6 5h11a3 3 0 0 1 0 6H8a3 3 0 0 0 0 6h10" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',
+  cliente: '<svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8H4z" stroke="#fff" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M10 19v-5h4v5" stroke="#fff" stroke-width="2" fill="none"/></svg>'
+};
 const PREFIJO = {poste: "POST", mufa: "MUF", nap: "NAP", reserva: "RES", cliente: "CLI"};
+
+function puertosLibres(nap) {
+  const N = parseInt((nap.balanceador || "1x8").split("x")[1], 10);
+  const ocupados = puntos.filter(c => c.nap_id === nap.id).map(c => c.puerto);
+  return Array.from({length: N}, (_, i) => i + 1).filter(k => !ocupados.includes(k));
+}
+
+function resumenPuertos(p) {
+  const N = parseInt((p.balanceador || "1x8").split("x")[1], 10);
+  const clientes = puntos.filter(c => c.nap_id === p.id).sort((a, b) => a.puerto - b.puerto);
+  return `<br>Balanceador: ${esc(p.balanceador || "1x8")} · Puertos ocupados: ${clientes.length} de ${N}` +
+    clientes.map(c => `<br>Puerto ${c.puerto}: ${esc(c.codigo)}`).join("");
+}
+
+function actualizarFormElemento() {
+  const t = $("tipo").value;
+  $("f-nap").hidden = t !== "nap";
+  $("f-cliente").hidden = t !== "cliente";
+  if (t !== "cliente") return;
+  const prev = $("nap-cliente").value;
+  const naps = puntos.filter(p => p.tipo === "nap");
+  $("nap-cliente").innerHTML = naps.length
+    ? naps.map(n => `<option value="${n.id}">${esc(n.codigo)} · ${esc(n.balanceador || "1x8")}</option>`).join("")
+    : `<option value="">No hay cajas NAP en este desplaze</option>`;
+  if (naps.some(n => n.id === prev)) $("nap-cliente").value = prev;
+  actualizarPuertos();
+}
+
+function actualizarPuertos() {
+  const nap = puntoPorId($("nap-cliente").value);
+  if (!nap) { $("puerto").innerHTML = ""; return; }
+  const N = parseInt((nap.balanceador || "1x8").split("x")[1], 10);
+  const ocupados = puntos.filter(c => c.nap_id === nap.id);
+  $("puerto").innerHTML = `<option value="">Automático (primero libre)</option>` +
+    Array.from({length: N}, (_, i) => {
+      const k = i + 1, o = ocupados.find(c => c.puerto === k);
+      return `<option value="${k}"${o ? " disabled" : ""}>Puerto ${k}${o ? " · ocupado por " + esc(o.codigo) : ""}</option>`;
+    }).join("");
+}
+
+function napDelTramo() {
+  if (conexion.desde?.tipo === "nap") return conexion.desde;
+  if (conexion.hasta?.tipo === "nap") return conexion.hasta;
+  return null;
+}
+
+function cableDelTramo() {
+  return conexion.desde === napDelTramo() ? conexion.hasta : conexion.desde;
+}
+
+function hilosUsados(cable) {
+  return tramos.filter(t => t.hilo_nap && (t.desde_id === cable.id || t.hasta_id === cable.id)).map(t => t.hilo_nap);
+}
+
+function hiloLibre(total, cable) {
+  const usados = hilosUsados(cable);
+  for (let k = 1; k <= total; k++) if (!usados.includes(k)) return k;
+  return null;
+}
+
+function actualizarHilosNap() {
+  const nap = napDelTramo();
+  $("f-hilo-nap").hidden = !nap;
+  if (!nap) return;
+  const total = parseInt($("tf-hilos").value, 10);
+  const usados = hilosUsados(cableDelTramo());
+  $("tf-hilo-nap").innerHTML = `<option value="auto">Automático (siguiente libre)</option>` +
+    Array.from({length: total}, (_, i) => {
+      const k = i + 1, c = colorHilo(k), u = usados.includes(k);
+      return `<option value="${k}"${u ? " disabled" : ""}>Hilo ${k} · ${c.nombre}${u ? " (en uso)" : ""}</option>`;
+    }).join("");
+}
 const COLOR_FIBRA = {G652D: "#2563EB", G657A1: "#0D9488", G657A2: "#7C3AED", OM3: "#EA580C", OM4: "#DC2626"};
 const HILOS = [2, 4, 6, 8, 12, 24, 48, 96];
 const MENSAJES_MODO = {
@@ -208,7 +302,7 @@ function tablaColoresNap(p) {
         `<i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${c.hex};border:1px solid #888"></i>` +
         `${c.nombre} <span style="color:#6B7785">(tubo ${c.tubo})</span></div>`;
     }).join("");
-    return `<div style="border-top:1px solid #D9DFE7;padding-top:6px;margin-top:8px"><b>${esc(otro?.codigo)}</b> · ${t.hilos} hilos · ${esc(tipoPorCodigo(t.tipo_fibra)?.nombre || t.tipo_fibra)}${filas}</div>`;
+    return `<div style="border-top:1px solid #D9DFE7;padding-top:6px;margin-top:8px"><b>${esc(otro?.codigo)}</b> · ${t.hilos} hilos${t.hilo_nap ? ` · Entra en hilo ${t.hilo_nap} (${colorHilo(t.hilo_nap).nombre})` : ""} · ${esc(tipoPorCodigo(t.tipo_fibra)?.nombre || t.tipo_fibra)}${filas}</div>`;
   }).join("") + `</div>`;
 }
 
@@ -218,7 +312,8 @@ function popupPunto(p) {
     (p.altura_m != null ? `<br>Altura: ${p.altura_m} m` : "") +
     (p.capacidad != null ? `<br>Capacidad: ${p.capacidad}` : "") +
     (p.notas ? `<br>${esc(p.notas)}` : "") +
-    (p.tipo === "nap" ? `<br><b>Colores de fibra en esta caja NAP</b>${tablaColoresNap(p)}` : "") +
+    (p.tipo === "cliente" ? `<br>NAP: ${esc(puntoPorId(p.nap_id)?.codigo || "–")} · Puerto: ${p.puerto ?? "–"}` : "") +
+    (p.tipo === "nap" ? resumenPuertos(p) + `<br><b>Colores de fibra en esta caja NAP</b>${tablaColoresNap(p)}` : "") +
     `<br><button onclick="eliminarPunto('${p.id}')" style="margin-top:6px;color:#B42318">Eliminar elemento</button>`;
 }
 
@@ -231,6 +326,7 @@ function popupTramo(t) {
 }
 
 function render() {
+  actualizarFormElemento();
   capaTramos.clearLayers();
   capaPuntos.clearLayers();
 
@@ -247,8 +343,8 @@ function render() {
     const t = TIPOS[p.tipo];
     const icono = L.divIcon({
       className: "",
-      html: `<div class="pin${sel ? " sel" : ""}" style="background:${t.color}">${t.letra}</div>`,
-      iconSize: [26, 26], iconAnchor: [13, 13]
+      html: `<div class="pin${sel ? " sel" : ""}" style="background:${t.color}">${ICONOS[p.tipo]}</div>`,
+      iconSize: [32, 32], iconAnchor: [16, 16]
     });
     L.marker([p.lat, p.lng], {icon: icono})
       .bindPopup(popupPunto(p))
@@ -295,6 +391,16 @@ map.on("click", async e => {
   if (!proyecto) return setMsg("Cargue el código del desplaze antes de colocar elementos.");
 
   const tipo = $("tipo").value;
+  let napId = null, puerto = null;
+  if (tipo === "cliente") {
+    const nap = puntoPorId($("nap-cliente").value);
+    if (!nap) return setMsg("Agregue primero una caja NAP para asignar el cliente.");
+    const libres = puertosLibres(nap);
+    if (!libres.length) return setMsg(`La caja ${nap.codigo} no tiene puertos libres.`);
+    puerto = $("puerto").value ? Number($("puerto").value) : libres[0];
+    if (!libres.includes(puerto)) return setMsg("Ese puerto ya está ocupado. Seleccione otro.");
+    napId = nap.id;
+  }
   const fila = {
     proyecto, tipo,
     codigo: nuevoCodigo(tipo),
@@ -302,7 +408,10 @@ map.on("click", async e => {
     lng: e.latlng.lng,
     altura_m: $("altura").value ? Number($("altura").value) : null,
     capacidad: $("capacidad").value ? parseInt($("capacidad").value, 10) : null,
-    notas: $("notas").value.trim() || null
+    notas: $("notas").value.trim() || null,
+    balanceador: tipo === "nap" ? $("balanceador").value : null,
+    nap_id: napId,
+    puerto
   };
   const { data, error } = await sb.from("puntos_fibra").insert(fila).select().single();
   if (error) return setMsg("No se pudo guardar el elemento. " + error.message);
@@ -346,6 +455,7 @@ function mostrarFormTramo() {
   $("tf-hilos").innerHTML = HILOS.map(n => `<option value="${n}">${n} hilos</option>`).join("");
   $("tf-form").hidden = false;
   actualizarInfoTramo();
+  actualizarHilosNap();
 }
 
 $("tf-tipo").addEventListener("change", actualizarInfoTramo);
@@ -353,6 +463,14 @@ $("tf-cancelar").addEventListener("click", () => setModo("conectar"));
 
 $("tf-guardar").addEventListener("click", async () => {
   const btn = $("tf-guardar");
+  const nap = napDelTramo(), cable = cableDelTramo(), total = parseInt($("tf-hilos").value, 10);
+  let hiloNap = null;
+  if (nap) {
+    const v = $("tf-hilo-nap").value;
+    hiloNap = v === "auto" ? hiloLibre(total, cable) : Number(v);
+    if (!hiloNap || hilosUsados(cable).includes(hiloNap))
+      return setMsg("No hay un hilo libre disponible. Seleccione otro hilo o reduzca los conflictos.");
+  }
   const fila = {
     proyecto,
     desde_id: conexion.desde.id,
@@ -361,7 +479,8 @@ $("tf-guardar").addEventListener("click", async () => {
     hilos: parseInt($("tf-hilos").value, 10),
     longitud_m: metrosTramo(),
     estado: $("tf-estado").value,
-    notas: $("tf-notas").value.trim() || null
+    notas: $("tf-notas").value.trim() || null,
+    hilo_nap: hiloNap
   };
   btn.disabled = true;
   const { data, error } = await sb.from("tramos_fibra").insert(fila).select().single();
@@ -456,6 +575,9 @@ async function init() {
       if (desplazes.some(x => x.codigo === $("proyecto").value.trim())) $("btn-cargar").click();
     });
 
+    $("tipo").addEventListener("change", actualizarFormElemento);
+    $("nap-cliente").addEventListener("change", actualizarPuertos);
+    $("tf-hilos").addEventListener("change", actualizarHilosNap);
     const pid = new URLSearchParams(location.search).get("proyecto");
     if (pid) { $("proyecto").value = pid; $("btn-cargar").click(); }
     else setMsg("Escriba o seleccione un desplaze guardado para cargarlo.", "ok");
