@@ -73,6 +73,10 @@ select,input[type=text],input[type=number],textarea{width:100%;padding:8px 10px;
         <select id="nap-cliente"></select>
         <label for="puerto">Puerto del NAP</label>
         <select id="puerto"></select>
+        <label for="acometida">Acometida</label>
+        <select id="acometida"><option value="1">Monofibra (1 hilo)</option><option value="2">Dúplex (2 hilos)</option></select>
+        <label for="fibra-acometida">Tipo de fibra de la acometida</label>
+        <select id="fibra-acometida"></select>
       </div>
       <div class="row">
         <div>
@@ -181,7 +185,7 @@ function resumenPuertos(p) {
   const N = parseInt((p.balanceador || "1x8").split("x")[1], 10);
   const clientes = puntos.filter(c => c.nap_id === p.id).sort((a, b) => a.puerto - b.puerto);
   return `<br>Balanceador: ${esc(p.balanceador || "1x8")} · Puertos ocupados: ${clientes.length} de ${N}` +
-    clientes.map(c => `<br>Puerto ${c.puerto}: ${esc(c.codigo)}`).join("");
+    clientes.map(c => `<br>Puerto ${c.puerto}: ${esc(c.codigo)}${c.hilos_acometida === 2 ? " · dúplex" : " · monofibra"}`).join("");
 }
 
 function actualizarFormElemento() {
@@ -189,6 +193,8 @@ function actualizarFormElemento() {
   $("f-nap").hidden = t !== "nap";
   $("f-cliente").hidden = t !== "cliente";
   if (t !== "cliente") return;
+  $("fibra-acometida").innerHTML = tipos.map(x => `<option value="${esc(x.codigo)}">${esc(x.nombre)}</option>`).join("");
+  if (!$("fibra-acometida").value) $("fibra-acometida").value = "G657A1";
   const prev = $("nap-cliente").value;
   const naps = puntos.filter(p => p.tipo === "nap");
   $("nap-cliente").innerHTML = naps.length
@@ -312,7 +318,10 @@ function popupPunto(p) {
     (p.altura_m != null ? `<br>Altura: ${p.altura_m} m` : "") +
     (p.capacidad != null ? `<br>Capacidad: ${p.capacidad}` : "") +
     (p.notas ? `<br>${esc(p.notas)}` : "") +
-    (p.tipo === "cliente" ? `<br>NAP: ${esc(puntoPorId(p.nap_id)?.codigo || "–")} · Puerto: ${p.puerto ?? "–"}` : "") +
+    (p.tipo === "cliente" ? `<br>NAP: ${esc(puntoPorId(p.nap_id)?.codigo || "–")} · Puerto: ${p.puerto ?? "–"}` +
+      (p.hilos_acometida ? `<br>Acometida: ${p.hilos_acometida === 2
+        ? `dúplex, hilo 1 ${colorHilo(1).nombre} y hilo 2 ${colorHilo(2).nombre}`
+        : `monofibra, hilo 1 ${colorHilo(1).nombre}`} · ${esc(tipoPorCodigo(p.fibra_acometida)?.nombre || p.fibra_acometida || "")}` : "") : "") +
     (p.tipo === "nap" ? resumenPuertos(p) + `<br><b>Colores de fibra en esta caja NAP</b>${tablaColoresNap(p)}` : "") +
     `<br><button onclick="eliminarPunto('${p.id}')" style="margin-top:6px;color:#B42318">Eliminar elemento</button>`;
 }
@@ -411,7 +420,9 @@ map.on("click", async e => {
     notas: $("notas").value.trim() || null,
     balanceador: tipo === "nap" ? $("balanceador").value : null,
     nap_id: napId,
-    puerto
+    puerto,
+    hilos_acometida: tipo === "cliente" ? Number($("acometida").value) : null,
+    fibra_acometida: tipo === "cliente" ? $("fibra-acometida").value : null
   };
   const { data, error } = await sb.from("puntos_fibra").insert(fila).select().single();
   if (error) return setMsg("No se pudo guardar el elemento. " + error.message);
