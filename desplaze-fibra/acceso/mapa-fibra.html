@@ -54,8 +54,9 @@ select,input[type=text],input[type=number],textarea{width:100%;padding:8px 10px;
   <aside>
     <div class="panel">
       <h3>Desplaze</h3>
-      <input id="proyecto" type="text" readonly>
-      <button id="btn-cargar" class="btn primary" type="button">Recargar desplaze</button>
+      <input id="proyecto" type="text" list="lista-desplazes" autocomplete="off" placeholder="Buscar por código o nombre">
+      <datalist id="lista-desplazes"></datalist>
+      <button id="btn-cargar" class="btn primary" type="button">Cargar desplaze</button>
     </div>
 
     <div class="panel">
@@ -155,7 +156,7 @@ const MENSAJES_MODO = {
   idle: ""
 };
 
-let proyecto = "", tipos = [], puntos = [], tramos = [];
+let proyecto = "", tipos = [], puntos = [], tramos = [], desplazes = [];
 let modo = "idle", conexion = {desde: null, hasta: null};
 
 /* ----- Mapa: satélite (similar a Google Earth) y calles ----- */
@@ -398,7 +399,9 @@ window.eliminarTramo = async id => {
 /* ----- Cargar desplaze ----- */
 $("btn-cargar").addEventListener("click", async () => {
   proyecto = $("proyecto").value.trim();
-  if (!proyecto) return setMsg("Escriba el código del desplaze.");
+  if (!proyecto) return setMsg("Escriba o seleccione un desplaze guardado.");
+  if (!desplazes.some(x => x.codigo === proyecto))
+    return setMsg("Ese desplaze no está en su lista. Seleccione una de las sugerencias.");
   setModo("idle");
 
   const [p, t] = await Promise.all([
@@ -444,9 +447,18 @@ async function init() {
     const { data, error } = await sb.from("fibra_tipos").select("*").order("codigo");
     if (error) return setMsg("No se pudo cargar el catálogo de fibras. " + error.message);
     tipos = data;
+    const { data: lp } = await sb.from("proyectos").select("codigo,nombre").order("updated_at", {ascending: false});
+    desplazes = lp || [];
+    $("lista-desplazes").innerHTML = desplazes.map(x =>
+      `<option value="${esc(x.codigo)}">${esc(x.nombre)}</option>`).join("");
+
+    $("proyecto").addEventListener("change", () => {
+      if (desplazes.some(x => x.codigo === $("proyecto").value.trim())) $("btn-cargar").click();
+    });
+
     const pid = new URLSearchParams(location.search).get("proyecto");
     if (pid) { $("proyecto").value = pid; $("btn-cargar").click(); }
-    else setMsg("Abra un desplaze desde la página Mis desplazes.", "ok");
+    else setMsg("Escriba o seleccione un desplaze guardado para cargarlo.", "ok");
   } catch (err) {
     setMsg("No se pudo conectar con el servicio. Intente de nuevo.");
   }
