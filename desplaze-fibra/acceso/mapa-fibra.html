@@ -355,9 +355,10 @@ function render() {
       html: `<div class="pin${sel ? " sel" : ""}" style="background:${t.color}">${ICONOS[p.tipo]}</div>`,
       iconSize: [32, 32], iconAnchor: [16, 16]
     });
-    L.marker([p.lat, p.lng], {icon: icono})
+    L.marker([p.lat, p.lng], {icon: icono, draggable: true})
       .bindPopup(popupPunto(p))
-      .on("click", () => clicPunto(p))
+      .on("click", () => clicMarcador(p))
+      .on("dragend", e => moverPunto(p, e.target.getLatLng()))
       .addTo(capaPuntos);
   });
 
@@ -444,6 +445,49 @@ function clicPunto(p) {
   conexion.hasta = p;
   render();
   mostrarFormTramo();
+}
+
+/* Un clic sobre un marcador: en modo colocar sirve para ubicar el nuevo elemento encima;
+   si hay varios elementos en el mismo punto, muestra la lista para elegir cuál usar */
+function clicMarcador(p) {
+  map.closePopup();
+  if (modo === "colocar") return map.fire("click", {latlng: L.latLng(p.lat, p.lng)});
+  const grupo = puntos.filter(q => L.latLng(q.lat, q.lng).distanceTo([p.lat, p.lng]) < 5);
+  if (grupo.length > 1) {
+    L.popup({maxWidth: 280}).setLatLng([p.lat, p.lng]).setContent(listaGrupo(grupo)).openOn(map);
+    return;
+  }
+  clicPunto(p);
+}
+
+function listaGrupo(grupo) {
+  const accion = modo === "conectar" ? "elegirPunto" : "verPunto";
+  return `<b>Elementos en este punto (${grupo.length})</b><div style="margin-top:6px">` + grupo.map(q =>
+    `<button onclick="${accion}('${q.id}')" style="display:flex;align-items:center;gap:8px;width:100%;margin-top:4px;padding:6px 8px;border:1px solid #D9DFE7;border-radius:6px;background:#fff;cursor:pointer;text-align:left">` +
+    `<span style="width:24px;height:24px;border-radius:50%;background:${TIPOS[q.tipo].color};padding:4px;flex:none;display:grid;place-items:center">${ICONOS[q.tipo]}</span>` +
+    `<span>${esc(TIPOS[q.tipo].nombre)} · <b>${esc(q.codigo)}</b></span></button>`).join("") + `</div>`;
+}
+
+window.verPunto = id => {
+  const p = puntoPorId(id);
+  if (!p) return;
+  map.closePopup();
+  L.popup().setLatLng([p.lat, p.lng]).setContent(popupPunto(p)).openOn(map);
+};
+
+window.elegirPunto = id => {
+  const p = puntoPorId(id);
+  map.closePopup();
+  if (p) clicPunto(p);
+};
+
+async function moverPunto(p, ll) {
+  const { error } = await sb.from("puntos_fibra").update({lat: ll.lat, lng: ll.lng}).eq("id", p.id);
+  if (error) { setMsg("No se pudo mover el elemento. " + error.message); return render(); }
+  p.lat = ll.lat;
+  p.lng = ll.lng;
+  render();
+  setMsg(`${p.codigo} movido a la nueva ubicación.`, "ok");
 }
 
 function metrosTramo() {
