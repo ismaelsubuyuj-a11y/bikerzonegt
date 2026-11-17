@@ -124,7 +124,7 @@ function cadena(nap) {
   const hops = [];
   let cur = nap, guard = 0;
   while (cur && guard++ < 50) {
-    const ent = tramos.find(t => extNap(t) === cur.id && hilosC(t).length && P(otro(t, cur.id))?.tipo !== "cliente");
+    const ent = tramos.find(t => extNap(t) === cur.id && (hilosC(t).length || P(otro(t, cur.id))?.splitter) && P(otro(t, cur.id))?.tipo !== "cliente");
     if (!ent) break;
     hops.unshift({t: ent, dest: cur});
     cur = P(otro(ent, cur.id));
@@ -170,14 +170,15 @@ function calcular(c, cfg) {
   const fibraDb = segmentos.reduce((s, x) => s + x.metros / 1000 * atten(x.tipo), 0);
   const conectores = cfg.conector * 3 + cfg.paso * hops.length;
   const splitDb = SPLITTER_DB[nap.balanceador || "1x8"] ?? 10.5;
-  const perdida = fibraDb + conectores + splitDb;
+  const splitOdf = origen.splitter ? (SPLITTER_DB[origen.splitter] ?? 0) : 0;
+  const perdida = fibraDb + conectores + splitDb + splitOdf;
   const rx = modelo.txDbm - perdida;
   const margen = rx - perfil.sensDbm;
   const estado = margen >= cfg.margen ? "ok" : margen >= 0 ? "limite" : "fuera";
 
   return {
     nap, puerto: c.puerto, modelo, tx: modelo.txDbm, sens: perfil.sensDbm,
-    fibraDb, conectores, splitDb, perdida, rx, margen, estado,
+    fibraDb, conectores, splitDb, splitOdf, origen, perdida, rx, margen, estado,
     segmentos, metrosTotal: segmentos.reduce((s, x) => s + x.metros, 0)
   };
 }
@@ -200,6 +201,7 @@ function tarjeta({c, r}) {
       <ul>
         <li>Fibra: ${r.fibraDb.toFixed(2)} dB</li>
         <li>Conectores y cajas de paso: ${r.conectores.toFixed(2)} dB</li>
+        ${r.splitOdf ? `<li>Splitter del ${esc(r.origen.codigo)} (${esc(r.origen.splitter)}): ${r.splitOdf.toFixed(2)} dB</li>` : ""}
         <li>Splitter ${esc(r.nap.balanceador || "1x8")}: ${r.splitDb.toFixed(2)} dB</li>
         <li>Longitud total del recorrido: ${Math.round(r.metrosTotal).toLocaleString("es-GT")} m</li>
       </ul>
