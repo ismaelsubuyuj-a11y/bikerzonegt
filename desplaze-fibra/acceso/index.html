@@ -56,6 +56,21 @@ dialog{border:none;border-radius:14px;padding:28px;width:min(420px,92vw);color:v
 dialog::backdrop{background:rgba(11,37,69,.5)}
 @media(max-width:899px){.brand{padding:28px 22px;gap:18px}.brand h1{font-size:22px}.access{padding:24px 14px}.card{padding:26px 20px}dialog{padding:22px}}
 @media(max-width:420px){dialog .row{flex-direction:column}}
+#session-view{max-width:760px}
+.dash{display:grid;gap:12px}
+.dtitle{margin:0 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--navy)}
+.dcard{border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:8px}
+.dtop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.dnom{margin:0;color:var(--muted);font-size:14px}
+.bar{height:8px;background:#EEF2F7;border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--teal)}
+.dpct{margin:0;font-size:13px}
+.dstats{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--muted)}
+.dstats span{background:#F4F6F9;border-radius:999px;padding:3px 10px}
+.badge{font-size:12px;padding:3px 10px;border-radius:999px;background:#EEF2F7;color:var(--navy);white-space:nowrap}
+.badge.en_obra{background:#FEF0C7;color:#93370D}
+.badge.finalizado{background:#D1FADF;color:var(--ok)}
+.dcard a.btn{text-align:center;text-decoration:none;box-sizing:border-box}
 dialog h2{margin:0 0 4px;font-size:20px;color:var(--navy)}
 dialog .row{display:flex;gap:10px;margin-top:6px}
 dialog .row .btn{margin-top:18px}
@@ -127,7 +142,7 @@ dialog .row .btn{margin-top:18px}
         <button id="open-pass" class="btn btn-ghost" type="button">Cambiar contraseña</button>
         <button id="logout-btn" class="btn btn-primary" type="button">Cerrar sesión</button>
       </div>
-      <div class="placeholder">Panel de desplazes en preparación.</div>
+      <div id="dash" class="dash"></div>
     </div>
   </main>
 </div>
@@ -171,6 +186,39 @@ const setMsg = (el, text, type = "error") => {
   el.hidden = !text;
 };
 const showLogin = () => { $("login-view").hidden = false; $("session-view").hidden = true; };
+async function cargarDashboard() {
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const ESTADO = {en_diseno: "En diseño", en_obra: "En obra", finalizado: "Finalizado"};
+  const box = $("dash");
+  const [pr, pu, tr] = await Promise.all([
+    sb.from("proyectos").select("codigo,nombre,estado,updated_at").order("updated_at", {ascending: false}),
+    sb.from("puntos_fibra").select("proyecto,tipo"),
+    sb.from("tramos_fibra").select("proyecto,estado")
+  ]);
+  if (pr.error || pu.error || tr.error) { box.innerHTML = `<p class="hint">No se pudo cargar el avance de sus desplazes.</p>`; return; }
+  if (!pr.data.length) { box.innerHTML = `<p class="hint">Aún no tiene desplazes. Cree uno desde «Mis desplazes».</p>`; return; }
+
+  box.innerHTML = `<h3 class="dtitle">Avance de sus desplazes</h3>` + pr.data.map(x => {
+    const tms = tr.data.filter(t => t.proyecto === x.codigo);
+    const inst = tms.filter(t => t.estado === "instalado").length;
+    const obra = tms.filter(t => t.estado === "en_obra").length;
+    const pct = tms.length ? Math.round(inst / tms.length * 100) : 0;
+    const pts = pu.data.filter(p => p.proyecto === x.codigo);
+    const cnt = tipo => pts.filter(p => p.tipo === tipo).length;
+    return `<article class="dcard">
+      <div class="dtop"><b>${esc(x.codigo)}</b><span class="badge ${x.estado}">${ESTADO[x.estado] || esc(x.estado)}</span></div>
+      <p class="dnom">${esc(x.nombre)}</p>
+      <div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
+      <p class="dpct">${pct}% de tramos instalados · ${inst} de ${tms.length} · ${obra} en obra</p>
+      <div class="dstats">
+        <span>${cnt("poste")} postes</span><span>${cnt("mufa")} mufas</span><span>${cnt("nap")} NAP</span>
+        <span>${cnt("cliente")} clientes</span><span>${cnt("odf") + cnt("switch")} ODF/switch</span>
+      </div>
+      <a class="btn primary" href="mapa-fibra.html?proyecto=${encodeURIComponent(x.codigo)}">Abrir mapa</a>
+    </article>`;
+  }).join("");
+}
+
 const showSession = async user => {
   $("login-view").hidden = true;
   $("session-view").hidden = false;
@@ -188,6 +236,7 @@ const showSession = async user => {
   $("user-initial").hidden = hasPhoto;
   $("user-initial").textContent = ((p && p.username) || user.email).charAt(0).toUpperCase();
   $("user-name").textContent = (p && p.username) || "Sin nombre de usuario";
+  cargarDashboard();
 };
 
 /* ----- Inicio de sesión ----- */
