@@ -71,6 +71,36 @@ dialog::backdrop{background:rgba(11,37,69,.5)}
 .badge.en_obra{background:#FEF0C7;color:#93370D}
 .badge.finalizado{background:#D1FADF;color:var(--ok)}
 .dcard a.btn{text-align:center;text-decoration:none;box-sizing:border-box}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kpi{background:linear-gradient(135deg,#0B2545,#13315C);color:#fff;border-radius:12px;padding:14px}
+.kpi span{font-size:12px;opacity:.85}
+.kpi b{display:block;font-size:24px;margin-top:4px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:14px}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.pcard::before{content:"";position:absolute;left:0;top:0;right:0;height:4px;background:linear-gradient(90deg,#13A89E,#0B2545)}
+.pcard.st-en_obra::before{background:linear-gradient(90deg,#F59E0B,#B45309)}
+.pcard.st-finalizado::before{background:linear-gradient(90deg,#10B981,#067647)}
+.pcard:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(11,37,69,.12)}
+.ph{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.pcod{font-size:12px;color:#13A89E;font-weight:700;letter-spacing:.6px}
+.ph h4{margin:2px 0 0;font-size:16px;color:var(--navy);overflow-wrap:anywhere}
+.pmid{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.ring{--p:0;width:96px;height:96px;border-radius:50%;background:conic-gradient(#13A89E calc(var(--p) * 1%),#E5EAF1 0);display:grid;place-items:center;flex:none;position:relative;transition:background .6s}
+.ring::after{content:"";position:absolute;inset:9px;background:#fff;border-radius:50%}
+.ring>div{position:relative;z-index:1;text-align:center}
+.ring b{display:block;font-size:20px;color:var(--navy)}
+.ring small{font-size:11px;color:var(--muted)}
+.plist{list-style:none;margin:0;padding:0;flex:1;min-width:160px;display:grid;gap:6px}
+.plist li{display:flex;justify-content:space-between;gap:8px;font-size:13px;border-bottom:1px dashed #E5EAF1;padding-bottom:4px}
+.plist span{color:var(--muted)}
+.pbtn{display:flex;justify-content:space-between;align-items:center;background:var(--navy);color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:600;font-size:14px}
+.pbtn:hover{background:var(--navy2)}
+.pbtn span{transition:transform .2s}
+.pbtn:hover span{transform:translateX(4px)}
+.vacio-p{text-align:center;padding:18px;color:var(--muted);display:grid;gap:10px;justify-items:center}
+.vacio-p b{color:var(--navy);font-size:16px}
+@media (prefers-reduced-motion:reduce){.pcard,.pbtn span,.ring{transition:none}.pcard:hover{transform:none}}
+@media(max-width:480px){.ring{width:84px;height:84px}.kpi b{font-size:20px}}
 dialog h2{margin:0 0 4px;font-size:20px;color:var(--navy)}
 dialog .row{display:flex;gap:10px;margin-top:6px}
 dialog .row .btn{margin-top:18px}
@@ -219,6 +249,65 @@ async function cargarDashboard() {
   }).join("");
 }
 
+async function renderPanel() {
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const ESTADO = {en_diseno: "En diseño", en_obra: "En obra", finalizado: "Finalizado"};
+  const box = $("dash");
+  box.innerHTML = `<p class="hint">Cargando avance…</p>`;
+  const [pr, pu, tr] = await Promise.all([
+    sb.from("proyectos").select("codigo,nombre,estado,updated_at").order("updated_at", {ascending: false}),
+    sb.from("puntos_fibra").select("proyecto,tipo"),
+    sb.from("tramos_fibra").select("proyecto,estado")
+  ]);
+  if (pr.error || pu.error || tr.error) { box.innerHTML = `<p class="hint">No se pudo cargar el avance de sus desplazes.</p>`; return; }
+  if (!pr.data.length) {
+    box.innerHTML = `<div class="vacio-p"><b>Aún no tiene desplazes</b><span>Cree su primer proyecto para empezar a planificar la red.</span>
+      <a class="pbtn" href="mis-desplazes.html" style="justify-content:center;width:100%">Crear desplaze</a></div>`;
+    return;
+  }
+
+  const instGlobal = tr.data.filter(t => t.estado === "instalado").length;
+  const pctGlobal = tr.data.length ? Math.round(instGlobal / tr.data.length * 100) : 0;
+  const naps = pu.data.filter(p => p.tipo === "nap").length;
+  const clientes = pu.data.filter(p => p.tipo === "cliente").length;
+
+  const tarjetas = pr.data.map(x => {
+    const tms = tr.data.filter(t => t.proyecto === x.codigo);
+    const inst = tms.filter(t => t.estado === "instalado").length;
+    const obra = tms.filter(t => t.estado === "en_obra").length;
+    const pct = tms.length ? Math.round(inst / tms.length * 100) : 0;
+    const pts = pu.data.filter(p => p.proyecto === x.codigo);
+    const c = tipo => pts.filter(p => p.tipo === tipo).length;
+    return `<article class="pcard st-${esc(x.estado)}">
+      <header class="ph">
+        <div><span class="pcod">${esc(x.codigo)}</span><h4>${esc(x.nombre)}</h4></div>
+        <span class="badge ${esc(x.estado)}">${ESTADO[x.estado] || esc(x.estado)}</span>
+      </header>
+      <div class="pmid">
+        <div class="ring" style="--p:${pct}"><div><b>${pct}%</b><small>instalado</small></div></div>
+        <ul class="plist">
+          <li><span>Tramos instalados</span><b>${inst} / ${tms.length}</b></li>
+          <li><span>En obra</span><b>${obra}</b></li>
+          <li><span>Postes · Mufas</span><b>${c("poste")} · ${c("mufa")}</b></li>
+          <li><span>Cajas NAP · ODF</span><b>${c("nap")} · ${c("odf") + c("switch")}</b></li>
+          <li><span>Clientes</span><b>${c("cliente")}</b></li>
+        </ul>
+      </div>
+      <a class="pbtn" href="mapa-fibra.html?proyecto=${encodeURIComponent(x.codigo)}">Abrir mapa <span aria-hidden="true">→</span></a>
+    </article>`;
+  }).join("");
+
+  box.innerHTML = `
+    <div class="kpis">
+      <div class="kpi"><span>Desplazes</span><b>${pr.data.length}</b></div>
+      <div class="kpi"><span>Avance general</span><b>${pctGlobal}%</b></div>
+      <div class="kpi"><span>Cajas NAP</span><b>${naps}</b></div>
+      <div class="kpi"><span>Clientes</span><b>${clientes}</b></div>
+    </div>
+    <h3 class="dtitle">Desplazes en curso</h3>
+    <div class="pgrid">${tarjetas}</div>`;
+}
+
 const showSession = async user => {
   $("login-view").hidden = true;
   $("session-view").hidden = false;
@@ -236,7 +325,7 @@ const showSession = async user => {
   $("user-initial").hidden = hasPhoto;
   $("user-initial").textContent = ((p && p.username) || user.email).charAt(0).toUpperCase();
   $("user-name").textContent = (p && p.username) || "Sin nombre de usuario";
-  cargarDashboard();
+  renderPanel();
 };
 
 /* ----- Inicio de sesión ----- */
