@@ -41,6 +41,25 @@ select,input[type=text],input[type=number],textarea{width:100%;padding:8px 10px;
 .pin svg{width:100%;height:100%}
 .paso{width:20px;height:20px;border-radius:50%;background:#FACC15;border:2px solid #111;font-size:10px;font-weight:700;display:grid;place-items:center;color:#111;cursor:move}
 .leaflet-popup-content{font-size:13px;line-height:1.45}
+.nap-card{font-size:13px;min-width:250px}
+.nap-sec{font-weight:700;color:#0B2545;font-size:12px;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px;display:flex;justify-content:space-between;gap:8px}
+.nap-sec span{color:#6B7785;text-transform:none;font-weight:400}
+.flujo{display:flex;align-items:center;gap:6px;background:#F4F6F9;border-radius:10px;padding:10px}
+.nodo{background:#0B2545;color:#fff;border-radius:6px;padding:4px 8px;font-size:12px;white-space:nowrap}
+.nodo-nap{background:#0E9F6E}
+.linea{flex:1;height:4px;min-width:24px;border-radius:2px;background:repeating-linear-gradient(90deg,#13A89E 0 10px,transparent 10px 16px);background-size:32px 4px;animation:fluir 1.2s linear infinite}
+@keyframes fluir{from{background-position:0 0}to{background-position:-32px 0}}
+.hilo-in{width:16px;height:16px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.15);animation:latir 1.6s ease-in-out infinite;flex:none}
+@keyframes latir{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+.det{margin:6px 0 0;color:#1F2933}
+.chips{margin-top:4px}
+.puertos{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:6px}
+.pt{border-radius:8px;padding:6px 4px;text-align:center;font:inherit;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px}
+.pt b{font-size:14px}
+.pt.libre{background:#ECFDF3;border:1px solid #6CE9A6;color:#067647;cursor:pointer}
+.pt.libre:hover{background:#D1FADF}
+.pt.ocupado{background:#EEF2F7;border:1px solid #D9DFE7;color:#475467}
+@media (prefers-reduced-motion:reduce){.linea,.hilo-in{animation:none}}
 dialog{border:none;border-radius:12px;padding:22px;width:min(440px,92vw);color:var(--text);max-height:90vh;overflow:auto}
 dialog::backdrop{background:rgba(11,37,69,.5)}
 dialog h2{margin:0 0 8px;font-size:18px;color:var(--navy)}
@@ -104,10 +123,19 @@ dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
       <button id="btn-conectar" class="btn" type="button">Conectar dos puntos</button>
       <p class="hint">Seleccione el origen y el destino sobre el mapa.</p>
 
+      <label for="ruta-max">Distancia máxima entre postes</label>
+      <select id="ruta-max">
+        <option value="40">40 m</option>
+        <option value="60">60 m</option>
+        <option value="80" selected>80 m</option>
+        <option value="120">120 m</option>
+        <option value="200">200 m</option>
+      </select>
       <label style="font-weight:400;display:flex;gap:6px;align-items:center;margin-top:8px"><input id="paso-poste" type="checkbox" style="width:auto"> Crear poste en cada paso</label>
       <button id="btn-troncal" class="btn" type="button">Crear troncal desde ODF o switch</button>
       <div id="troncal-panel" hidden>
         <p class="hint" id="tr-resumen"></p>
+        <p class="hint">Toque el mapa para trazar el recorrido real por calles, evitando árboles y casas. Después toque la caja NAP de destino.</p>
         <div class="row">
           <div><label for="tr-hilos">Hilos del cable</label><select id="tr-hilos"></select></div>
           <div><label for="tr-fibra">Tipo de fibra</label><select id="tr-fibra"></select></div>
@@ -116,6 +144,7 @@ dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
           <button id="tr-quitar" class="btn" type="button">Quitar último</button>
           <button id="tr-cancelar" class="btn" type="button">Cancelar</button>
         </div>
+        <label style="font-weight:400;display:flex;gap:6px;align-items:center;margin-top:8px"><input id="tr-auto" type="checkbox" checked style="width:auto"> Trazar cada tramo automáticamente por postes</label>
         <label style="font-weight:400;display:flex;gap:6px;align-items:center;margin-top:8px"><input id="tr-multi" type="checkbox" style="width:auto"> Reservar más de un hilo por caja NAP</label>
         <select id="tr-por-caja" disabled>
           <option value="2" selected>2 hilos por caja</option>
@@ -130,6 +159,7 @@ dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
           <button id="ruta-deshacer" class="btn" type="button">Quitar último</button>
           <button id="ruta-cancelar" class="btn" type="button">Cancelar</button>
         </div>
+        <button id="ruta-auto" class="btn" type="button">Trazar por postes</button>
         <button id="ruta-guardar" class="btn primary" type="button">Guardar recorrido</button>
       </div>
       <div id="tf-form" hidden>
@@ -159,6 +189,7 @@ dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
         </div>
         <label for="tf-notas">Notas</label>
         <input id="tf-notas" type="text" placeholder="Ej. Ducto subterráneo, 2 cruces de calle">
+        <button id="tf-trazar" class="btn" type="button">Trazar por postes</button>
         <p class="hint" id="tf-info"></p>
         <div class="row">
           <button id="tf-cancelar" class="btn" type="button">Cancelar</button>
@@ -382,7 +413,7 @@ function popupPunto(p) {
         ? `dúplex, hilo 1 ${colorHilo(1).nombre} y hilo 2 ${colorHilo(2).nombre}`
         : `monofibra, hilo 1 ${colorHilo(1).nombre}`} · ${esc(tipoPorCodigo(p.fibra_acometida)?.nombre || p.fibra_acometida || "")}` : "") : "") +
     (p.tipo === "odf" || p.tipo === "switch" ? `<br><b>Distribución de fibra</b>${resumenODF(p)}` : "") +
-    (p.tipo === "nap" ? resumenPuertos(p) + `<br><b>Colores de fibra en esta caja NAP</b>${resumenCadenaNap(p)}` : "") +
+    (p.tipo === "nap" ? tarjetaNap(p) : "") +
     `<br><button onclick="editarPunto('${p.id}')" style="margin-top:6px;margin-right:8px">Editar</button><button onclick="eliminarPunto('${p.id}')" style="margin-top:6px;color:#B42318">Eliminar elemento</button>`;
 }
 
@@ -462,6 +493,7 @@ $("btn-conectar").addEventListener("click", () => setModo(modo === "conectar" ? 
 map.on("click", async e => {
   if (modo === "conectar" && conexion.desde && !conexion.hasta) return agregarPaso(e.latlng, conexion);
   if (modo === "ruta" && rutaEdit) return agregarPaso(e.latlng, rutaEdit);
+  if (modo === "troncal" && troncal.origen) return agregarPaso(e.latlng, troncal.pendiente);
   if (modo !== "colocar") return;
   if (!proyecto) return setMsg("Cargue el código del desplaze antes de colocar elementos.");
 
@@ -518,6 +550,10 @@ function clicMarcador(p) {
   map.closePopup();
   if (modo === "colocar") return map.fire("click", {latlng: L.latLng(p.lat, p.lng)});
   if (modo === "troncal") return troncalClick(p);
+  if (esPaso(p)) {
+    if (modo === "ruta" && rutaEdit) return pasoDesdeElemento(p, rutaEdit);
+    if (modo === "conectar" && conexion.desde && !conexion.hasta) return pasoDesdeElemento(p, conexion);
+  }
   const grupo = puntos.filter(q => L.latLng(q.lat, q.lng).distanceTo([p.lat, p.lng]) < 5);
   if (grupo.length > 1) {
     L.popup({maxWidth: 280}).setLatLng([p.lat, p.lng]).setContent(listaGrupo(grupo)).openOn(map);
@@ -572,7 +608,7 @@ function resumenDistribucion(p) {
 
 /* ===== Edición de elementos y tramos ===== */
 let editando = null;
-let troncal = {origen: null, naps: []};
+let troncal = {origen: null, naps: [], rutas: [], pendiente: {pasos: []}};
 const BALANCEADORES = ["1x2", "1x4", "1x8", "1x16", "1x32"];
 
 function abrirEditor(titulo, campos) {
@@ -754,8 +790,11 @@ function dibujarPasos(pasos) {
 function dibujarRutas() {
   capaRuta.clearLayers();
   if (modo === "troncal" && troncal.origen) {
-    const pts = [troncal.origen, ...troncal.naps].map(p => [p.lat, p.lng]);
-    if (pts.length > 1) L.polyline(pts, {color: "#0F766E", weight: 3, dashArray: "4 8"}).addTo(capaRuta);
+    const tramo = [troncal.origen];
+    troncal.naps.forEach((n, i) => tramo.push(...(troncal.rutas[i] || []), n));
+    if (tramo.length > 1) L.polyline(tramo.map(p => [p.lat, p.lng]), {color: "#0F766E", weight: 3, dashArray: "4 8"}).addTo(capaRuta);
+    troncal.rutas.forEach(r => dibujarPasos(r));
+    dibujarPasos(troncal.pendiente.pasos);
   }
   if (modo === "conectar" && conexion.desde) {
     const pts = [conexion.desde, ...conexion.pasos, conexion.hasta].filter(Boolean).map(p => [p.lat, p.lng]);
@@ -905,9 +944,19 @@ function troncalClick(p) {
     if (!["odf", "switch"].includes(p.tipo)) return setMsg("Primero seleccione un ODF o switch de origen.");
     troncal.origen = p;
   } else {
+    if (esPaso(p)) return pasoDesdeElemento(p, troncal.pendiente);
     if (p.tipo !== "nap") return setMsg("Seleccione cajas NAP en el orden del recorrido.");
     if (troncal.naps.some(n => n.id === p.id)) return setMsg("Esa caja ya está en el troncal.");
+    const prev = troncal.naps[troncal.naps.length - 1] || troncal.origen;
+    let ruta = troncal.pendiente.pasos;
+    if (!ruta.length && $("tr-auto").checked) {
+      const r = rutaPorPostes(prev, p, parseInt($("ruta-max").value, 10));
+      if (r) ruta = r.map(aPaso);
+      else setMsg("Sin ruta de postes conectada: este tramo se dibujará en línea recta.");
+    }
     troncal.naps.push(p);
+    troncal.rutas.push(ruta);
+    troncal.pendiente = {pasos: []};
   }
   actualizarTroncalPanel();
   render();
@@ -921,7 +970,8 @@ async function generarTroncal() {
   let fibras = Array.from({length: parseInt($("tr-hilos").value, 10)}, (_, i) => i + 1);
   let prev = troncal.origen, prevId = null, creados = 0;
   try {
-    for (const nap of troncal.naps) {
+    for (const [idx, nap] of troncal.naps.entries()) {
+      const ruta = troncal.rutas[idx] || [];
       const porCaja = $("tr-multi").checked ? parseInt($("tr-por-caja").value, 10) : 1;
       if (fibras.length < porCaja) throw new Error(`no quedan hilos suficientes para ${nap.codigo}.`);
       const tomar = fibras.slice(0, porCaja);
@@ -929,8 +979,8 @@ async function generarTroncal() {
         proyecto, desde_id: prev.id, hasta_id: nap.id,
         tipo_fibra: $("tr-fibra").value,
         hilos: fibras.length, fibras, hilo_nap: tomar[0], hilos_nap: tomar,
-        longitud_m: longitudRuta([prev, nap]),
-        estado: "planificado", ruta: [], continua_de: prevId
+        longitud_m: longitudRuta([prev, ...ruta, nap]),
+        estado: "planificado", ruta, continua_de: prevId
       }).select().single();
       if (error) throw error;
       tramos.push(data);
@@ -940,7 +990,7 @@ async function generarTroncal() {
       creados++;
     }
     const origen = troncal.origen.codigo;
-    troncal = {origen: null, naps: []};
+    troncal = {origen: null, naps: [], rutas: [], pendiente: {pasos: []}};
     setModo("idle");
     setMsg(`Troncal generado desde ${origen}: ${creados} tramos con continuidad automática.`, "ok");
   } catch (err) {
@@ -954,7 +1004,7 @@ async function generarTroncal() {
 $("btn-troncal").addEventListener("click", () => {
   if (modo === "troncal") return setModo("idle");
   setModo("troncal");
-  troncal = {origen: null, naps: []};
+  troncal = {origen: null, naps: [], rutas: [], pendiente: {pasos: []}};
   $("tr-fibra").innerHTML = tipos.map(x => `<option value="${esc(x.codigo)}">${esc(x.nombre)}</option>`).join("");
   $("tr-hilos").innerHTML = HILOS.map(n => `<option value="${n}"${n === 12 ? " selected" : ""}>${n} hilos</option>`).join("");
   actualizarTroncalPanel();
@@ -962,12 +1012,118 @@ $("btn-troncal").addEventListener("click", () => {
 });
 $("tr-cancelar").addEventListener("click", () => { setModo("idle"); setMsg("Troncal cancelado.", "ok"); });
 $("tr-quitar").addEventListener("click", () => {
-  if (troncal.naps.length) troncal.naps.pop(); else troncal.origen = null;
+  if (troncal.naps.length) { troncal.naps.pop(); troncal.rutas.pop(); troncal.pendiente = {pasos: []}; }
+  else troncal.origen = null;
   actualizarTroncalPanel();
   render();
 });
 $("tr-generar").addEventListener("click", generarTroncal);
 $("tr-multi").addEventListener("change", () => { $("tr-por-caja").disabled = !$("tr-multi").checked; });
+
+/* ===== Tarjeta de caja NAP: entrada de fibra, hilos que continúan y puertos ===== */
+function tarjetaNap(p) {
+  const {hops, origen} = cadenaUpstream(p);
+  const entrada = hops[hops.length - 1];
+  const N = parseInt((p.balanceador || "1x8").split("x")[1], 10);
+  const clientes = puntos.filter(c => c.nap_id === p.id);
+  const libres = puertosLibres(p);
+
+  let fuente = `<p class="det">Sin fibra de entrada asignada.</p>`;
+  if (entrada) {
+    const entran = hilosConsumidos(entrada.tramo);
+    const continuan = fibrasDe(entrada.tramo).filter(f => !entran.includes(f));
+    fuente = `<div class="flujo">
+        <span class="nodo">${esc(origen?.codigo || "ODF")}</span>
+        <span class="linea"></span>
+        <span class="hilo-in" style="background:${colorHilo(entran[0]).hex}"></span>
+        <span class="linea"></span>
+        <span class="nodo nodo-nap">${esc(p.codigo)}</span>
+      </div>
+      <p class="det">Entra: ${chipsFibras(entran)}</p>
+      <p class="det">Hilos libres que continúan: <b>${continuan.length}</b></p>
+      <div class="chips">${chipsFibras(continuan)}</div>`;
+  }
+
+  const puertos = Array.from({length: N}, (_, i) => {
+    const k = i + 1, c = clientes.find(x => x.puerto === k);
+    return c
+      ? `<div class="pt ocupado"><b>${k}</b><span>${esc(c.codigo)}</span></div>`
+      : `<button type="button" class="pt libre" onclick="colocarClienteEn('${p.id}', ${k})"><b>${k}</b><span>Libre</span></button>`;
+  }).join("");
+
+  return `<div class="nap-card">
+    <div class="nap-sec">Fibra de entrada</div>
+    ${fuente}
+    <div class="nap-sec">Puertos del splitter <span>${libres.length} libres de ${N}</span></div>
+    <div class="puertos">${puertos}</div>
+  </div>`;
+}
+
+window.colocarClienteEn = (napId, puerto) => {
+  map.closePopup();
+  $("tipo").value = "cliente";
+  setModo("colocar");
+  actualizarFormElemento();
+  $("nap-cliente").value = napId;
+  actualizarPuertos();
+  $("puerto").value = String(puerto);
+  setMsg(`Toque el mapa para ubicar el cliente en el puerto ${puerto}.`, "ok");
+};
+
+/* ===== Recorrido anclado a postes existentes ===== */
+const esPaso = p => ["poste", "reserva"].includes(p.tipo);
+const aPaso = q => ({lat: q.lat, lng: q.lng, poste_id: q.id});
+
+function pasoDesdeElemento(p, destino) {
+  destino.pasos.push(aPaso(p));
+  render();
+  setMsg(`${p.codigo} agregado al recorrido.`, "ok");
+}
+
+/* Busca el camino más corto entre dos elementos pasando solo por postes
+   separados como máximo maxM metros (algoritmo de Dijkstra) */
+function rutaPorPostes(origen, destino, maxM) {
+  if (!origen || !destino) return null;
+  const nodos = [origen, ...puntos.filter(p => p.id !== origen.id && p.id !== destino.id && esPaso(p)), destino];
+  const n = nodos.length;
+  const dist = Array(n).fill(Infinity), prev = Array(n).fill(-1), vis = Array(n).fill(false);
+  dist[0] = 0;
+  const d = (i, j) => L.latLng(nodos[i].lat, nodos[i].lng).distanceTo([nodos[j].lat, nodos[j].lng]);
+  for (;;) {
+    let u = -1;
+    for (let i = 0; i < n; i++) if (!vis[i] && dist[i] < Infinity && (u === -1 || dist[i] < dist[u])) u = i;
+    if (u === -1 || u === n - 1) break;
+    vis[u] = true;
+    for (let v = 0; v < n; v++) {
+      if (vis[v]) continue;
+      const w = d(u, v);
+      if (w <= maxM && dist[u] + w < dist[v]) { dist[v] = dist[u] + w; prev[v] = u; }
+    }
+  }
+  if (dist[n - 1] === Infinity) return null;
+  const camino = [];
+  for (let v = prev[n - 1]; v > 0; v = prev[v]) camino.unshift(nodos[v]);
+  return camino;
+}
+
+$("tf-trazar").addEventListener("click", () => {
+  const r = rutaPorPostes(conexion.desde, conexion.hasta, parseInt($("ruta-max").value, 10));
+  if (!r) return setMsg("No hay una ruta de postes conectada entre ambos puntos. Aumente la distancia máxima o toque los postes manualmente.");
+  conexion.pasos = r.map(aPaso);
+  render();
+  actualizarInfoTramo();
+  setMsg(`Recorrido trazado por ${r.length} poste(s).`, "ok");
+});
+
+$("ruta-auto").addEventListener("click", () => {
+  const t = tramos.find(x => x.id === rutaEdit?.id);
+  if (!t) return;
+  const r = rutaPorPostes(puntoPorId(t.desde_id), puntoPorId(t.hasta_id), parseInt($("ruta-max").value, 10));
+  if (!r) return setMsg("No hay ruta de postes conectada. Aumente la distancia o toque los postes manualmente.");
+  rutaEdit.pasos = r.map(aPaso);
+  render();
+  setMsg(`Recorrido trazado por ${r.length} poste(s). Guarde el recorrido para confirmarlo.`, "ok");
+});
 
 function metrosTramo() {
   const a = conexion.desde, b = conexion.hasta;
