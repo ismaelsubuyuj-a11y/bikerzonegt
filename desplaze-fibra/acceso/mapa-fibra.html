@@ -105,6 +105,25 @@ dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
       <p class="hint">Seleccione el origen y el destino sobre el mapa.</p>
 
       <label style="font-weight:400;display:flex;gap:6px;align-items:center;margin-top:8px"><input id="paso-poste" type="checkbox" style="width:auto"> Crear poste en cada paso</label>
+      <button id="btn-troncal" class="btn" type="button">Crear troncal desde ODF o switch</button>
+      <div id="troncal-panel" hidden>
+        <p class="hint" id="tr-resumen"></p>
+        <div class="row">
+          <div><label for="tr-hilos">Hilos del cable</label><select id="tr-hilos"></select></div>
+          <div><label for="tr-fibra">Tipo de fibra</label><select id="tr-fibra"></select></div>
+        </div>
+        <div class="row">
+          <button id="tr-quitar" class="btn" type="button">Quitar último</button>
+          <button id="tr-cancelar" class="btn" type="button">Cancelar</button>
+        </div>
+        <label style="font-weight:400;display:flex;gap:6px;align-items:center;margin-top:8px"><input id="tr-multi" type="checkbox" style="width:auto"> Reservar más de un hilo por caja NAP</label>
+        <select id="tr-por-caja" disabled>
+          <option value="2" selected>2 hilos por caja</option>
+          <option value="3">3 hilos por caja</option>
+          <option value="4">4 hilos por caja</option>
+        </select>
+        <button id="tr-generar" class="btn primary" type="button">Generar troncal</button>
+      </div>
       <div id="ruta-panel" hidden>
         <p class="hint">Haga clic en el mapa para agregar pasos. Arrastre los números para ajustar el recorrido.</p>
         <div class="row">
@@ -263,7 +282,8 @@ function cableDelTramo() {
 }
 
 function hilosUsados(cable) {
-  return tramos.filter(t => t.hilo_nap && (t.desde_id === cable.id || t.hasta_id === cable.id)).map(t => t.hilo_nap);
+  return tramos.filter(t => (t.desde_id === cable.id || t.hasta_id === cable.id))
+    .flatMap(t => hilosConsumidos(t));
 }
 
 function hiloLibre(total, cable) {
@@ -290,6 +310,7 @@ const MENSAJES_MODO = {
   colocar: "Haga clic en el mapa para colocar el elemento seleccionado.",
   conectar: "Seleccione el punto de origen y después el de destino.",
   ruta: "",
+  troncal: "",
   idle: ""
 };
 
@@ -360,8 +381,8 @@ function popupPunto(p) {
       (p.hilos_acometida ? `<br>Acometida: ${p.hilos_acometida === 2
         ? `dúplex, hilo 1 ${colorHilo(1).nombre} y hilo 2 ${colorHilo(2).nombre}`
         : `monofibra, hilo 1 ${colorHilo(1).nombre}`} · ${esc(tipoPorCodigo(p.fibra_acometida)?.nombre || p.fibra_acometida || "")}` : "") : "") +
-    (p.tipo === "odf" || p.tipo === "switch" ? `<br><b>Distribución de fibra</b>${resumenDistribucion(p)}` : "") +
-    (p.tipo === "nap" ? resumenPuertos(p) + `<br><b>Colores de fibra en esta caja NAP</b>${tablaColoresNap(p)}` : "") +
+    (p.tipo === "odf" || p.tipo === "switch" ? `<br><b>Distribución de fibra</b>${resumenODF(p)}` : "") +
+    (p.tipo === "nap" ? resumenPuertos(p) + `<br><b>Colores de fibra en esta caja NAP</b>${resumenCadenaNap(p)}` : "") +
     `<br><button onclick="editarPunto('${p.id}')" style="margin-top:6px;margin-right:8px">Editar</button><button onclick="eliminarPunto('${p.id}')" style="margin-top:6px;color:#B42318">Eliminar elemento</button>`;
 }
 
@@ -425,6 +446,7 @@ function setModo(m) {
   conexion = {desde: null, hasta: null, pasos: []};
   rutaEdit = null;
   $("ruta-panel").hidden = m !== "ruta";
+  $("troncal-panel").hidden = m !== "troncal";
   $("tf-form").hidden = true;
   $("btn-colocar").classList.toggle("on", m === "colocar");
   $("btn-conectar").classList.toggle("on", m === "conectar");
@@ -495,6 +517,7 @@ function clicPunto(p) {
 function clicMarcador(p) {
   map.closePopup();
   if (modo === "colocar") return map.fire("click", {latlng: L.latLng(p.lat, p.lng)});
+  if (modo === "troncal") return troncalClick(p);
   const grupo = puntos.filter(q => L.latLng(q.lat, q.lng).distanceTo([p.lat, p.lng]) < 5);
   if (grupo.length > 1) {
     L.popup({maxWidth: 280}).setLatLng([p.lat, p.lng]).setContent(listaGrupo(grupo)).openOn(map);
@@ -549,6 +572,7 @@ function resumenDistribucion(p) {
 
 /* ===== Edición de elementos y tramos ===== */
 let editando = null;
+let troncal = {origen: null, naps: []};
 const BALANCEADORES = ["1x2", "1x4", "1x8", "1x16", "1x32"];
 
 function abrirEditor(titulo, campos) {
@@ -729,6 +753,10 @@ function dibujarPasos(pasos) {
 
 function dibujarRutas() {
   capaRuta.clearLayers();
+  if (modo === "troncal" && troncal.origen) {
+    const pts = [troncal.origen, ...troncal.naps].map(p => [p.lat, p.lng]);
+    if (pts.length > 1) L.polyline(pts, {color: "#0F766E", weight: 3, dashArray: "4 8"}).addTo(capaRuta);
+  }
   if (modo === "conectar" && conexion.desde) {
     const pts = [conexion.desde, ...conexion.pasos, conexion.hasta].filter(Boolean).map(p => [p.lat, p.lng]);
     if (pts.length > 1) L.polyline(pts, {color: "#111827", weight: 3, dashArray: "6 6"}).addTo(capaRuta);
@@ -773,10 +801,13 @@ $("ruta-guardar").addEventListener("click", async () => {
 /* ===== Continuidad del cable: los hilos no usados en una NAP siguen a la siguiente ===== */
 function extremoNap(t) {
   const a = puntoPorId(t.desde_id), b = puntoPorId(t.hasta_id);
-  if (a?.tipo === "nap") return a.id;
   if (b?.tipo === "nap") return b.id;
+  if (a?.tipo === "nap") return a.id;
   return null;
 }
+
+const hilosConsumidos = t => (Array.isArray(t.hilos_nap) && t.hilos_nap.length)
+  ? t.hilos_nap : (t.hilo_nap ? [t.hilo_nap] : []);
 
 function fibrasDe(t) {
   return t.fibras || Array.from({length: t.hilos}, (_, i) => i + 1);
@@ -785,7 +816,7 @@ function fibrasDe(t) {
 function aplicarContinuidad() {
   conexion.fibras = null;
   if ($("tf-continuar").checked && conexion.padre) {
-    conexion.fibras = fibrasDe(conexion.padre).filter(f => f !== conexion.padre.hilo_nap);
+    conexion.fibras = fibrasDe(conexion.padre).filter(f => !hilosConsumidos(conexion.padre).includes(f));
     $("tf-hilos").innerHTML = `<option value="${conexion.fibras.length}">${conexion.fibras.length} hilos restantes</option>`;
     $("tf-hilos").disabled = true;
   } else {
@@ -795,6 +826,148 @@ function aplicarContinuidad() {
   actualizarInfoTramo();
   actualizarHilosNap();
 }
+
+/* ===== Trazabilidad de hilos: de dónde entra, por dónde pasa y en qué caja queda ===== */
+const otroExtremo = (t, id) => t.desde_id === id ? t.hasta_id : t.desde_id;
+
+function chipsFibras(lista) {
+  return lista.map(f => {
+    const c = colorHilo(f);
+    return `<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 6px 2px 0;white-space:nowrap">` +
+      `<i style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${c.hex};border:1px solid #888"></i>${f} ${c.nombre}</span>`;
+  }).join("");
+}
+
+/* Recorre hacia atrás las cajas NAP por donde viene el cable hasta su origen */
+function cadenaUpstream(p) {
+  const hops = [];
+  let cur = p, guard = 0;
+  while (cur && guard++ < 50) {
+    const ent = tramos.find(t => extremoNap(t) === cur.id && hilosConsumidos(t).length &&
+      puntoPorId(otroExtremo(t, cur.id))?.tipo !== "cliente");
+    if (!ent) break;
+    hops.unshift({tramo: ent, hilo: ent.hilo_nap, destino: cur});
+    cur = puntoPorId(otroExtremo(ent, cur.id));
+  }
+  return {hops, origen: cur};
+}
+
+function resumenCadenaNap(p) {
+  const {hops, origen} = cadenaUpstream(p);
+  if (!hops.length) return `<br><b>Recorrido del cable</b><br><i>Sin cable de entrada asignado.</i>`;
+  let html = `<br><b>Recorrido del cable</b><br>Origen: ${esc(origen?.codigo || "–")} (${hops[0].tramo.hilos} hilos)`;
+  hops.forEach(h => {
+    const c = colorHilo(h.hilo);
+    const consumidos = hilosConsumidos(h.tramo);
+    const siguen = fibrasDe(h.tramo).filter(f => !consumidos.includes(f));
+    html += `<br>→ ${esc(h.destino.codigo)}: queda hilo${consumidos.length > 1 ? "s" : ""} ${consumidos.join(", ")} (${consumidos.map(x => colorHilo(x).nombre).join(", ")})` +
+      (siguen.length ? `<br><span style="margin-left:12px">Siguen: ${chipsFibras(siguen)}</span>` : "");
+  });
+  return html;
+}
+
+/* Sigue el hilo f desde el tramo raíz hasta la NAP donde queda */
+function destinoFibra(t, f) {
+  let actual = t, guard = 0;
+  while (actual && guard++ < 50) {
+    if (hilosConsumidos(actual).includes(f)) return puntoPorId(extremoNap(actual));
+    actual = tramos.find(x => x.continua_de === actual.id && fibrasDe(x).includes(f));
+  }
+  return null;
+}
+
+function resumenODF(p) {
+  const raices = tramos.filter(t => (t.desde_id === p.id || t.hasta_id === p.id) && !t.continua_de);
+  if (!raices.length) return `<br><i>Sin tramos conectados.</i>`;
+  return raices.map(t => {
+    const otro = puntoPorId(otroExtremo(t, p.id));
+    const filas = fibrasDe(t).map(f => {
+      const c = colorHilo(f), d = destinoFibra(t, f);
+      return `<div style="display:flex;gap:6px;align-items:center;margin-top:2px">` +
+        `<span style="width:22px;text-align:right">${f}</span>` +
+        `<i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${c.hex};border:1px solid #888"></i>` +
+        `${c.nombre} → <b>${d ? esc(d.codigo) : "sin caja"}</b></div>`;
+    }).join("");
+    return `<div style="border-top:1px solid #D9DFE7;padding-top:6px;margin-top:8px;max-height:220px;overflow:auto">` +
+      `<b>Hacia ${esc(otro?.codigo)}</b> · ${t.hilos} hilos${filas}</div>`;
+  }).join("");
+}
+
+/* ===== Troncal: de un ODF o switch por varias NAP, con continuidad automática ===== */
+function actualizarTroncalPanel() {
+  $("tr-resumen").textContent = (troncal.origen ? `Origen: ${troncal.origen.codigo}` : "Origen: toque un ODF o switch en el mapa") +
+    ` · Cajas NAP en orden: ${troncal.naps.length}` +
+    (troncal.naps.length ? ` (${troncal.naps.map(n => n.codigo).join(" → ")})` : "");
+}
+
+function troncalClick(p) {
+  if (!troncal.origen) {
+    if (!["odf", "switch"].includes(p.tipo)) return setMsg("Primero seleccione un ODF o switch de origen.");
+    troncal.origen = p;
+  } else {
+    if (p.tipo !== "nap") return setMsg("Seleccione cajas NAP en el orden del recorrido.");
+    if (troncal.naps.some(n => n.id === p.id)) return setMsg("Esa caja ya está en el troncal.");
+    troncal.naps.push(p);
+  }
+  actualizarTroncalPanel();
+  render();
+}
+
+async function generarTroncal() {
+  if (!troncal.origen) return setMsg("Seleccione primero el ODF o switch de origen.");
+  if (!troncal.naps.length) return setMsg("Seleccione al menos una caja NAP.");
+  const btn = $("tr-generar");
+  btn.disabled = true;
+  let fibras = Array.from({length: parseInt($("tr-hilos").value, 10)}, (_, i) => i + 1);
+  let prev = troncal.origen, prevId = null, creados = 0;
+  try {
+    for (const nap of troncal.naps) {
+      const porCaja = $("tr-multi").checked ? parseInt($("tr-por-caja").value, 10) : 1;
+      if (fibras.length < porCaja) throw new Error(`no quedan hilos suficientes para ${nap.codigo}.`);
+      const tomar = fibras.slice(0, porCaja);
+      const { data, error } = await sb.from("tramos_fibra").insert({
+        proyecto, desde_id: prev.id, hasta_id: nap.id,
+        tipo_fibra: $("tr-fibra").value,
+        hilos: fibras.length, fibras, hilo_nap: tomar[0], hilos_nap: tomar,
+        longitud_m: longitudRuta([prev, nap]),
+        estado: "planificado", ruta: [], continua_de: prevId
+      }).select().single();
+      if (error) throw error;
+      tramos.push(data);
+      prevId = data.id;
+      prev = nap;
+      fibras = fibras.slice(porCaja);
+      creados++;
+    }
+    const origen = troncal.origen.codigo;
+    troncal = {origen: null, naps: []};
+    setModo("idle");
+    setMsg(`Troncal generado desde ${origen}: ${creados} tramos con continuidad automática.`, "ok");
+  } catch (err) {
+    render();
+    setMsg(`No se completó el troncal (${creados} tramos creados). ${err.message || err}`);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+$("btn-troncal").addEventListener("click", () => {
+  if (modo === "troncal") return setModo("idle");
+  setModo("troncal");
+  troncal = {origen: null, naps: []};
+  $("tr-fibra").innerHTML = tipos.map(x => `<option value="${esc(x.codigo)}">${esc(x.nombre)}</option>`).join("");
+  $("tr-hilos").innerHTML = HILOS.map(n => `<option value="${n}"${n === 12 ? " selected" : ""}>${n} hilos</option>`).join("");
+  actualizarTroncalPanel();
+  setMsg("Toque el ODF o switch de origen y luego las cajas NAP en el orden del recorrido.", "ok");
+});
+$("tr-cancelar").addEventListener("click", () => { setModo("idle"); setMsg("Troncal cancelado.", "ok"); });
+$("tr-quitar").addEventListener("click", () => {
+  if (troncal.naps.length) troncal.naps.pop(); else troncal.origen = null;
+  actualizarTroncalPanel();
+  render();
+});
+$("tr-generar").addEventListener("click", generarTroncal);
+$("tr-multi").addEventListener("change", () => { $("tr-por-caja").disabled = !$("tr-multi").checked; });
 
 function metrosTramo() {
   const a = conexion.desde, b = conexion.hasta;
@@ -817,9 +990,11 @@ function mostrarFormTramo() {
   $("tf-form").hidden = false;
   const nap = conexion.desde?.tipo === "nap" ? conexion.desde : null;
   conexion.padre = nap && conexion.hasta?.tipo === "nap"
-    ? tramos.find(t => extremoNap(t) === nap.id && t.hilo_nap) || null : null;
+    ? tramos.find(t => extremoNap(t) === nap.id && hilosConsumidos(t).length &&
+        puntoPorId(otroExtremo(t, nap.id))?.tipo !== "cliente") || null : null;
   $("f-continuar").hidden = !conexion.padre;
-  $("tf-continuar").checked = false;
+  $("tf-continuar").checked = !!conexion.padre;
+  aplicarContinuidad();
   actualizarInfoTramo();
   actualizarHilosNap();
 }
