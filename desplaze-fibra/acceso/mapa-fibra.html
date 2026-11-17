@@ -128,6 +128,11 @@ dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
           <div><label for="nap-m-sal">Reserva para salir (m)</label><input id="nap-m-sal" type="number" min="0" step="1" placeholder="ej. 10"></div>
         </div>
       </div>
+      <div id="f-odf" hidden>
+        <label for="odf-splitter">Splitter interno del ODF o switch</label>
+        <select id="odf-splitter"></select>
+        <p class="hint">Con splitter, cada salida es una fibra independiente y la potencia se reparte entre todas.</p>
+      </div>
       <div id="f-olt" hidden>
         <label for="olt-modelo">Modelo de OLT</label>
         <select id="olt-modelo"></select>
@@ -340,6 +345,8 @@ function actualizarFormElemento() {
   $("f-nap-m").hidden = t !== "nap";
   $("f-reserva").hidden = t !== "reserva";
   $("f-olt").hidden = t !== "olt";
+  $("f-odf").hidden = !(t === "odf" || t === "switch");
+  if (!$("odf-splitter").options.length) $("odf-splitter").innerHTML = splitterOpts("");
   if (!$("olt-modelo").options.length) $("olt-modelo").innerHTML = CATALOGO_OLT.map(m => `<option value="${m.id}">${esc(m.nombre)}</option>`).join("");
   if (t === "reserva") {
     const prev = $("res-poste").value;
@@ -393,7 +400,8 @@ function hiloLibre(total, cable) {
 
 function actualizarHilosNap() {
   const nap = napDelTramo();
-  $("f-hilo-nap").hidden = !nap;
+  $("f-hilo-nap").hidden = !nap || !!cableDelTramo()?.splitter;
+  if (cableDelTramo()?.splitter) return;
   if (!nap) return;
   const total = parseInt($("tf-hilos").value, 10);
   const usados = hilosUsados(cableDelTramo());
@@ -487,6 +495,7 @@ function popupPunto(p) {
     (p.tipo === "odf" || p.tipo === "switch" ? `<br><b>Distribución de fibra</b>${resumenODF(p)}` : "") +
     (p.tipo === "nap" ? tarjetaNap(p) : "") +
     (["nap", "odf", "switch"].includes(p.tipo) ? botonesDesplaze(p) : "") +
+    (["odf", "switch", "olt"].includes(p.tipo) ? botonConectar(p) : "") +
     `${p.tipo === "poste" ? `<br><button onclick="asociarPoste('${p.id}')" style="margin-top:6px;margin-right:8px;background:#0E7C86;color:#fff;border:none;border-radius:6px;padding:6px 10px">Fibra que pasa por este poste</button>` : ""}<br><span style="font-size:12px;color:#6B7785">Estado: ${(ESTADOS_EL.find(e => e[0] === (p.estado || "planificado")) || [])[1]}</span><br><button onclick="alternarInstalado('${p.id}')" style="margin-top:6px;margin-right:8px;background:#067647;color:#fff;border:none;border-radius:6px;padding:6px 10px">${p.estado === "instalado" ? "Desmarcar instalado" : "Marcar instalado"}</button><br><button onclick="editarPunto('${p.id}')" style="margin-top:6px;margin-right:8px">Editar</button><button onclick="eliminarPunto('${p.id}')" style="margin-top:6px;color:#B42318">Eliminar elemento</button>`;
 }
 
@@ -602,7 +611,8 @@ map.on("click", async e => {
     metros_reserva: tipo === "reserva" ? numVal("res-metros") : null,
     metros_entrada: tipo === "nap" ? numVal("nap-m-ent") : null,
     metros_salida: tipo === "nap" ? numVal("nap-m-sal") : null,
-    modelo: tipo === "olt" ? $("olt-modelo").value : null
+    modelo: tipo === "olt" ? $("olt-modelo").value : null,
+    splitter: (tipo === "odf" || tipo === "switch") ? ($("odf-splitter").value || null) : null
   };
   const { data, error } = await sb.from("puntos_fibra").insert(fila).select().single();
   if (error) return setMsg("No se pudo guardar el elemento. " + error.message);
@@ -748,6 +758,7 @@ window.editarPunto = id => {
     BALANCEADORES.map(b => `<option${b === (p.balanceador || "1x8") ? " selected" : ""}>${b}</option>`).join("")}</select>`;
   if (p.tipo === "cliente") campos += clienteCampos(p) +
     `<button type="button" id="ed-acometida-btn" class="btn" style="margin-top:12px">Seleccionar postes de la acometida</button>`;
+  if (p.tipo === "odf" || p.tipo === "switch") campos += `<label for="ed-splitter">Splitter interno</label><select id="ed-splitter">${splitterOpts(p.splitter || "")}</select>`;
   if (p.tipo === "olt") campos += `<label for="ed-olt">Modelo de OLT</label><select id="ed-olt">${CATALOGO_OLT.map(m =>
     `<option value="${m.id}"${m.id === p.modelo ? " selected" : ""}>${esc(m.nombre)}</option>`).join("")}</select>`;
   campos += `<label for="ed-estado">Estado de instalación</label><select id="ed-estado">${ESTADOS_EL.map(([k, v]) =>
@@ -812,6 +823,7 @@ $("ed-form").addEventListener("submit", async e => {
   if (!editando) return;
 
   if (editando.tipo === "poste") return guardarPoste();
+  if (editando.tipo === "conexion") return guardarConexion();
 
   if (editando.tipo === "punto") {
     const p = puntoPorId(editando.id);
@@ -825,6 +837,7 @@ $("ed-form").addEventListener("submit", async e => {
     if (p.tipo === "nap") cambios.balanceador = $("ed-balanceador").value;
     cambios.estado = $("ed-estado").value;
     if (p.tipo === "olt") cambios.modelo = $("ed-olt").value;
+    if (p.tipo === "odf" || p.tipo === "switch") cambios.splitter = $("ed-splitter").value || null;
     if (p.tipo === "nap") Object.assign(cambios, {metros_entrada: numVal("ed-m-ent"), metros_salida: numVal("ed-m-sal")});
     if (p.tipo === "reserva") {
       const poste = puntoPorId($("ed-poste").value);
@@ -1006,7 +1019,8 @@ function cadenaUpstream(p) {
   const hops = [];
   let cur = p, guard = 0;
   while (cur && guard++ < 50) {
-    const ent = tramos.find(t => extremoNap(t) === cur.id && hilosConsumidos(t).length &&
+    const ent = tramos.find(t => extremoNap(t) === cur.id &&
+      (hilosConsumidos(t).length || puntoPorId(otroExtremo(t, cur.id))?.splitter) &&
       puntoPorId(otroExtremo(t, cur.id))?.tipo !== "cliente");
     if (!ent) break;
     hops.unshift({tramo: ent, hilo: ent.hilo_nap, destino: cur});
@@ -1044,7 +1058,7 @@ function resumenODF(p) {
   if (!raices.length) return `<br><i>Sin tramos conectados.</i>`;
   return raices.map(t => {
     const otro = puntoPorId(otroExtremo(t, p.id));
-    const filas = fibrasDe(t).map(f => {
+    const filas = p.splitter ? "" : fibrasDe(t).map(f => {
       const c = colorHilo(f), d = destinoFibra(t, f);
       return `<div style="display:flex;gap:6px;align-items:center;margin-top:2px">` +
         `<span style="width:22px;text-align:right">${f}</span>` +
@@ -1052,7 +1066,7 @@ function resumenODF(p) {
         `${c.nombre} → <b>${d ? esc(d.codigo) : "sin caja"}</b></div>`;
     }).join("");
     return `<div style="border-top:1px solid #D9DFE7;padding-top:6px;margin-top:8px;max-height:220px;overflow:auto">` +
-      `<b>Hacia ${esc(otro?.codigo)}</b> · ${t.hilos} hilos${filas}</div>`;
+      `<b>Hacia ${esc(otro?.codigo)}</b> · ${p.splitter ? `salida del splitter ${p.splitter} · ${esc(tipoPorCodigo(t.tipo_fibra)?.nombre || t.tipo_fibra)}` : `${t.hilos} hilos`}${filas}</div>`;
   }).join("");
 }
 
@@ -1087,6 +1101,7 @@ function troncalClick(p) {
 }
 
 async function generarTroncal() {
+  if (troncal.origen?.splitter) return generarRamasSplitter();
   if (!troncal.origen) return setMsg("Seleccione primero el ODF o switch de origen.");
   if (!troncal.naps.length) return setMsg("Seleccione al menos una caja NAP.");
   const btn = $("tr-generar");
@@ -1159,7 +1174,7 @@ function tarjetaNap(p) {
     fuente = `<div class="flujo">
         <span class="nodo">${esc(origen?.codigo || "ODF")}</span>
         <span class="linea"></span>
-        <span class="hilo-in" style="background:${colorHilo(entran[0]).hex}"></span>
+        <span class="hilo-in" style="background:${entran[0] ? colorHilo(entran[0]).hex : "#13A89E"}"></span>
         <span class="linea"></span>
         <span class="nodo nodo-nap">${esc(p.codigo)}</span>
       </div>
@@ -1411,6 +1426,114 @@ window.alternarInstalado = async id => {
   setMsg(`${p.codigo}: ${nuevo === "instalado" ? "marcado como instalado" : "marcado como planificado"}.`, "ok");
 };
 
+/* ===== Conexión directa OLT ↔ ODF o switch (sin depender de clics sobre marcadores) ===== */
+const SPLITTERS = ["1x2", "1x4", "1x8", "1x16", "1x32"];
+
+function splitterOpts(seleccionado) {
+  return `<option value="">Sin splitter (cables con hilos)</option>` +
+    SPLITTERS.map(s => `<option value="${s}"${s === seleccionado ? " selected" : ""}>Splitter interno ${s}</option>`).join("");
+}
+
+function botonConectar(p) {
+  const destino = p.tipo === "olt" ? "con ODF o switch" : "con OLT";
+  return `<button type="button" class="btn" style="margin-top:6px;background:#0E7C86;color:#fff;border:none" onclick="conectarDirecto('${p.id}')">Conectar ${destino}</button>`;
+}
+
+window.conectarDirecto = id => {
+  const p = puntoPorId(id);
+  if (!p) return;
+  map.closePopup();
+  const esOlt = p.tipo === "olt";
+  const candidatos = puntos.filter(q => esOlt ? ["odf", "switch"].includes(q.tipo) : q.tipo === "olt");
+  if (!candidatos.length) return setMsg(esOlt ? "Primero coloque un ODF o switch en el desplaze." : "Primero coloque una OLT en el desplaze.");
+  editando = {tipo: "conexion", id};
+  const olt = esOlt ? p : candidatos[0];
+  const puertos = CATALOGO_OLT.find(m => m.id === olt.modelo)?.puertosPON || 1;
+  const campos = `<label for="cx-otro">${esOlt ? "ODF o switch de destino" : "OLT de origen"}</label>` +
+    `<select id="cx-otro">${candidatos.map(q => `<option value="${q.id}">${esc(q.codigo)} · ${esc(TIPOS[q.tipo].nombre)}</option>`).join("")}</select>` +
+    `<label for="cx-pon">Puerto PON de la OLT</label><select id="cx-pon">${Array.from({length: puertos}, (_, i) =>
+      `<option value="${i + 1}">PON ${i + 1}</option>`).join("")}</select>` +
+    `<label for="cx-fibra">Tipo de fibra</label><select id="cx-fibra">${tipos.map(x =>
+      `<option value="${esc(x.codigo)}"${x.codigo === "G652D" ? " selected" : ""}>${esc(x.nombre)}</option>`).join("")}</select>` +
+    `<label for="cx-hilos">Hilos del cable (si el ODF no tiene splitter)</label><select id="cx-hilos">${HILOS.map(n =>
+      `<option value="${n}">${n} hilos</option>`).join("")}</select>` +
+    `<label for="cx-metros">Metros (opcional; si lo deja vacío se calcula por el mapa)</label><input id="cx-metros" type="number" min="0">`;
+  abrirEditor(`Conectar ${esOlt ? p.codigo : candidatos[0].codigo}`, campos);
+};
+
+async function guardarConexion() {
+  const p = puntoPorId(editando.id);
+  const otro = puntoPorId($("cx-otro").value);
+  if (!p || !otro) return;
+  const olt = p.tipo === "olt" ? p : otro;
+  const dest = p.tipo === "olt" ? otro : p;
+  const puerto = parseInt($("cx-pon").value, 10);
+  if (tramos.some(t => t.desde_id === olt.id && t.puerto_pon === puerto))
+    return mostrarErrorEd(`El puerto PON ${puerto} de ${olt.codigo} ya está conectado.`);
+  const fila = {
+    proyecto,
+    desde_id: olt.id,
+    hasta_id: dest.id,
+    tipo_fibra: $("cx-fibra").value,
+    hilos: dest.splitter ? 1 : parseInt($("cx-hilos").value, 10),
+    fibras: null, hilo_nap: null, hilos_nap: null, ruta: [],
+    longitud_m: numVal("cx-metros") ?? longitudRuta([olt, dest]),
+    estado: "planificado", continua_de: null,
+    puerto_pon: puerto
+  };
+  const { data, error } = await sb.from("tramos_fibra").insert(fila).select().single();
+  if (error) return mostrarErrorEd("No se pudo crear la conexión. " + error.message);
+  tramos.push(data);
+  $("editor").close();
+  render();
+  setMsg(`${olt.codigo} conectada a ${dest.codigo} por PON ${puerto}.`, "ok");
+}
+
+/* ===== ODF o switch con splitter: cada NAP es una salida independiente ===== */
+function salidasOcupadas(odf) {
+  return tramos.filter(t => (t.desde_id === odf.id || t.hasta_id === odf.id) &&
+    puntoPorId(otroExtremo(t, odf.id))?.tipo !== "olt").length;
+}
+
+async function generarRamasSplitter() {
+  if (!troncal.naps.length) return setMsg("Seleccione al menos una caja NAP.");
+  const origen = troncal.origen;
+  const maxSalidas = parseInt(origen.splitter.split("x")[1], 10);
+  const usadas = salidasOcupadas(origen);
+  if (usadas + troncal.naps.length > maxSalidas)
+    return setMsg(`El splitter ${origen.splitter} de ${origen.codigo} tiene ${maxSalidas} salidas y ya usa ${usadas}. Quite cajas o use otro ODF.`);
+  const btn = $("tr-generar");
+  btn.disabled = true;
+  let creados = 0;
+  try {
+    for (const [idx, nap] of troncal.naps.entries()) {
+      const ruta = troncal.rutas[idx] || [];
+      const { data, error } = await sb.from("tramos_fibra").insert({
+        proyecto, desde_id: origen.id, hasta_id: nap.id,
+        tipo_fibra: $("tr-fibra").value, hilos: 1, fibras: null, hilo_nap: null, hilos_nap: null,
+        longitud_m: longitudRuta([origen, ...ruta, nap]),
+        estado: "planificado", ruta, continua_de: null
+      }).select().single();
+      if (error) throw error;
+      tramos.push(data);
+      creados++;
+    }
+    setModo("idle");
+    troncal = {origen: null, naps: [], rutas: [], pendiente: {pasos: []}};
+    setMsg(`${creados} salida(s) del splitter ${origen.splitter} creadas desde ${origen.codigo}.`, "ok");
+  } catch (err) {
+    render();
+    setMsg(`Se crearon ${creados} salidas antes de un error. ${err.message || err}`);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function mostrarErrorEd(texto) {
+  $("ed-msg").textContent = texto;
+  $("ed-msg").hidden = false;
+}
+
 function metrosTramo() {
   const a = conexion.desde, b = conexion.hasta;
   return longitudRuta([a, ...conexion.pasos, b]);
@@ -1447,8 +1570,10 @@ $("tf-cancelar").addEventListener("click", () => setModo("conectar"));
 $("tf-guardar").addEventListener("click", async () => {
   const btn = $("tf-guardar");
   const nap = napDelTramo(), cable = cableDelTramo(), total = parseInt($("tf-hilos").value, 10);
+  if (nap && cable?.splitter && salidasOcupadas(cable) >= parseInt(cable.splitter.split("x")[1], 10))
+    return setMsg(`El splitter ${cable.splitter} de ${cable.codigo} ya tiene todas sus salidas usadas.`);
   let hiloNap = null;
-  if (nap) {
+  if (nap && !cable?.splitter) {
     const v = $("tf-hilo-nap").value;
     hiloNap = v === "auto" ? (conexion.fibras ? conexion.fibras[0] : hiloLibre(total, cable)) : Number(v);
     if (!hiloNap || hilosUsados(cable).includes(hiloNap))
@@ -1459,7 +1584,7 @@ $("tf-guardar").addEventListener("click", async () => {
     desde_id: conexion.desde.id,
     hasta_id: conexion.hasta.id,
     tipo_fibra: $("tf-tipo").value,
-    hilos: parseInt($("tf-hilos").value, 10),
+    hilos: nap && cable?.splitter ? 1 : parseInt($("tf-hilos").value, 10),
     longitud_m: metrosTramo(),
     estado: $("tf-estado").value,
     notas: $("tf-notas").value.trim() || null,
