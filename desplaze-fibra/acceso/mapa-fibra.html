@@ -38,6 +38,7 @@ select,input[type=text],input[type=number],textarea{width:100%;padding:8px 10px;
 #map{height:100%;min-height:420px}
 .pin{width:32px;height:32px;padding:5px;border-radius:50%;border:2px solid #fff;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.35)}
 .pin.sel{outline:3px solid #FACC15}
+.pin.inst{box-shadow:0 0 0 3px #10B981,0 2px 6px rgba(0,0,0,.35)}
 .pin svg{width:100%;height:100%}
 .paso{width:20px;height:20px;border-radius:50%;background:#FACC15;border:2px solid #111;font-size:10px;font-weight:700;display:grid;place-items:center;color:#111;cursor:move}
 .leaflet-popup-content{font-size:13px;line-height:1.45}
@@ -118,6 +119,18 @@ dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
       <div id="f-nap" hidden>
         <label for="balanceador">Balanceador (divisor)</label>
         <select id="balanceador"><option>1x2</option><option>1x4</option><option selected>1x8</option><option>1x16</option><option>1x32</option></select>
+      </div>
+      <div id="f-nap-m" hidden>
+        <div class="row">
+          <div><label for="nap-m-ent">Reserva para entrar (m)</label><input id="nap-m-ent" type="number" min="0" step="1" placeholder="ej. 15"></div>
+          <div><label for="nap-m-sal">Reserva para salir (m)</label><input id="nap-m-sal" type="number" min="0" step="1" placeholder="ej. 10"></div>
+        </div>
+      </div>
+      <div id="f-reserva" hidden>
+        <label for="res-poste">Poste de anclaje</label>
+        <select id="res-poste"></select>
+        <label for="res-metros">Metros de reserva para la salida</label>
+        <input id="res-metros" type="number" min="0" step="1" placeholder="ej. 30">
       </div>
       <div id="f-cliente" hidden>
         <label for="nap-cliente">Caja NAP asignada</label>
@@ -315,6 +328,13 @@ function actualizarFormElemento() {
   const t = $("tipo").value;
   $("f-nap").hidden = t !== "nap";
   $("f-cliente").hidden = t !== "cliente";
+  $("f-nap-m").hidden = t !== "nap";
+  $("f-reserva").hidden = t !== "reserva";
+  if (t === "reserva") {
+    const prev = $("res-poste").value;
+    $("res-poste").innerHTML = `<option value="">Sin poste (libre)</option>` + postesOpts("");
+    if (puntos.some(x => x.id === prev)) $("res-poste").value = prev;
+  }
   if (t !== "cliente") return;
   $("fibra-acometida").innerHTML = tipos.map(x => `<option value="${esc(x.codigo)}">${esc(x.nombre)}</option>`).join("");
   if (!$("fibra-acometida").value) $("fibra-acometida").value = "G657A1";
@@ -450,10 +470,12 @@ function popupPunto(p) {
       (p.hilos_acometida ? `<br>Acometida: ${p.hilos_acometida === 2
         ? `dúplex, hilo 1 ${colorHilo(1).nombre} y hilo 2 ${colorHilo(2).nombre}`
         : `monofibra, hilo 1 ${colorHilo(1).nombre}`} · ${esc(tipoPorCodigo(p.fibra_acometida)?.nombre || p.fibra_acometida || "")}` : "") : "") +
+    (p.tipo === "reserva" ? `<br>Anclada a: ${esc(puntoPorId(p.poste_id)?.codigo || "libre")}<br>Reserva para salida: ${p.metros_reserva ?? "–"} m` : "") +
+    (p.tipo === "nap" ? `<br>Reserva entrada: ${p.metros_entrada ?? "–"} m · salida: ${p.metros_salida ?? "–"} m` : "") +
     (p.tipo === "odf" || p.tipo === "switch" ? `<br><b>Distribución de fibra</b>${resumenODF(p)}` : "") +
     (p.tipo === "nap" ? tarjetaNap(p) : "") +
     (["nap", "odf", "switch"].includes(p.tipo) ? botonesDesplaze(p) : "") +
-    `${p.tipo === "poste" ? `<br><button onclick="asociarPoste('${p.id}')" style="margin-top:6px;margin-right:8px;background:#0E7C86;color:#fff;border:none;border-radius:6px;padding:6px 10px">Fibra que pasa por este poste</button>` : ""}<br><button onclick="editarPunto('${p.id}')" style="margin-top:6px;margin-right:8px">Editar</button><button onclick="eliminarPunto('${p.id}')" style="margin-top:6px;color:#B42318">Eliminar elemento</button>`;
+    `${p.tipo === "poste" ? `<br><button onclick="asociarPoste('${p.id}')" style="margin-top:6px;margin-right:8px;background:#0E7C86;color:#fff;border:none;border-radius:6px;padding:6px 10px">Fibra que pasa por este poste</button>` : ""}<br><span style="font-size:12px;color:#6B7785">Estado: ${(ESTADOS_EL.find(e => e[0] === (p.estado || "planificado")) || [])[1]}</span><br><button onclick="alternarInstalado('${p.id}')" style="margin-top:6px;margin-right:8px;background:#067647;color:#fff;border:none;border-radius:6px;padding:6px 10px">${p.estado === "instalado" ? "Desmarcar instalado" : "Marcar instalado"}</button><br><button onclick="editarPunto('${p.id}')" style="margin-top:6px;margin-right:8px">Editar</button><button onclick="eliminarPunto('${p.id}')" style="margin-top:6px;color:#B42318">Eliminar elemento</button>`;
 }
 
 function popupTramo(t) {
@@ -482,10 +504,10 @@ function render() {
     const t = TIPOS[p.tipo];
     const icono = L.divIcon({
       className: "",
-      html: `<div class="pin${sel ? " sel" : ""}" style="background:${t.color}">${ICONOS[p.tipo]}</div>`,
+      html: `<div class="pin${sel ? " sel" : ""}${p.estado === "instalado" ? " inst" : ""}" style="background:${t.color}">${ICONOS[p.tipo]}</div>`,
       iconSize: [32, 32], iconAnchor: [16, 16]
     });
-    L.marker([p.lat, p.lng], {icon: icono, draggable: true})
+    L.marker([p.lat, p.lng], {icon: icono, draggable: p.tipo !== "reserva"})
       .on("click", () => clicMarcador(p))
       .on("dragend", e => moverPunto(p, e.target.getLatLng()))
       .addTo(capaPuntos);
@@ -541,6 +563,7 @@ map.on("click", async e => {
 
   const tipo = $("tipo").value;
   let napId = null, puerto = null;
+  const ancla = tipo === "reserva" && $("res-poste").value ? puntoPorId($("res-poste").value) : null;
   if (tipo === "cliente") {
     const nap = puntoPorId($("nap-cliente").value);
     if (!nap) return setMsg("Agregue primero una caja NAP para asignar el cliente.");
@@ -553,8 +576,8 @@ map.on("click", async e => {
   const fila = {
     proyecto, tipo,
     codigo: nuevoCodigo(tipo),
-    lat: e.latlng.lat,
-    lng: e.latlng.lng,
+    lat: ancla ? ancla.lat : e.latlng.lat,
+    lng: ancla ? ancla.lng : e.latlng.lng,
     altura_m: $("altura").value ? Number($("altura").value) : null,
     capacidad: $("capacidad").value ? parseInt($("capacidad").value, 10) : null,
     notas: $("notas").value.trim() || null,
@@ -562,7 +585,11 @@ map.on("click", async e => {
     nap_id: napId,
     puerto,
     hilos_acometida: tipo === "cliente" ? Number($("acometida").value) : null,
-    fibra_acometida: tipo === "cliente" ? $("fibra-acometida").value : null
+    fibra_acometida: tipo === "cliente" ? $("fibra-acometida").value : null,
+    poste_id: ancla?.id || null,
+    metros_reserva: tipo === "reserva" ? numVal("res-metros") : null,
+    metros_entrada: tipo === "nap" ? numVal("nap-m-ent") : null,
+    metros_salida: tipo === "nap" ? numVal("nap-m-sal") : null
   };
   const { data, error } = await sb.from("puntos_fibra").insert(fila).select().single();
   if (error) return setMsg("No se pudo guardar el elemento. " + error.message);
@@ -638,6 +665,11 @@ async function moverPunto(p, ll) {
   if (error) { setMsg("No se pudo mover el elemento. " + error.message); return render(); }
   p.lat = ll.lat;
   p.lng = ll.lng;
+  for (const r of puntos.filter(x => x.tipo === "reserva" && x.poste_id === p.id)) {
+    await sb.from("puntos_fibra").update({lat: p.lat, lng: p.lng}).eq("id", r.id);
+    r.lat = p.lat;
+    r.lng = p.lng;
+  }
   render();
   setMsg(`${p.codigo} movido a la nueva ubicación.`, "ok");
 }
@@ -703,6 +735,13 @@ window.editarPunto = id => {
     BALANCEADORES.map(b => `<option${b === (p.balanceador || "1x8") ? " selected" : ""}>${b}</option>`).join("")}</select>`;
   if (p.tipo === "cliente") campos += clienteCampos(p) +
     `<button type="button" id="ed-acometida-btn" class="btn" style="margin-top:12px">Seleccionar postes de la acometida</button>`;
+  campos += `<label for="ed-estado">Estado de instalación</label><select id="ed-estado">${ESTADOS_EL.map(([k, v]) =>
+    `<option value="${k}"${k === (p.estado || "planificado") ? " selected" : ""}>${v}</option>`).join("")}</select>`;
+  if (p.tipo === "nap") campos += `<div class="row"><div><label for="ed-m-ent">Reserva para entrar (m)</label><input id="ed-m-ent" type="number" min="0" value="${p.metros_entrada ?? ""}"></div>` +
+    `<div><label for="ed-m-sal">Reserva para salir (m)</label><input id="ed-m-sal" type="number" min="0" value="${p.metros_salida ?? ""}"></div></div>`;
+  if (p.tipo === "reserva") campos += `<label for="ed-poste">Poste de anclaje</label><select id="ed-poste">` +
+    `<option value="">Sin poste (libre)</option>${postesOpts(p.poste_id)}</select>` +
+    `<label for="ed-m-res">Metros de reserva para la salida</label><input id="ed-m-res" type="number" min="0" value="${p.metros_reserva ?? ""}">`;
   campos += `<label for="ed-notas">Notas</label><input id="ed-notas" type="text" value="${esc(p.notas || "")}">`;
   abrirEditor(`Editar ${TIPOS[p.tipo].nombre}`, campos);
   if (p.tipo === "cliente") {
@@ -769,6 +808,13 @@ $("ed-form").addEventListener("submit", async e => {
     };
     if (!cambios.codigo) return mostrarError("El código es obligatorio.");
     if (p.tipo === "nap") cambios.balanceador = $("ed-balanceador").value;
+    cambios.estado = $("ed-estado").value;
+    if (p.tipo === "nap") Object.assign(cambios, {metros_entrada: numVal("ed-m-ent"), metros_salida: numVal("ed-m-sal")});
+    if (p.tipo === "reserva") {
+      const poste = puntoPorId($("ed-poste").value);
+      Object.assign(cambios, {poste_id: poste?.id || null, metros_reserva: numVal("ed-m-res")});
+      if (poste) Object.assign(cambios, {lat: poste.lat, lng: poste.lng});
+    }
     if (p.tipo === "cliente") {
       const nap = puntoPorId($("ed-nap").value);
       const puerto = parseInt($("ed-puerto").value, 10);
@@ -1324,6 +1370,30 @@ async function guardarPoste() {
     $("btn-cargar").click();
   });
 })();
+
+const ESTADOS_EL = [["planificado", "Planificado"], ["en_obra", "En obra"], ["instalado", "Instalado"]];
+
+function numVal(id) {
+  const v = $(id)?.value;
+  return v === undefined || v === "" ? null : Number(v);
+}
+
+function postesOpts(seleccionado) {
+  return puntos.filter(p => p.tipo === "poste").map(x =>
+    `<option value="${x.id}"${x.id === seleccionado ? " selected" : ""}>${esc(x.codigo)}</option>`).join("");
+}
+
+window.alternarInstalado = async id => {
+  const p = puntoPorId(id);
+  if (!p) return;
+  const nuevo = p.estado === "instalado" ? "planificado" : "instalado";
+  const { error } = await sb.from("puntos_fibra").update({estado: nuevo}).eq("id", id);
+  if (error) return setMsg("No se pudo actualizar el estado. " + error.message);
+  p.estado = nuevo;
+  map.closePopup();
+  render();
+  setMsg(`${p.codigo}: ${nuevo === "instalado" ? "marcado como instalado" : "marcado como planificado"}.`, "ok");
+};
 
 function metrosTramo() {
   const a = conexion.desde, b = conexion.hasta;
