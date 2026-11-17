@@ -164,13 +164,13 @@ dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
         <button id="aco-guardar" class="btn primary" type="button">Guardar acometida</button>
       </div>
       <div id="ruta-panel" hidden>
-        <p class="hint">Haga clic en el mapa para agregar pasos. Arrastre los números para ajustar el recorrido.</p>
+        <p class="hint">Toque los postes por donde pasa la fibra, en orden. Arrastre los números para ajustar el recorrido.</p>
         <div class="row">
           <button id="ruta-deshacer" class="btn" type="button">Quitar último</button>
           <button id="ruta-cancelar" class="btn" type="button">Cancelar</button>
         </div>
         <button id="ruta-auto" class="btn" type="button">Trazar por postes</button>
-        <button id="ruta-guardar" class="btn primary" type="button">Guardar recorrido</button>
+        <button id="ruta-guardar" class="btn primary" type="button">Guardar postes del desplaze</button>
       </div>
       <div id="tf-form" hidden>
         <p class="hint" id="tf-ruta" style="font-weight:600;color:var(--navy)"></p>
@@ -425,6 +425,7 @@ function popupPunto(p) {
         : `monofibra, hilo 1 ${colorHilo(1).nombre}`} · ${esc(tipoPorCodigo(p.fibra_acometida)?.nombre || p.fibra_acometida || "")}` : "") : "") +
     (p.tipo === "odf" || p.tipo === "switch" ? `<br><b>Distribución de fibra</b>${resumenODF(p)}` : "") +
     (p.tipo === "nap" ? tarjetaNap(p) : "") +
+    (["nap", "odf", "switch"].includes(p.tipo) ? botonesDesplaze(p) : "") +
     `<br><button onclick="editarPunto('${p.id}')" style="margin-top:6px;margin-right:8px">Editar</button><button onclick="eliminarPunto('${p.id}')" style="margin-top:6px;color:#B42318">Eliminar elemento</button>`;
 }
 
@@ -712,8 +713,10 @@ window.editarTramo = id => {
     `<label for="ed-estado">Estado</label><select id="ed-estado">${[["planificado", "Planificado"], ["en_obra", "En obra"], ["instalado", "Instalado"]].map(([k, v]) =>
       `<option value="${k}"${k === t.estado ? " selected" : ""}>${v}</option>`).join("")}</select>` +
     `<label for="ed-notas">Notas</label><input id="ed-notas" type="text" value="${esc(t.notas || "")}">`;
-  abrirEditor("Editar tramo", campos + `<button type="button" id="ed-ruta" class="btn" style="margin-top:12px">Ajustar recorrido en el mapa</button>`);
-  $("ed-ruta").addEventListener("click", () => { $("editor").close(); iniciarRuta(t.id); });
+  const esCliente = a?.tipo === "cliente" || b?.tipo === "cliente";
+  abrirEditor("Editar tramo", campos + (esCliente ? "" :
+    `<button type="button" id="ed-ruta" class="btn" style="margin-top:12px">Agregar postes del desplaze de fibra</button>`));
+  $("ed-ruta")?.addEventListener("click", () => { $("editor").close(); iniciarRuta(t.id); });
   if (conNap) {
     llenarHiloNapEditor(t);
     $("ed-hilos").addEventListener("change", () => llenarHiloNapEditor(t));
@@ -843,10 +846,11 @@ function dibujarRutas() {
 function iniciarRuta(id) {
   const t = tramos.find(x => x.id === id);
   if (!t) return;
+  map.closePopup();
   setModo("ruta");
   rutaEdit = {id, pasos: JSON.parse(JSON.stringify(t.ruta || []))};
   render();
-  setMsg("Haga clic en el mapa para agregar pasos y arrástrelos para ajustar el recorrido.", "ok");
+  setMsg("Toque los postes del desplaze de fibra en orden. Puede arrastrar los números para ajustarlos.", "ok");
 }
 
 $("ruta-deshacer").addEventListener("click", () => {
@@ -1207,6 +1211,18 @@ $("aco-guardar").addEventListener("click", async () => {
   const ok = await guardarAcometida(acoEdit.cliente, acoEdit.nap, acoEdit.pasos, acoEdit.tramo);
   if (ok) { setModo("idle"); setMsg("Acometida guardada.", "ok"); }
 });
+
+/* ===== Postes del desplaze de fibra: tramos entre ODF, switch y cajas NAP ===== */
+function botonesDesplaze(p) {
+  const lista = tramos.filter(t => (t.desde_id === p.id || t.hasta_id === p.id) &&
+    puntoPorId(otroExtremo(t, p.id))?.tipo !== "cliente");
+  if (!lista.length) return `<p class="det">Sin tramos de desplaze conectados.</p>`;
+  return `<div class="nap-sec">Postes del desplaze de fibra</div>` + lista.map(t => {
+    const otro = puntoPorId(otroExtremo(t, p.id));
+    return `<button type="button" class="btn" style="margin-top:6px" onclick="iniciarRuta('${t.id}')">` +
+      `Agregar postes del desplaze de fibra · ${esc(p.codigo)} → ${esc(otro?.codigo)}</button>`;
+  }).join("");
+}
 
 function metrosTramo() {
   const a = conexion.desde, b = conexion.hasta;
