@@ -128,6 +128,46 @@ dialog::backdrop{background:rgba(11,37,69,.5)}
 .d1{background:#13A89E}.d2{background:#2563EB}.d3{background:#7C3AED}.d4{background:#F59E0B}.d5{background:#EF4444}
 @media (prefers-reduced-motion:reduce){.menu-list,.chev,.menu-btn{animation:none;transition:none}}
 @media(max-width:480px){.topbar{padding:8px 8px 8px 12px}.tb-brand{font-size:12px}.tb-name{display:none}}
+
+/* ===== Fondo de fibra óptica y tema oscuro legible ===== */
+html{scroll-behavior:smooth}
+section,main{scroll-margin-top:76px}
+body{background:#000;color:#e5e7eb}
+.fiber-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 25% 15%,#0c1a2b 0%,#02040a 55%,#000 100%);overflow:hidden}
+.fiber-bg svg{width:100%;height:100%;filter:drop-shadow(0 0 4px rgba(45,212,191,.35))}
+.f{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-dasharray:160 880;animation:luz 6s linear infinite}
+.f1{stroke:#22d3ee}.f2{stroke:#2dd4bf;animation-duration:8s}.f3{stroke:#a78bfa;animation-duration:7s}
+.f4{stroke:#38bdf8;animation-duration:9s}.f5{stroke:#f59e0b;animation-duration:10s}
+.nodo-luz{fill:#67e8f9;opacity:.8}
+@keyframes luz{from{stroke-dashoffset:1040}to{stroke-dashoffset:0}}
+.wrap{position:relative;z-index:1}
+.brand{background:transparent;border-radius:0}
+.brand h1{color:#fff}
+.lead{color:#cbd5e1}
+.logo{color:#fff}
+.mv article{background:rgba(255,255,255,.05);border:1px solid rgba(45,212,191,.28);backdrop-filter:blur(6px)}
+.mv p{color:#e2e8f0}
+.mv h2{color:#2dd4bf}
+.values span{border-color:rgba(45,212,191,.45);color:#e2e8f0}
+.access{background:transparent}
+@media (prefers-reduced-motion:reduce){.f{animation:none;stroke-dasharray:none}html{scroll-behavior:auto}}
+
+/* ===== Barra de navegación con menú desplegable ===== */
+.site-nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px clamp(14px,4vw,32px);background:rgba(0,0,0,.72);backdrop-filter:blur(10px);border-bottom:1px solid rgba(45,212,191,.35);box-shadow:0 6px 24px rgba(0,0,0,.5)}
+.sn-brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:15px;letter-spacing:.3px}
+.sn-logo{width:12px;height:12px;border-radius:50%;background:#2dd4bf;box-shadow:0 0 0 4px rgba(45,212,191,.25),0 0 14px #2dd4bf}
+.sn-menu{position:relative}
+.sn-btn{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#0ea5e9,#2dd4bf);color:#021018;border:none;border-radius:999px;padding:9px 16px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 6px 18px rgba(45,212,191,.35);transition:transform .15s}
+.sn-btn:hover{transform:translateY(-1px)}
+.sn-btn .chev{transition:transform .2s;font-size:10px}
+.sn-btn[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.sn-list{position:absolute;right:0;top:calc(100% + 10px);width:min(260px,88vw);background:#060b12;border:1px solid rgba(45,212,191,.35);border-radius:14px;padding:8px;box-shadow:0 18px 40px rgba(0,0,0,.6);animation:aparecer .2s ease-out}
+@keyframes aparecer{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.sn-list a{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;color:#e2e8f0;text-decoration:none;font-weight:600;font-size:14px}
+.sn-list a:hover{background:rgba(45,212,191,.12);color:#fff}
+.sn-list a::before{content:"";width:8px;height:8px;border-radius:50%;background:#2dd4bf;box-shadow:0 0 8px #2dd4bf;flex:none}
+body.logged .site-nav{display:none}
+@media(max-width:480px){.sn-brand{font-size:13px}.sn-btn{padding:8px 12px}}
 dialog h2{margin:0 0 4px;font-size:20px;color:var(--navy)}
 dialog .row{display:flex;gap:10px;margin-top:6px}
 dialog .row .btn{margin-top:18px}
@@ -135,8 +175,33 @@ dialog .row .btn{margin-top:18px}
 </head>
 <body>
 
+<div class="fiber-bg" aria-hidden="true">
+  <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+    <path class="f f1" d="M-50 180 C 300 60, 500 320, 800 200 S 1300 40, 1650 220"/>
+    <path class="f f2" d="M-50 420 C 260 300, 540 560, 860 430 S 1320 300, 1650 470"/>
+    <path class="f f3" d="M-50 700 C 320 560, 620 820, 960 690 S 1380 560, 1650 720"/>
+    <path class="f f4" d="M200 -40 C 280 240, 180 520, 420 940"/>
+    <path class="f f5" d="M1100 -40 C 1040 260, 1200 560, 1120 940"/>
+    <circle class="nodo-luz" cx="800" cy="200" r="4"/>
+    <circle class="nodo-luz" cx="860" cy="430" r="4"/>
+    <circle class="nodo-luz" cx="960" cy="690" r="4"/>
+  </svg>
+</div>
+
+<header class="site-nav">
+  <div class="sn-brand"><span class="sn-logo"></span>Desplaze Fibra Óptica</div>
+  <div class="sn-menu">
+    <button id="sn-btn" class="sn-btn" type="button" aria-expanded="false" aria-controls="sn-list">Menú <span class="chev" aria-hidden="true">▼</span></button>
+    <nav id="sn-list" class="sn-list" hidden>
+      <a href="#acceso" data-go="acceso">Iniciar sesión</a>
+      <a href="#mision" data-go="mision">Misión y visión</a>
+      <a href="#valores" data-go="valores">Valores</a>
+    </nav>
+  </div>
+</header>
+
 <div class="wrap">
-  <section class="brand">
+  <section class="brand" id="mision">
     <div class="logo">
       <svg viewBox="0 0 40 40" aria-hidden="true">
         <circle cx="20" cy="20" r="18" fill="none" stroke="#13A89E" stroke-width="2"/>
@@ -162,12 +227,12 @@ dialog .row .btn{margin-top:18px}
       </article>
     </div>
 
-    <div class="values">
+    <div class="values" id="valores">
       <span>Seguridad</span><span>Trazabilidad</span><span>Calidad técnica</span><span>Compromiso con el cliente</span>
     </div>
   </section>
 
-  <main class="access">
+  <main class="access" id="acceso">
     <!-- Vista de acceso -->
     <div class="card" id="login-view" hidden>
       <h2>Iniciar sesión</h2>
@@ -261,10 +326,12 @@ const setMsg = (el, text, type = "error") => {
   el.hidden = !text;
 };
 const showLogin = () => {
-  $("login-view").hidden = false;
+  document.body.classList.remove("show-login");
+  $("login-view").hidden = true;
   $("session-view").hidden = true;
   document.querySelector(".brand").hidden = false;
   document.querySelector(".wrap").classList.remove("logged");
+  document.body.classList.remove("logged");
 };
 async function cargarDashboard() {
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -363,6 +430,7 @@ const showSession = async user => {
   $("session-view").hidden = false;
   document.querySelector(".brand").hidden = true;
   document.querySelector(".wrap").classList.add("logged");
+  document.body.classList.add("logged");
   $("user-email").textContent = user.email;
   const { data: p } = await sb.from("profiles")
     .select("username, avatar_path, updated_at")
@@ -489,6 +557,30 @@ function syncTopbar() {
   document.addEventListener("keydown", e => { if (e.key === "Escape") abrir(false); });
   $("menu-pass").addEventListener("click", () => { abrir(false); $("open-pass").click(); });
   $("menu-logout").addEventListener("click", () => { abrir(false); $("logout-btn").click(); });
+})();
+
+(() => {
+  const btn = $("sn-btn"), list = $("sn-list");
+  const abrir = v => { list.hidden = !v; btn.setAttribute("aria-expanded", String(v)); };
+  btn.addEventListener("click", e => { e.stopPropagation(); abrir(list.hidden); });
+  document.addEventListener("click", e => {
+    if (!list.hidden && !list.contains(e.target) && e.target !== btn) abrir(false);
+  });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") abrir(false); });
+  list.addEventListener("click", e => {
+    const a = e.target.closest("a[data-go]");
+    if (!a) return;
+    abrir(false);
+    if (a.dataset.go === "acceso") {
+      e.preventDefault();
+      document.body.classList.add("show-login");
+      $("login-view").hidden = false;
+      setTimeout(() => {
+        $("acceso").scrollIntoView({behavior: "smooth", block: "start"});
+        $("email")?.focus({preventScroll: true});
+      }, 60);
+    }
+  });
 })();
 </script>
 </body>
