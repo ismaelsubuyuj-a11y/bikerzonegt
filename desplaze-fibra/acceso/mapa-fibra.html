@@ -41,6 +41,23 @@ select,input[type=text],input[type=number],textarea{width:100%;padding:8px 10px;
 .pin svg{width:100%;height:100%}
 .paso{width:20px;height:20px;border-radius:50%;background:#FACC15;border:2px solid #111;font-size:10px;font-weight:700;display:grid;place-items:center;color:#111;cursor:move}
 .leaflet-popup-content{font-size:13px;line-height:1.45}
+header{position:relative;z-index:1000}
+.nav{position:relative}
+.nav-btn{background:#fff;color:#0B2545;border:none;border-radius:999px;padding:8px 14px;font:inherit;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2);display:flex;gap:8px;align-items:center}
+.nav-btn[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.chev{transition:transform .2s;font-size:10px;color:#0E7C86}
+.nav-list{position:absolute;right:0;top:calc(100% + 10px);width:min(300px,88vw);max-height:70vh;overflow:auto;background:#fff;border-radius:16px;box-shadow:0 18px 40px rgba(11,37,69,.25);padding:8px;z-index:2000;border:1px solid #E5EAF1;animation:pop .2s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.nav-list a,.nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:10px;color:#0B2545;text-decoration:none;font:inherit;font-size:14px;font-weight:600;background:none;border:none;cursor:pointer;text-align:left}
+.nav-list a:hover,.nav-item:hover{background:#F0FDFA}
+.nav-item small{margin-left:auto;color:#6B7785;font-weight:400;font-size:12px}
+.nav-sec{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#0E7C86;font-weight:700;padding:10px 12px 4px}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.d1{background:#0E7C86}.d2{background:#13A89E}.d3{background:#2563EB}.d4{background:#7C3AED}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid #D9DFE7;border-radius:10px;margin-top:8px;cursor:pointer;font-weight:400}
+.chk b{display:block;color:#0B2545}
+.chk small{display:block;color:#6B7785}
+@media (prefers-reduced-motion:reduce){.nav-list,.chev,.nav-btn{animation:none;transition:none}}
 .nap-card{font-size:13px;min-width:250px}
 .nap-sec{font-weight:700;color:#0B2545;font-size:12px;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px;display:flex;justify-content:space-between;gap:8px}
 .nap-sec span{color:#6B7785;text-transform:none;font-weight:400}
@@ -72,7 +89,17 @@ dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
 
 <header>
   <span class="brand" id="brand"></span>
-  <a href="mis-desplazes.html">← Mis desplazes</a>
+  <div class="nav">
+    <button id="nav-btn" class="nav-btn" type="button" aria-expanded="false" aria-controls="nav-list">Navegar <span class="chev" aria-hidden="true">▼</span></button>
+    <nav id="nav-list" class="nav-list" hidden>
+      <a href="index.html"><span class="dot d1"></span>Panel principal</a>
+      <a href="mis-desplazes.html"><span class="dot d2"></span>Mis desplazes</a>
+      <a href="mapa-fibra.html"><span class="dot d3"></span>Mapa de fibra óptica</a>
+      <a href="mod-user.html"><span class="dot d4"></span>Datos de usuario</a>
+      <div class="nav-sec">Abrir desplaze</div>
+      <div id="nav-desplazes"></div>
+    </nav>
+  </div>
 </header>
 
 <div class="layout">
@@ -426,7 +453,7 @@ function popupPunto(p) {
     (p.tipo === "odf" || p.tipo === "switch" ? `<br><b>Distribución de fibra</b>${resumenODF(p)}` : "") +
     (p.tipo === "nap" ? tarjetaNap(p) : "") +
     (["nap", "odf", "switch"].includes(p.tipo) ? botonesDesplaze(p) : "") +
-    `<br><button onclick="editarPunto('${p.id}')" style="margin-top:6px;margin-right:8px">Editar</button><button onclick="eliminarPunto('${p.id}')" style="margin-top:6px;color:#B42318">Eliminar elemento</button>`;
+    `${p.tipo === "poste" ? `<br><button onclick="asociarPoste('${p.id}')" style="margin-top:6px;margin-right:8px;background:#0E7C86;color:#fff;border:none;border-radius:6px;padding:6px 10px">Fibra que pasa por este poste</button>` : ""}<br><button onclick="editarPunto('${p.id}')" style="margin-top:6px;margin-right:8px">Editar</button><button onclick="eliminarPunto('${p.id}')" style="margin-top:6px;color:#B42318">Eliminar elemento</button>`;
 }
 
 function popupTramo(t) {
@@ -729,6 +756,8 @@ $("ed-form").addEventListener("submit", async e => {
   e.preventDefault();
   const mostrarError = texto => { $("ed-msg").textContent = texto; $("ed-msg").hidden = false; };
   if (!editando) return;
+
+  if (editando.tipo === "poste") return guardarPoste();
 
   if (editando.tipo === "punto") {
     const p = puntoPorId(editando.id);
@@ -1224,6 +1253,78 @@ function botonesDesplaze(p) {
   }).join("");
 }
 
+/* ===== Fibra que pasa por un poste: se inserta en la ruta del tramo en el lugar correcto ===== */
+function indiceInsercion(t, q) {
+  const pts = [puntoPorId(t.desde_id), ...(t.ruta || []), puntoPorId(t.hasta_id)];
+  let mejor = 0, costo = Infinity;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i], b = pts[i + 1];
+    const ab = L.latLng(a.lat, a.lng).distanceTo([b.lat, b.lng]);
+    const c = L.latLng(a.lat, a.lng).distanceTo([q.lat, q.lng]) + L.latLng(q.lat, q.lng).distanceTo([b.lat, b.lng]) - ab;
+    if (c < costo) { costo = c; mejor = i; }
+  }
+  return mejor;
+}
+
+window.asociarPoste = id => {
+  const p = puntoPorId(id);
+  if (!p) return;
+  map.closePopup();
+  editando = {tipo: "poste", id};
+  const candidatos = tramos.filter(t => puntoPorId(t.desde_id)?.tipo !== "cliente" && puntoPorId(t.hasta_id)?.tipo !== "cliente");
+  const lista = candidatos.length ? candidatos.map(t => {
+    const a = puntoPorId(t.desde_id), b = puntoPorId(t.hasta_id);
+    const marcado = (t.ruta || []).some(q => q.poste_id === p.id);
+    return `<label class="chk"><input type="checkbox" class="ed-tr" value="${t.id}"${marcado ? " checked" : ""}>` +
+      `<span><b>${esc(a?.codigo)} → ${esc(b?.codigo)}</b><small>${esc(tipoPorCodigo(t.tipo_fibra)?.nombre || t.tipo_fibra)} · ${t.hilos} hilos</small></span></label>`;
+  }).join("") : `<p class="hint">No hay tramos de desplaze para asociar. Cree primero un troncal o una conexión.</p>`;
+  abrirEditor(`Fibra que pasa por ${p.codigo}`,
+    `<p class="hint">Marque los tramos cuya fibra pasa por este poste. La ruta y la longitud se actualizan solas.</p>` + lista);
+};
+
+async function guardarPoste() {
+  const poste = puntoPorId(editando.id);
+  if (!poste) return;
+  const cambios = [];
+  document.querySelectorAll(".ed-tr").forEach(cb => {
+    const t = tramos.find(x => x.id === cb.value);
+    if (!t) return;
+    const ruta = (t.ruta || []).slice();
+    const idx = ruta.findIndex(q => q.poste_id === poste.id);
+    if (cb.checked && idx < 0) ruta.splice(indiceInsercion(t, poste), 0, aPaso(poste));
+    else if (!cb.checked && idx >= 0) ruta.splice(idx, 1);
+    else return;
+    cambios.push({t, ruta, longitud_m: longitudRuta([puntoPorId(t.desde_id), ...ruta, puntoPorId(t.hasta_id)])});
+  });
+  if (!cambios.length) { $("editor").close(); return setMsg("No hubo cambios en la ruta del poste."); }
+  for (const c of cambios) {
+    const { error } = await sb.from("tramos_fibra").update({ruta: c.ruta, longitud_m: c.longitud_m}).eq("id", c.t.id);
+    if (error) return setMsg("No se pudo actualizar la ruta. " + error.message);
+    Object.assign(c.t, {ruta: c.ruta, longitud_m: c.longitud_m});
+  }
+  $("editor").close();
+  render();
+  setMsg(`Poste ${poste.codigo} actualizado en ${cambios.length} tramo(s).`, "ok");
+}
+
+/* ===== Menú de navegación del mapa ===== */
+(() => {
+  const btn = $("nav-btn"), list = $("nav-list");
+  const abrir = v => { list.hidden = !v; btn.setAttribute("aria-expanded", String(v)); };
+  btn.addEventListener("click", e => { e.stopPropagation(); abrir(list.hidden); });
+  document.addEventListener("click", e => {
+    if (!list.hidden && !list.contains(e.target) && e.target !== btn) abrir(false);
+  });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") abrir(false); });
+  list.addEventListener("click", e => {
+    const b = e.target.closest("[data-codigo]");
+    if (!b) return;
+    abrir(false);
+    $("proyecto").value = b.dataset.codigo;
+    $("btn-cargar").click();
+  });
+})();
+
 function metrosTramo() {
   const a = conexion.desde, b = conexion.hasta;
   return longitudRuta([a, ...conexion.pasos, b]);
@@ -1367,6 +1468,9 @@ async function init() {
     tipos = data;
     const { data: lp } = await sb.from("proyectos").select("codigo,nombre").order("updated_at", {ascending: false});
     desplazes = lp || [];
+    $("nav-desplazes").innerHTML = desplazes.map(x =>
+      `<button type="button" class="nav-item" data-codigo="${esc(x.codigo)}">${esc(x.nombre)} <small>${esc(x.codigo)}</small></button>`).join("")
+      || `<p class="hint" style="padding:0 12px">Aún no tiene desplazes.</p>`;
     $("lista-desplazes").innerHTML = desplazes.map(x =>
       `<option value="${esc(x.codigo)}">${esc(x.nombre)}</option>`).join("");
 
