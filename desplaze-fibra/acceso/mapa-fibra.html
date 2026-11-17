@@ -101,6 +101,7 @@ dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
         <select id="acometida"><option value="1">Monofibra (1 hilo)</option><option value="2">Dúplex (2 hilos)</option></select>
         <label for="fibra-acometida">Tipo de fibra de la acometida</label>
         <select id="fibra-acometida"></select>
+        <label style="font-weight:400;display:flex;gap:6px;align-items:center;margin-top:8px"><input id="acom-auto" type="checkbox" checked style="width:auto"> Crear acometida automática por postes</label>
       </div>
       <div class="row">
         <div>
@@ -152,6 +153,15 @@ dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
           <option value="4">4 hilos por caja</option>
         </select>
         <button id="tr-generar" class="btn primary" type="button">Generar troncal</button>
+      </div>
+      <div id="acometida-panel" hidden>
+        <p class="hint">Toque los postes por donde pasa la acometida, en orden. Después guarde para generar el tramo.</p>
+        <div class="row">
+          <button id="aco-deshacer" class="btn" type="button">Quitar último</button>
+          <button id="aco-cancelar" class="btn" type="button">Cancelar</button>
+        </div>
+        <button id="aco-auto" class="btn" type="button">Trazar por postes</button>
+        <button id="aco-guardar" class="btn primary" type="button">Guardar acometida</button>
       </div>
       <div id="ruta-panel" hidden>
         <p class="hint">Haga clic en el mapa para agregar pasos. Arrastre los números para ajustar el recorrido.</p>
@@ -342,6 +352,7 @@ const MENSAJES_MODO = {
   conectar: "Seleccione el punto de origen y después el de destino.",
   ruta: "",
   troncal: "",
+  acometida: "",
   idle: ""
 };
 
@@ -478,6 +489,8 @@ function setModo(m) {
   rutaEdit = null;
   $("ruta-panel").hidden = m !== "ruta";
   $("troncal-panel").hidden = m !== "troncal";
+  $("acometida-panel").hidden = m !== "acometida";
+  acoEdit = null;
   $("tf-form").hidden = true;
   $("btn-colocar").classList.toggle("on", m === "colocar");
   $("btn-conectar").classList.toggle("on", m === "conectar");
@@ -494,6 +507,7 @@ map.on("click", async e => {
   if (modo === "conectar" && conexion.desde && !conexion.hasta) return agregarPaso(e.latlng, conexion);
   if (modo === "ruta" && rutaEdit) return agregarPaso(e.latlng, rutaEdit);
   if (modo === "troncal" && troncal.origen) return agregarPaso(e.latlng, troncal.pendiente);
+  if (modo === "acometida" && acoEdit) return agregarPaso(e.latlng, acoEdit);
   if (modo !== "colocar") return;
   if (!proyecto) return setMsg("Cargue el código del desplaze antes de colocar elementos.");
 
@@ -528,6 +542,11 @@ map.on("click", async e => {
   puntos.push(data);
   render();
   setMsg(`${data.codigo} guardado.`, "ok");
+  if (tipo === "cliente" && $("acom-auto").checked) {
+    const nap = puntoPorId(napId);
+    const r = nap ? rutaPorPostes(nap, data, parseInt($("ruta-max").value, 10)) : null;
+    await guardarAcometida(data, nap, r ? r.map(aPaso) : [], null);
+  }
 });
 
 /* ----- Conectar tramos ----- */
@@ -553,7 +572,9 @@ function clicMarcador(p) {
   if (esPaso(p)) {
     if (modo === "ruta" && rutaEdit) return pasoDesdeElemento(p, rutaEdit);
     if (modo === "conectar" && conexion.desde && !conexion.hasta) return pasoDesdeElemento(p, conexion);
+    if (modo === "acometida" && acoEdit) return pasoDesdeElemento(p, acoEdit);
   }
+  if (modo === "acometida") return;
   const grupo = puntos.filter(q => L.latLng(q.lat, q.lng).distanceTo([p.lat, p.lng]) < 5);
   if (grupo.length > 1) {
     L.popup({maxWidth: 280}).setLatLng([p.lat, p.lng]).setContent(listaGrupo(grupo)).openOn(map);
@@ -609,6 +630,7 @@ function resumenDistribucion(p) {
 /* ===== Edición de elementos y tramos ===== */
 let editando = null;
 let troncal = {origen: null, naps: [], rutas: [], pendiente: {pasos: []}};
+let acoEdit = null;
 const BALANCEADORES = ["1x2", "1x4", "1x8", "1x16", "1x32"];
 
 function abrirEditor(titulo, campos) {
@@ -651,12 +673,14 @@ window.editarPunto = id => {
     `<label for="ed-capacidad">Capacidad</label><input id="ed-capacidad" type="number" min="0" value="${p.capacidad ?? ""}">`;
   if (p.tipo === "nap") campos += `<label for="ed-balanceador">Balanceador</label><select id="ed-balanceador">${
     BALANCEADORES.map(b => `<option${b === (p.balanceador || "1x8") ? " selected" : ""}>${b}</option>`).join("")}</select>`;
-  if (p.tipo === "cliente") campos += clienteCampos(p);
+  if (p.tipo === "cliente") campos += clienteCampos(p) +
+    `<button type="button" id="ed-acometida-btn" class="btn" style="margin-top:12px">Seleccionar postes de la acometida</button>`;
   campos += `<label for="ed-notas">Notas</label><input id="ed-notas" type="text" value="${esc(p.notas || "")}">`;
   abrirEditor(`Editar ${TIPOS[p.tipo].nombre}`, campos);
   if (p.tipo === "cliente") {
     $("ed-nap").addEventListener("change", () => llenarPuertos($("ed-nap").value, p.id, null));
     llenarPuertos(p.nap_id, p.id, p.puerto);
+    $("ed-acometida-btn").addEventListener("click", () => { $("editor").close(); iniciarAcometida(p.id); });
   }
 };
 
@@ -789,6 +813,11 @@ function dibujarPasos(pasos) {
 
 function dibujarRutas() {
   capaRuta.clearLayers();
+  if (modo === "acometida" && acoEdit) {
+    const pts = [acoEdit.nap, ...acoEdit.pasos, acoEdit.cliente].map(p => [p.lat, p.lng]);
+    L.polyline(pts, {color: "#0F766E", weight: 3, dashArray: "4 8"}).addTo(capaRuta);
+    dibujarPasos(acoEdit.pasos);
+  }
   if (modo === "troncal" && troncal.origen) {
     const tramo = [troncal.origen];
     troncal.naps.forEach((n, i) => tramo.push(...(troncal.rutas[i] || []), n));
@@ -1123,6 +1152,60 @@ $("ruta-auto").addEventListener("click", () => {
   rutaEdit.pasos = r.map(aPaso);
   render();
   setMsg(`Recorrido trazado por ${r.length} poste(s). Guarde el recorrido para confirmarlo.`, "ok");
+});
+
+/* ===== Acometida: tramo de la caja NAP al cliente siguiendo los postes elegidos ===== */
+function iniciarAcometida(clienteId) {
+  const c = puntoPorId(clienteId);
+  const nap = c && puntoPorId(c.nap_id);
+  if (!c || !nap) return setMsg("Asigne primero la caja NAP y el puerto del cliente.");
+  const t = tramos.find(x => (x.desde_id === nap.id && x.hasta_id === c.id) || (x.desde_id === c.id && x.hasta_id === nap.id));
+  setModo("acometida");
+  acoEdit = {cliente: c, nap, tramo: t || null, pasos: JSON.parse(JSON.stringify(t?.ruta || []))};
+  render();
+  setMsg(`Acometida de ${c.codigo}: toque los postes por donde pasa la fibra, en orden, y luego guarde.`, "ok");
+}
+
+async function guardarAcometida(cliente, nap, pasos, existente) {
+  const cambios = {
+    proyecto,
+    desde_id: nap.id,
+    hasta_id: cliente.id,
+    tipo_fibra: cliente.fibra_acometida || "G657A1",
+    hilos: cliente.hilos_acometida || 1,
+    fibras: null,
+    hilo_nap: null,
+    hilos_nap: null,
+    ruta: pasos,
+    longitud_m: longitudRuta([nap, ...pasos, cliente]),
+    estado: existente?.estado || "planificado",
+    continua_de: null
+  };
+  const { data, error } = existente
+    ? await sb.from("tramos_fibra").update(cambios).eq("id", existente.id).select().single()
+    : await sb.from("tramos_fibra").insert(cambios).select().single();
+  if (error) { setMsg("No se pudo guardar la acometida. " + error.message); return false; }
+  if (existente) Object.assign(existente, data); else tramos.push(data);
+  render();
+  return true;
+}
+
+$("aco-deshacer").addEventListener("click", () => {
+  if (acoEdit?.pasos.length) { acoEdit.pasos.pop(); render(); }
+});
+$("aco-cancelar").addEventListener("click", () => { setModo("idle"); setMsg("Acometida sin cambios.", "ok"); });
+$("aco-auto").addEventListener("click", () => {
+  if (!acoEdit) return;
+  const r = rutaPorPostes(acoEdit.nap, acoEdit.cliente, parseInt($("ruta-max").value, 10));
+  if (!r) return setMsg("No hay postes conectados entre la NAP y el cliente. Toque los postes manualmente o aumente la distancia.");
+  acoEdit.pasos = r.map(aPaso);
+  render();
+  setMsg(`Acometida trazada por ${r.length} poste(s).`, "ok");
+});
+$("aco-guardar").addEventListener("click", async () => {
+  if (!acoEdit) return;
+  const ok = await guardarAcometida(acoEdit.cliente, acoEdit.nap, acoEdit.pasos, acoEdit.tramo);
+  if (ok) { setModo("idle"); setMsg("Acometida guardada.", "ok"); }
 });
 
 function metrosTramo() {
