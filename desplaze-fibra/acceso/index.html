@@ -373,7 +373,7 @@ async function renderPanel() {
   box.innerHTML = `<p class="hint">Cargando avance…</p>`;
   const [pr, pu, tr] = await Promise.all([
     sb.from("proyectos").select("codigo,nombre,estado,updated_at").order("updated_at", {ascending: false}),
-    sb.from("puntos_fibra").select("proyecto,tipo"),
+    sb.from("puntos_fibra").select("proyecto,tipo,estado"),
     sb.from("tramos_fibra").select("proyecto,estado")
   ]);
   if (pr.error || pu.error || tr.error) { box.innerHTML = `<p class="hint">No se pudo cargar el avance de sus desplazes.</p>`; return; }
@@ -383,8 +383,9 @@ async function renderPanel() {
     return;
   }
 
-  const instGlobal = tr.data.filter(t => t.estado === "instalado").length;
-  const pctGlobal = tr.data.length ? Math.round(instGlobal / tr.data.length * 100) : 0;
+  const instGlobal = tr.data.filter(t => t.estado === "instalado").length + pu.data.filter(p => p.estado === "instalado").length;
+  const totalGlobal = tr.data.length + pu.data.length;
+  const pctGlobal = totalGlobal ? Math.round(instGlobal / totalGlobal * 100) : 0;
   const naps = pu.data.filter(p => p.tipo === "nap").length;
   const clientes = pu.data.filter(p => p.tipo === "cliente").length;
 
@@ -392,8 +393,10 @@ async function renderPanel() {
     const tms = tr.data.filter(t => t.proyecto === x.codigo);
     const inst = tms.filter(t => t.estado === "instalado").length;
     const obra = tms.filter(t => t.estado === "en_obra").length;
-    const pct = tms.length ? Math.round(inst / tms.length * 100) : 0;
     const pts = pu.data.filter(p => p.proyecto === x.codigo);
+    const pinst = pts.filter(p => p.estado === "instalado").length;
+    const total = tms.length + pts.length;
+    const pct = total ? Math.round((inst + pinst) / total * 100) : 0;
     const c = tipo => pts.filter(p => p.tipo === tipo).length;
     return `<article class="pcard st-${esc(x.estado)}">
       <header class="ph">
@@ -405,6 +408,7 @@ async function renderPanel() {
         <ul class="plist">
           <li><span>Tramos instalados</span><b>${inst} / ${tms.length}</b></li>
           <li><span>En obra</span><b>${obra}</b></li>
+          <li><span>Elementos instalados</span><b>${pinst} / ${pts.length}</b></li>
           <li><span>Postes · Mufas</span><b>${c("poste")} · ${c("mufa")}</b></li>
           <li><span>Cajas NAP · ODF</span><b>${c("nap")} · ${c("odf") + c("switch")}</b></li>
           <li><span>Clientes</span><b>${c("cliente")}</b></li>
