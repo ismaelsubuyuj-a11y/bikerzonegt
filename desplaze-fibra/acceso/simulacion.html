@@ -2,282 +2,438 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Simulación de potencia · Desplaze Fibra Óptica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js"></script>
-<script src="olt-catalogo.js?v=2"></script>
 <style>
-:root{--navy:#0B2545;--teal:#2dd4bf;--bg:#05070a;--card:#0b1220;--text:#e5e7eb;--muted:#94a3b8;--line:rgba(45,212,191,.25);--ok:#10B981;--lim:#F59E0B;--bad:#EF4444;--err:#64748b}
+:root{--bg:#F4F6F9;--panel:#ffffff;--line:#D9DFE7;--text:#1F2933;--muted:#6B7785;--red:#0B2545;--ok:#067647;--warn:#B54708;--fail:#B42318}
 *{box-sizing:border-box}
-[hidden]{display:none!important}
-html,body{margin:0;min-height:100%}
-body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(ellipse at 20% 0%,#0c1a2b 0%,#02040a 55%,#000 100%);color:var(--text);font-size:15px;line-height:1.5}
-header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px clamp(14px,4vw,32px);background:rgba(0,0,0,.75);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.tb{display:flex;align-items:center;gap:10px;font-weight:700;color:#fff}
-.lg{width:12px;height:12px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(45,212,191,.25),0 0 14px var(--teal)}
-nav a{color:#cbd5e1;text-decoration:none;font-size:14px;margin-left:14px}
-nav a:hover{color:#fff}
-main{max-width:1180px;margin:0 auto;padding:clamp(16px,4vw,32px);display:grid;gap:20px}
-h1{margin:0;font-size:clamp(20px,4vw,28px);color:#fff}
-.sub{margin:4px 0 0;color:var(--muted)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:clamp(16px,3vw,24px)}
-.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:16px}
-label{display:block;font-size:13px;font-weight:600;color:#cbd5e1;margin-bottom:6px}
-select,input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(148,163,184,.35);background:#050a14;color:#fff;font:inherit}
-select:focus,input:focus{outline:2px solid var(--teal);outline-offset:0}
-.go{margin-top:18px;width:100%;padding:13px;border:none;border-radius:12px;font:inherit;font-weight:700;font-size:15px;color:#021018;background:linear-gradient(135deg,#0ea5e9,#2dd4bf);cursor:pointer;box-shadow:0 8px 24px rgba(45,212,191,.3)}
-.go:hover{filter:brightness(1.08)}
-.msg{margin-top:14px;padding:10px 12px;border-radius:10px;background:rgba(239,68,68,.12);color:#fecaca}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
-.kpi{border-radius:14px;padding:14px;background:linear-gradient(135deg,#0B2545,#13315C);border:1px solid var(--line)}
-.kpi span{font-size:12px;color:#cbd5e1}
-.kpi b{display:block;font-size:26px;color:#fff;margin-top:4px}
-.kpi.ok b{color:#6ee7b7}.kpi.lim b{color:#fcd34d}.kpi.bad b{color:#fca5a5}
-.grid-cli{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px}
-.cli{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:10px;border-top:4px solid var(--err);transition:transform .2s}
-.cli:hover{transform:translateY(-2px)}
-.cli.ok{border-top-color:var(--ok)}.cli.limite{border-top-color:var(--lim)}.cli.fuera{border-top-color:var(--bad)}
-.cli header{position:static;background:none;border:none;padding:0;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;backdrop-filter:none}
-.cod{display:block;font-weight:700;color:#fff}
-small{color:var(--muted)}
-.badge{font-size:12px;padding:4px 10px;border-radius:999px;white-space:nowrap;font-weight:700}
-.badge.ok{background:rgba(16,185,129,.2);color:#6ee7b7}
-.badge.limite{background:rgba(245,158,11,.2);color:#fcd34d}
-.badge.fuera{background:rgba(239,68,68,.2);color:#fca5a5}
-.badge.err{background:rgba(100,116,139,.25);color:#cbd5e1}
-.rx{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.rx b{font-size:26px;color:#fff}
-.rx span{color:var(--muted);font-size:13px}
-.barra{height:10px;background:#111c2e;border-radius:999px;overflow:hidden}
-.barra i{display:block;height:100%;background:linear-gradient(90deg,#2dd4bf,#0ea5e9);transition:width .6s ease}
-.cli.limite .barra i{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
-.cli.fuera .barra i{background:linear-gradient(90deg,#f87171,#ef4444)}
-.det{margin:0;color:#cbd5e1;font-size:13px}
-details summary{cursor:pointer;color:var(--teal);font-weight:600;font-size:13px}
-details ul,details ol{padding-left:18px;color:#cbd5e1;font-size:13px}
-.trayecto{max-height:200px;overflow:auto}
-.aviso{font-size:12px;color:var(--muted);text-align:center;margin:0 0 20px}
-@media (prefers-reduced-motion:reduce){.cli,.barra i{transition:none}}
-@media(max-width:560px){header{justify-content:center}nav a{margin:0 8px}}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 "Source Sans 3",system-ui,sans-serif}
+.wrap{max-width:1200px;margin:0 auto;padding:24px}
+h1{font-size:1.8rem;margin:0 0 4px}
+h2{font-size:1.1rem;margin:0 0 12px;font-weight:600}
+.lead,.hint{color:var(--muted)}
+.hint{font-size:.85rem;margin:10px 0 0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px}
+.hidden{display:none!important}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+label{display:block;font-size:.86rem;color:var(--muted);margin:12px 0 4px}
+input,select{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:8px 10px;font:inherit}
+button{font:inherit;font-weight:600;border-radius:4px;padding:10px 16px;border:1px solid var(--red);background:var(--red);color:#fff;cursor:pointer}
+button.sec{background:transparent;border-color:var(--line);color:var(--text)}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.grid{display:grid;grid-template-columns:300px 1fr;gap:20px;margin-top:20px}
+.stack{display:grid;gap:20px;align-content:start}
+svg.map{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:6px}
+.lk{fill:var(--text);font-size:12px;font-weight:600}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.metric{border-top:2px solid var(--line);padding-top:8px}
+.metric span{display:block;color:var(--muted);font-size:.85rem}
+.metric b{font-size:1.4rem;font-variant-numeric:tabular-nums}
+.status{margin-top:14px;padding:10px 12px;border:1px solid var(--line);border-left:4px solid;border-radius:4px}
+.ok{color:var(--ok);border-left-color:var(--ok)}
+.warn{color:var(--warn);border-left-color:var(--warn)}
+.fail{color:var(--fail);border-left-color:var(--fail)}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.log{max-height:240px;overflow:auto;font-size:.92rem}
+.log p{margin:0 0 8px;padding-left:10px;border-left:2px solid var(--red)}
+.err{color:var(--fail);min-height:1.4em}
+@media (max-width:900px){.grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}}
+.app-head{background:linear-gradient(160deg,#0B2545,#13315C);color:#fff;padding:12px 20px;margin:-24px -24px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-radius:0 0 12px 12px}
+.brand-app{font-weight:700}
+.nav{position:relative}
+.nav-btn{background:#fff;color:#0B2545;border:none;border-radius:999px;padding:8px 14px;font:inherit;font-weight:600;font-size:13px;display:flex;gap:8px;align-items:center;cursor:pointer}
+.nav-list{position:absolute;right:0;top:calc(100% + 10px);width:min(300px,88vw);background:#fff;border-radius:16px;box-shadow:0 18px 40px rgba(11,37,69,.25);padding:8px;z-index:2000;border:1px solid #E5EAF1}
+.nav-list a{display:block;padding:10px 12px;border-radius:10px;color:#0B2545;text-decoration:none;font-weight:600;font-size:14px}
+.nav-list a:hover,.nav-list a[aria-current]{background:#F0FDFA}
 </style>
 </head>
 <body>
-
-<header>
-  <div class="tb"><span class="lg"></span>Simulación de potencia</div>
-  <nav><a href="index.html">Panel</a><a href="mapa-fibra.html">Mapa</a><a href="mis-desplazes.html">Desplazes</a></nav>
+<div class="wrap">
+<header class="app-head">
+<span class="brand-app">Desplaze Fibra Óptica</span>
+<div class="nav">
+<button id="nav-btn" class="nav-btn" type="button" aria-expanded="false" aria-controls="nav-list">Navegar <span aria-hidden="true">▼</span></button>
+<nav id="nav-list" class="nav-list" hidden>
+<a href="index.html">Panel principal</a>
+<a href="mis-desplazes.html">Mis desplazes</a>
+<a href="mapa-fibra.html">Mapa de fibra óptica</a>
+<a href="mod-user.html">Datos de usuario</a>
+<a href="simulacion.html" aria-current="page">Simulación de potencia</a>
+</nav>
+</div>
+</header>
+<header class="top">
+<div>
+<h1>Simulación de potencia por desplaze</h1>
+<p class="lead">Calcula la potencia que recibe cada cliente de un desplaze guardado, siguiendo la ruta real de fibra desde la OLT.</p>
+</div>
+<div id="who" class="hidden"><span id="email" class="hint"></span> <button class="sec" id="logout">Cerrar sesión</button></div>
 </header>
 
-<main>
-  <section class="card">
-    <h1>Potencia que llega a cada cliente</h1>
-    <p class="sub">Simula el recorrido real del desplaze desde la OLT hasta cada ONT, con pérdidas de fibra, conectores, reservas y splitter.</p>
+<section id="auth" class="panel hidden" style="max-width:420px;margin-top:20px">
+<h2>Ingresar</h2>
+<label for="em">Correo</label>
+<input id="em" type="email" autocomplete="username">
+<label for="pw">Contraseña</label>
+<input id="pw" type="password" autocomplete="current-password">
+<div class="btns"><button id="login">Ingresar</button></div>
+<p id="authErr" class="err"></p>
+</section>
 
-    <div class="ctl">
-      <div><label for="sel-proy">Desplaze</label><select id="sel-proy"></select></div>
-      <div><label for="p-ont">Perfil de la ONT</label><select id="p-ont"></select></div>
-      <div><label for="p-olt">Modelo de OLT de respaldo</label><select id="p-olt"></select></div>
-      <div><label for="p-conector">Pérdida por conector (dB)</label><input id="p-conector" type="number" step="0.05" min="0" value="0.3"></div>
-      <div><label for="p-paso">Pérdida por caja de paso (dB)</label><input id="p-paso" type="number" step="0.05" min="0" value="0.5"></div>
-      <div><label for="p-margen">Margen mínimo de seguridad (dB)</label><input id="p-margen" type="number" step="0.5" min="0" value="3"></div>
-    </div>
+<section id="app" class="hidden">
+<div class="grid">
+<aside class="panel stack">
+<div>
+<h2>Desplaze y cliente</h2>
+<label for="proy">Desplaze</label><select id="proy"></select>
+<label for="cli">Cliente a simular</label><select id="cli"></select>
+</div>
+<div>
+<h2>Equipos</h2>
+<label for="olt">Tipo de OLT</label><select id="olt"></select>
+<label for="ont">Clase de ONT</label><select id="ont"></select>
+<label for="marg">Margen de seguridad (dB)</label>
+<input id="marg" type="number" step="0.5" min="0" value="3">
+</div>
+<p class="hint">La atenuación de cada tramo viene de fibra_tipos. Los divisores vienen del balanceador de cada NAP y del splitter de cada ODF. Cada empalme suma 0,05 dB y cada conector 0,3 dB.</p>
+</aside>
 
-    <button id="sim-btn" class="go" type="button">Ejecutar simulación</button>
-    <div id="msg" class="msg" hidden></div>
-  </section>
+<section class="stack">
+<div class="panel">
+<h2>Mapa de la red</h2>
+<svg id="map" class="map" viewBox="0 0 900 540" role="img" aria-label="Mapa de la red del desplaze con la ruta del cliente seleccionado">
+<defs>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+<feGaussianBlur stdDeviation="3" result="b"/>
+<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter>
+</defs>
+<g id="base"></g>
+<g id="pulses"></g>
+<text id="live" x="450" y="526" text-anchor="middle" fill="#B42318" font-size="18" font-weight="600"></text>
+</svg>
+<div class="btns">
+<button id="run">Ejecutar simulación</button>
+<button class="sec" id="stop">Detener</button>
+</div>
+<div class="metrics">
+<div class="metric"><span>Potencia de salida OLT</span><b id="mTx"></b></div>
+<div class="metric"><span>Pérdida total del cliente</span><b id="mLoss"></b></div>
+<div class="metric"><span>Potencia recibida en la ONT</span><b id="mRx"></b></div>
+<div class="metric"><span>Margen sobre sensibilidad</span><b id="mMar"></b></div>
+</div>
+<div id="status" class="status"></div>
+</div>
+<div class="panel">
+<h2>Bitácora de la señal</h2>
+<div id="log" class="log"><p>Seleccione un cliente y pulse Ejecutar simulación.</p></div>
+</div>
+</section>
+</div>
 
-  <section id="resumen" class="kpis" hidden></section>
-  <section id="clientes" class="grid-cli"></section>
-  <p class="aviso">Estimación con valores típicos de referencia. Confirme con la hoja técnica de su OLT y ONT, y valide en campo con medición OTDR o power meter.</p>
-</main>
+<div class="panel" style="margin-top:20px">
+<h2>Potencia por cliente del desplaze</h2>
+<table id="tabla"></table>
+</div>
+</section>
+</div>
 
 <script>
-/* ===== CONFIGURACIÓN: mismos valores que en el resto de la aplicación ===== */
-const CONFIG = {
-  SUPABASE_URL: "https://msolmlaqpdjxiiclfgky.supabase.co",
-  SUPABASE_ANON_KEY: "sb_publishable_55-c2uJqIb0LukOzgCiAIQ_NcC2Cgef"
-};
+const SB_URL = 'https://msolmlaqpdjxiiclfgky.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zb2xtbGFxcGRqeGlpY2xmZ2t5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ3OTk4MjUsImV4cCI6MjExMDM3NTgyNX0.JVefyyt_B6KjWLkve0ZzY7mqpV7wcmmiIL54lK5UlS8';
+const sb = supabase.createClient(SB_URL, SB_KEY);
 
-const sb = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 const $ = id => document.getElementById(id);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const num = id => Number($(id).value) || 0;
+const num = id => parseFloat($(id).value) || 0;
+const CONN = 0.3, SPLICE = 0.05, OVER = -8, DUR = 4200, GAP = 1400;
+const SPL = {'1x2':3.7, '1x4':7.2, '1x8':10.5, '1x16':13.7, '1x32':17.0};
+const OLT = {gpon:['GPON (ITU-T G.984), referencia +3 dBm', 3], xgs:['XGS-PON (ITU-T G.9807.1), referencia +5 dBm', 5], epon:['10G-EPON (IEEE 802.3av), referencia +4 dBm', 4]};
+const ONT = {b:['Clase B, −28 dBm', -28], bp:['Clase B+, −30 dBm', -30], cp:['Clase C+, −32 dBm', -32]};
 
-let puntos = [], tramos = [], FT = {};
+let D = null, S = null, P = null;
+let running = false, pulses = [], count = 0, spawnT = -Infinity, rafId = 0;
 
-const mostrarMsg = (texto, tipo) => { const m = $("msg"); m.textContent = texto; m.hidden = !texto; };
-
-const P = id => puntos.find(p => p.id === id);
-const otro = (t, id) => t.desde_id === id ? t.hasta_id : t.desde_id;
-const hilosC = t => (Array.isArray(t.hilos_nap) && t.hilos_nap.length) ? t.hilos_nap : (t.hilo_nap ? [t.hilo_nap] : []);
-const atten = tipo => FT[tipo]?.atenuacion_db_km ?? 0.35;
-
-function extNap(t) {
-  const a = P(t.desde_id), b = P(t.hasta_id);
-  if (b?.tipo === "nap") return b.id;
-  if (a?.tipo === "nap") return a.id;
-  return null;
+function fill(id, opts, def){
+  $(id).innerHTML = opts.map(([v, l]) => `<option value="${v}"${v === def ? ' selected' : ''}>${l}</option>`).join('');
 }
 
-/* Recorre el cable hacia atrás desde la NAP hasta el ODF o switch de origen */
-function cadena(nap) {
-  const hops = [];
-  let cur = nap, guard = 0;
-  while (cur && guard++ < 50) {
-    const ent = tramos.find(t => extNap(t) === cur.id && (hilosC(t).length || P(otro(t, cur.id))?.splitter) && P(otro(t, cur.id))?.tipo !== "cliente");
-    if (!ent) break;
-    hops.unshift({t: ent, dest: cur});
-    cur = P(otro(ent, cur.id));
-  }
-  return {hops, origen: cur};
+function nodeLoss(n){
+  if(n.tipo === 'olt') return 0;
+  if(n.tipo === 'cliente') return CONN;
+  let l = CONN;
+  if(n.tipo === 'odf' && n.splitter) l += SPL[n.splitter] || 0;
+  if(n.tipo === 'nap' && n.balanceador) l += SPL[n.balanceador] || 0;
+  return l;
 }
 
-function dist(a, b) {
-  const R = 6371000, rad = x => x * Math.PI / 180;
-  const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
+function statusInfo(rx, s, marg){
+  const margin = rx - s;
+  if(rx < s) return {c:'fail', s:'Insuficiente', t:`Potencia insuficiente. La ONT requiere al menos ${s} dBm y recibe ${rx.toFixed(1)} dBm.`};
+  if(rx > OVER) return {c:'warn', s:'Saturado', t:'Saturación. La potencia supera el límite de recepción de la ONT. Coloque atenuación en el tramo.'};
+  if(margin < marg) return {c:'warn', s:'Margen bajo', t:`Margen bajo. El enlace funciona, pero el margen de ${margin.toFixed(1)} dB es menor al de seguridad (${marg} dB).`};
+  return {c:'ok', s:'Viable', t:`Enlace viable. Margen de ${margin.toFixed(1)} dB sobre la sensibilidad de la ONT.`};
 }
 
-/* Cálculo de la potencia que llega a una ONT */
-function calcular(c, cfg) {
-  const nap = P(c.nap_id);
-  if (!nap) return {error: "Sin caja NAP ni puerto asignado"};
-  const {hops, origen} = cadena(nap);
-  if (!hops.length) return {error: `Sin cable de entrada en ${nap.codigo}`};
-
-  const oltT = tramos.find(t => {
-    const a = P(t.desde_id), b = P(t.hasta_id);
-    return (a?.tipo === "olt" && b?.id === origen?.id) || (b?.tipo === "olt" && a?.id === origen?.id);
-  });
-  if (!oltT) return {error: `${origen?.codigo || "El origen"} no está conectado a una OLT`};
-
-  const oltP = P(oltT.desde_id)?.tipo === "olt" ? P(oltT.desde_id) : P(oltT.hasta_id);
-  const modelo = CATALOGO_OLT.find(m => m.id === oltP.modelo) || CATALOGO_OLT.find(m => m.id === cfg.olt);
-  const perfil = PERFIL_ONT[cfg.ont];
-
-  const segmentos = [{nombre: `${oltP.codigo} → ${origen.codigo}`, metros: oltT.longitud_m || 0, tipo: oltT.tipo_fibra}];
-  hops.forEach(h => segmentos.push({nombre: `${P(otro(h.t, h.dest.id))?.codigo} → ${h.dest.codigo}`, metros: h.t.longitud_m || 0, tipo: h.t.tipo_fibra}));
-  hops.forEach((h, i) => {
-    if (h.dest.metros_entrada) segmentos.push({nombre: `Reserva entrada ${h.dest.codigo}`, metros: h.dest.metros_entrada, tipo: h.t.tipo_fibra});
-    if (i < hops.length - 1 && h.dest.metros_salida) segmentos.push({nombre: `Reserva salida ${h.dest.codigo}`, metros: h.dest.metros_salida, tipo: h.t.tipo_fibra});
-  });
-
-  const aco = tramos.find(t => (t.desde_id === nap.id && t.hasta_id === c.id) || (t.desde_id === c.id && t.hasta_id === nap.id));
-  const drop = aco?.longitud_m ?? Math.round(dist(nap, c) * 1.1);
-  segmentos.push({nombre: `Acometida ${nap.codigo} → ${c.codigo}`, metros: drop, tipo: c.fibra_acometida || "G657A1"});
-
-  const fibraDb = segmentos.reduce((s, x) => s + x.metros / 1000 * atten(x.tipo), 0);
-  const conectores = cfg.conector * 3 + cfg.paso * hops.length;
-  const splitDb = SPLITTER_DB[nap.balanceador || "1x8"] ?? 10.5;
-  const splitOdf = origen.splitter ? (SPLITTER_DB[origen.splitter] ?? 0) : 0;
-  const perdida = fibraDb + conectores + splitDb + splitOdf;
-  const rx = modelo.txDbm - perdida;
-  const margen = rx - perfil.sensDbm;
-  const estado = margen >= cfg.margen ? "ok" : margen >= 0 ? "limite" : "fuera";
-
-  return {
-    nap, puerto: c.puerto, modelo, tx: modelo.txDbm, sens: perfil.sensDbm,
-    fibraDb, conectores, splitDb, splitOdf, origen, perdida, rx, margen, estado,
-    segmentos, metrosTotal: segmentos.reduce((s, x) => s + x.metros, 0)
-  };
+async function login(){
+  const {data, error} = await sb.auth.signInWithPassword({email: $('em').value.trim(), password: $('pw').value});
+  if(error){ $('authErr').textContent = 'No fue posible ingresar. Verifique correo y contraseña.'; return; }
+  $('authErr').textContent = '';
+  showApp(data.user.email);
 }
 
-function tarjeta({c, r}) {
-  if (r.error) return `<article class="cli err"><header><div><span class="cod">${esc(c.codigo)}</span><small>${esc(r.error)}</small></div><span class="badge err">Sin datos</span></header></article>`;
-  const etiqueta = {ok: "Óptimo", limite: "En límite", fuera: "Fuera de rango"}[r.estado];
-  const presupuesto = r.tx - r.sens;
-  const usado = Math.min(100, Math.max(0, Math.round(r.perdida / presupuesto * 100)));
-  return `<article class="cli ${r.estado}">
-    <header>
-      <div><span class="cod">${esc(c.codigo)}</span><small>${esc(r.nap.codigo)} · Puerto ${r.puerto ?? "–"} · ${esc(r.modelo.nombre)}</small></div>
-      <span class="badge ${r.estado}">${etiqueta}</span>
-    </header>
-    <div class="rx"><b>${r.rx.toFixed(1)} dBm</b><span>potencia que llega a la ONT</span></div>
-    <div class="barra" role="progressbar" aria-valuenow="${usado}" aria-valuemin="0" aria-valuemax="100"><i style="width:${usado}%"></i></div>
-    <p class="det">Pérdidas ${r.perdida.toFixed(1)} dB de ${presupuesto.toFixed(1)} dB disponibles · Margen ${r.margen.toFixed(1)} dB</p>
-    <details>
-      <summary>Ver desglose</summary>
-      <ul>
-        <li>Fibra: ${r.fibraDb.toFixed(2)} dB</li>
-        <li>Conectores y cajas de paso: ${r.conectores.toFixed(2)} dB</li>
-        ${r.splitOdf ? `<li>Splitter del ${esc(r.origen.codigo)} (${esc(r.origen.splitter)}): ${r.splitOdf.toFixed(2)} dB</li>` : ""}
-        <li>Splitter ${esc(r.nap.balanceador || "1x8")}: ${r.splitDb.toFixed(2)} dB</li>
-        <li>Longitud total del recorrido: ${Math.round(r.metrosTotal).toLocaleString("es-GT")} m</li>
-      </ul>
-      <ol class="trayecto">${r.segmentos.map(s => `<li>${esc(s.nombre)} · ${Math.round(s.metros)} m · ${esc(s.tipo)}</li>`).join("")}</ol>
-    </details>
-  </article>`;
+function showApp(email){
+  $('auth').classList.add('hidden');
+  $('app').classList.remove('hidden');
+  $('who').classList.remove('hidden');
+  $('email').textContent = email;
+  fill('olt', Object.entries(OLT).map(([k, v]) => [k, v[0]]), 'gpon');
+  fill('ont', Object.entries(ONT).map(([k, v]) => [k, v[0]]), 'bp');
+  loadProyectos();
 }
 
-function pintar(res) {
-  const ok = res.filter(x => !x.r.error);
-  const cnt = e => ok.filter(x => x.r.estado === e).length;
-  const sinDatos = res.length - ok.length;
-  $("resumen").hidden = false;
-  $("resumen").innerHTML = `
-    <div class="kpi"><span>Clientes</span><b>${res.length}</b></div>
-    <div class="kpi ok"><span>Óptimos</span><b>${cnt("ok")}</b></div>
-    <div class="kpi lim"><span>En límite</span><b>${cnt("limite")}</b></div>
-    <div class="kpi bad"><span>Fuera de rango</span><b>${cnt("fuera")}</b></div>
-    <div class="kpi"><span>Sin datos</span><b>${sinDatos}</b></div>`;
-  $("clientes").innerHTML = res.map(tarjeta).join("");
+async function loadProyectos(){
+  const {data, error} = await sb.from('proyectos').select('codigo,nombre').order('codigo');
+  if(error){ alert('No se pudieron leer los desplazes: ' + error.message); return; }
+  $('proy').innerHTML = data.map(p => `<option value="${p.codigo}">${p.codigo} | ${p.nombre}</option>`).join('');
+  const pre = new URLSearchParams(location.search).get('proyecto');
+  if(pre && data.some(p => p.codigo === pre)) $('proy').value = pre;
+  await loadDesplaze();
 }
 
-async function cargar(cod) {
-  const [pu, tr, ft] = await Promise.all([
-    sb.from("puntos_fibra").select("*").eq("proyecto", cod),
-    sb.from("tramos_fibra").select("*").eq("proyecto", cod),
-    sb.from("fibra_tipos").select("*")
+async function loadDesplaze(){
+  const code = $('proy').value;
+  const [p, t, f] = await Promise.all([
+    sb.from('puntos_fibra').select('id,tipo,codigo,lat,lng,splitter,balanceador,nap_id,puerto').eq('proyecto', code),
+    sb.from('tramos_fibra').select('id,desde_id,hasta_id,tipo_fibra,longitud_m,ruta').eq('proyecto', code),
+    sb.from('fibra_tipos').select('codigo,atenuacion_db_km')
   ]);
-  if (pu.error || tr.error || ft.error) throw new Error("No se pudieron cargar los datos del desplaze.");
-  puntos = pu.data;
-  tramos = tr.data;
-  FT = Object.fromEntries(ft.data.map(x => [x.codigo, x]));
+  const err = p.error || t.error || f.error;
+  if(err){ alert('Error al leer el desplaze: ' + err.message); return; }
+
+  const att = {};
+  f.data.forEach(x => att[x.codigo] = Number(x.atenuacion_db_km));
+  const puntos = p.data.filter(x => x.lat != null && x.lng != null);
+  const byId = {}, adj = {};
+  p.data.forEach(x => { byId[x.id] = x; adj[x.id] = []; });
+  t.data.forEach(e => {
+    if(!byId[e.desde_id] || !byId[e.hasta_id]) return;
+    const len = e.longitud_m || 0;
+    const fib = (att[e.tipo_fibra] ?? 0.35) * len / 1000;
+    adj[e.desde_id].push({to: e.hasta_id, fib, len, tf: e.tipo_fibra, ruta: e.ruta || []});
+    adj[e.hasta_id].push({to: e.desde_id, fib, len, tf: e.tipo_fibra, ruta: e.ruta || []});
+  });
+  const olt = p.data.find(x => x.tipo === 'olt');
+  const clientes = p.data.filter(x => x.tipo === 'cliente').sort((a, b) => a.codigo.localeCompare(b.codigo));
+  D = {byId, adj, olt, clientes, tramos: t.data};
+  $('cli').innerHTML = clientes.map(c => `<option value="${c.id}">${c.codigo}</option>`).join('');
+  fitMap(puntos);
+  $('log').innerHTML = '<p>Seleccione un cliente y pulse Ejecutar simulación.</p>';
+  update();
 }
 
-async function ejecutar() {
-  const cod = $("sel-proy").value;
-  if (!cod) return mostrarMsg("Seleccione un desplaze.");
-  mostrarMsg("");
-  $("sim-btn").disabled = true;
-  try {
-    await cargar(cod);
-    const clientes = puntos.filter(p => p.tipo === "cliente");
-    if (!clientes.length) return mostrarMsg("Este desplaze no tiene clientes para simular.");
-    const cfg = {
-      ont: $("p-ont").value,
-      olt: $("p-olt").value,
-      conector: num("p-conector"),
-      paso: num("p-paso"),
-      margen: num("p-margen")
-    };
-    pintar(clientes.map(c => ({c, r: calcular(c, cfg)})));
-  } catch (err) {
-    mostrarMsg(err.message);
-  } finally {
-    $("sim-btn").disabled = false;
+function fitMap(puntos){
+  if(!puntos.length){ P = null; return; }
+  const lats = puntos.map(p => p.lat), lngs = puntos.map(p => p.lng);
+  const a = Math.min(...lats), b = Math.max(...lats), c = Math.min(...lngs), d = Math.max(...lngs);
+  const c0 = Math.cos((a + b) / 2 * Math.PI / 180);
+  const K = Math.min(800 / Math.max((d - c) * c0, 1e-6), 440 / Math.max(b - a, 1e-6));
+  P = {x: lng => 50 + (lng - c) * c0 * K, y: lat => 60 + (b - lat) * K};
+}
+
+function route(targetId){
+  if(!D || !D.olt) return null;
+  const ids = Object.keys(D.byId), dist = {}, prev = {}, done = {};
+  ids.forEach(i => dist[i] = Infinity);
+  dist[D.olt.id] = 0;
+  for(;;){
+    let u = null;
+    for(const i of ids) if(!done[i] && dist[i] < Infinity && (u === null || dist[i] < dist[u])) u = i;
+    if(u === null) break;
+    done[u] = true;
+    for(const e of D.adj[u]){
+      const nd = dist[u] + e.fib + SPLICE + nodeLoss(D.byId[e.to]);
+      if(nd < dist[e.to]){ dist[e.to] = nd; prev[e.to] = {from: u, e}; }
+    }
   }
+  if(targetId !== D.olt.id && !prev[targetId]) return null;
+  const nodes = [targetId], edges = [];
+  let c = targetId;
+  while(c !== D.olt.id){ const pr = prev[c]; edges.unshift(pr.e); nodes.unshift(pr.from); c = pr.from; }
+  return {nodes: nodes.map(id => D.byId[id]), edges};
 }
 
-$("sim-btn").addEventListener("click", ejecutar);
+function calc(cid, tx, s, marg){
+  const r = route(cid);
+  if(!r) return {ok: false, msg: 'No hay ruta de fibra registrada hacia este cliente en el desplaze.'};
+  const steps = [{node: r.nodes[0], pin: tx, pout: tx, fib: 0, len: 0, tf: ''}];
+  let p = tx, len = 0;
+  for(let i = 1; i < r.nodes.length; i++){
+    const e = r.edges[i - 1];
+    p -= e.fib + SPLICE;
+    len += e.len;
+    const pin = p;
+    p -= nodeLoss(r.nodes[i]);
+    steps.push({node: r.nodes[i], pin, pout: p, fib: e.fib, len: e.len, tf: e.tf, ruta: e.ruta});
+  }
+  const rx = p;
+  return {ok: true, steps, nodes: r.nodes, len, rx, loss: tx - rx, margin: rx - s, s, st: statusInfo(rx, s, marg)};
+}
+
+function update(){
+  if(!D) return;
+  const tx = OLT[$('olt').value][1], s = ONT[$('ont').value][1], marg = num('marg');
+  S = calc($('cli').value, tx, s, marg);
+  drawMap();
+  renderMetrics();
+  renderTable(tx, s, marg);
+}
+
+function drawMap(){
+  if(!P || !D) return;
+  let g = '';
+  D.tramos.forEach(t => {
+    const a = D.byId[t.desde_id], b = D.byId[t.hasta_id];
+    if(!a || !b || a.lat == null || b.lat == null) return;
+    g += `<polyline points="${[a, ...(t.ruta || []), b].map(q => P.x(q.lng) + ',' + P.y(q.lat)).join(' ')}" fill="none" stroke="#AEB8C6" stroke-width="3"/>`;
+  });
+  if(S && S.ok){
+    for(let i = 1; i < S.steps.length; i++){
+      const st = S.steps[i], pts = [S.steps[i - 1].node, ...(st.ruta || []), st.node];
+      g += `<polyline points="${pts.map(q => P.x(q.lng) + ',' + P.y(q.lat)).join(' ')}" fill="none" stroke="#13A89E" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
+    }
+  }
+  const selId = $('cli').value;
+  Object.values(D.byId).forEach(n => {
+    if(n.lat == null) return;
+    const x = P.x(n.lng), y = P.y(n.lat);
+    if(n.tipo === 'olt') g += `<rect x="${x-9}" y="${y-9}" width="18" height="18" fill="#13A89E"/><text x="${x+14}" y="${y+4}" class="lk">${n.codigo}</text>`;
+    else if(n.tipo === 'odf' || n.tipo === 'nap') g += `<rect x="${x-8}" y="${y-8}" width="16" height="16" transform="rotate(45 ${x} ${y})" fill="#FFFFFF" stroke="#0B2545" stroke-width="2"/><text x="${x+12}" y="${y-8}" class="lk">${n.codigo}</text>`;
+    else if(n.tipo === 'cliente'){
+      const col = n.id === selId && S && S.ok ? {ok:'#067647', warn:'#B54708', fail:'#B42318'}[S.st.c] : '#8A95A5';
+      g += `<circle cx="${x}" cy="${y}" r="${n.id === selId ? 8 : 6}" fill="${col}"/>`;
+      if(n.id === selId) g += `<text x="${x+12}" y="${y+4}" class="lk">${n.codigo}</text>`;
+    } else g += `<circle cx="${x}" cy="${y}" r="3" fill="#8A95A5"/>`;
+  });
+  $('base').innerHTML = g;
+}
+
+function renderMetrics(){
+  const ok = S && S.ok;
+  $('mTx').textContent = ok ? OLT[$('olt').value][1].toFixed(1) + ' dBm' : '—';
+  $('mLoss').textContent = ok ? S.loss.toFixed(2) + ' dB' : '—';
+  $('mRx').textContent = ok ? S.rx.toFixed(1) + ' dBm' : '—';
+  $('mMar').textContent = ok ? S.margin.toFixed(1) + ' dB' : '—';
+  $('status').className = 'status ' + (ok ? S.st.c : 'fail');
+  $('status').textContent = ok ? S.st.t : S.msg;
+}
+
+function renderTable(tx, s, marg){
+  const head = '<tr><th>Cliente</th><th>NAP</th><th class="n">Puerto</th><th class="n">Fibra (m)</th><th class="n">Pérdida (dB)</th><th class="n">Potencia (dBm)</th><th>Estado</th></tr>';
+  const rows = D.clientes.map(c => {
+    const r = calc(c.id, tx, s, marg);
+    const nap = D.byId[c.nap_id] ? D.byId[c.nap_id].codigo : '—';
+    if(!r.ok) return `<tr><td>${c.codigo}</td><td>${nap}</td><td class="n">${c.puerto ?? '—'}</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="fail">Sin ruta</td></tr>`;
+    return `<tr><td>${c.codigo}</td><td>${nap}</td><td class="n">${c.puerto ?? '—'}</td><td class="n">${r.len.toFixed(0)}</td><td class="n">${r.loss.toFixed(2)}</td><td class="n">${r.rx.toFixed(1)}</td><td class="${r.st.c}">${r.st.s}</td></tr>`;
+  }).join('');
+  $('tabla').innerHTML = head + rows;
+}
+
+function addLog(html){
+  const log = $('log');
+  log.insertAdjacentHTML('beforeend', `<p>${html}</p>`);
+  log.scrollTop = log.scrollHeight;
+}
+
+function logNode(k){
+  const st = S.steps[k], lbl = `${st.node.tipo.toUpperCase()} ${st.node.codigo}`;
+  if(st.len > 0) addLog(`Tramo de ${st.len.toFixed(0)} m de fibra ${st.tf}: atenuación de ${st.fib.toFixed(2)} dB.`);
+  const last = k === S.steps.length - 1;
+  addLog(last
+    ? `<strong>${lbl}:</strong> señal recibida con ${st.pout.toFixed(1)} dBm.`
+    : `<strong>${lbl}:</strong> pérdida de ${(st.pin - st.pout).toFixed(2)} dB. Potencia de salida ${st.pout.toFixed(1)} dBm.`);
+}
+
+function logFinal(){ addLog(`<strong>Resultado:</strong> ${S.st.t}`); }
+
+function frame(ts){
+  if(!running) return;
+  if(ts - spawnT > GAP){ spawnT = ts; count++; pulses.push({t0: ts, id: count, last: 0, done: false}); }
+  pulses = pulses.filter(p => ts - p.t0 < DUR + 400);
+  const st = S.steps, N = st.length, sens = S.s;
+  let out = '', lead = null;
+  for(const p of pulses){
+    const prog = Math.min(1, (ts - p.t0) / DUR), u = prog * (N - 1);
+    const i = Math.min(Math.floor(u), N - 2), f = u - i;
+    const a = st[i].node, b = st[i + 1].node;
+    const x = P.x(a.lng) + (P.x(b.lng) - P.x(a.lng)) * f;
+    const y = P.y(a.lat) + (P.y(b.lat) - P.y(a.lat)) * f;
+    const pw = st[i].pout + (st[i + 1].pin - st[i].pout) * f;
+    if(p.id === 1){
+      while(p.last < Math.floor(u)){ p.last++; logNode(p.last); }
+      if(prog >= 1 && !p.done){ p.done = true; logFinal(); }
+    }
+    out += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7" fill="${pw < sens ? '#B42318' : '#13A89E'}" filter="url(#glow)"/>`;
+    lead = pw;
+  }
+  $('pulses').innerHTML = out;
+  $('live').textContent = lead === null ? '' : `Potencia en la línea: ${lead.toFixed(1)} dBm`;
+  rafId = requestAnimationFrame(frame);
+}
+
+function start(){
+  if(running) return;
+  update();
+  if(!S || !S.ok){ $('log').innerHTML = `<p>${S ? S.msg : 'Seleccione un cliente.'}</p>`; return; }
+  $('log').innerHTML = '';
+  addLog(`Transmisión iniciada desde la OLT con ${S.steps[0].pout.toFixed(1)} dBm hacia ${S.nodes[S.nodes.length - 1].codigo}.`);
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    for(let k = 1; k < S.steps.length; k++) logNode(k);
+    logFinal();
+    $('pulses').innerHTML = `<circle cx="${P.x(S.nodes.at(-1).lng)}" cy="${P.y(S.nodes.at(-1).lat)}" r="7" fill="#067647" filter="url(#glow)"/>`;
+    $('live').textContent = `Potencia recibida: ${S.rx.toFixed(1)} dBm`;
+    return;
+  }
+  running = true; pulses = []; count = 0; spawnT = -Infinity;
+  rafId = requestAnimationFrame(frame);
+}
+
+function stop(){
+  running = false;
+  cancelAnimationFrame(rafId);
+  pulses = [];
+  $('pulses').innerHTML = '';
+  $('live').textContent = '';
+}
+
+$('login').addEventListener('click', login);
+$('pw').addEventListener('keydown', e => { if(e.key === 'Enter') login(); });
+$('logout').addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); });
+$('proy').addEventListener('change', () => { stop(); loadDesplaze(); });
+['cli', 'olt', 'ont', 'marg'].forEach(id => $(id).addEventListener('change', () => { stop(); update(); }));
+$('marg').addEventListener('input', update);
+$('run').addEventListener('click', start);
+$('stop').addEventListener('click', stop);
 
 (async () => {
-  $("p-ont").innerHTML = Object.entries(PERFIL_ONT).map(([k, v]) => `<option value="${k}">${esc(v.nombre)}</option>`).join("");
-  $("p-olt").innerHTML = CATALOGO_OLT.map(m => `<option value="${m.id}">${esc(m.nombre)}</option>`).join("");
-  try {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) { location.href = "index.html"; return; }
-    const { data, error } = await sb.from("proyectos").select("codigo,nombre").order("updated_at", {ascending: false});
-    if (error) return mostrarMsg("No se pudieron cargar sus desplazes.");
-    $("sel-proy").innerHTML = data.length
-      ? data.map(x => `<option value="${esc(x.codigo)}">${esc(x.codigo)} · ${esc(x.nombre)}</option>`).join("")
-      : `<option value="">Sin desplazes</option>`;
-    const pid = new URLSearchParams(location.search).get("proyecto");
-    if (pid) $("sel-proy").value = pid;
-  } catch (err) {
-    mostrarMsg("No se pudo conectar con el servicio. Intente de nuevo.");
-  }
+  const {data} = await sb.auth.getSession();
+  if(!data.session){ location.replace('index.html'); return; }
+  showApp(data.session.user.email);
+})();
+</script>
+<script>
+(() => {
+  const b = document.getElementById('nav-btn'), l = document.getElementById('nav-list');
+  const abrir = v => { l.hidden = !v; b.setAttribute('aria-expanded', String(v)); };
+  b.addEventListener('click', e => { e.stopPropagation(); abrir(l.hidden); });
+  document.addEventListener('click', e => { if(!l.hidden && !l.contains(e.target) && e.target !== b) abrir(false); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') abrir(false); });
 })();
 </script>
 </body>
