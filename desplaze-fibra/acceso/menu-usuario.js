@@ -1,23 +1,38 @@
 /* Menú unificado de Desplaze Fibra Óptica
-   - Llena nombre y correo de la cuenta en la cabecera del menú.
-   - Cierra sesión usando el botón de la página si existe; si no, cierra y regresa al inicio.
-   No cambia la lógica de las páginas: mapa y simulación abren su propio menú. */
+   Muestra nombre de usuario, foto y correo desde la tabla profiles (igual que la página de inicio).
+   Cierra sesión con el botón de la página si existe; si no, cierra y regresa al inicio. */
 (function () {
   const SUPABASE_URL = "https://msolmlaqpdjxiiclfgky.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_55-c2uJqIb0LukOzgCiAIQ_NcC2Cgef";
   if (!window.supabase) return;
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const all = sel => document.querySelectorAll(sel);
 
-  const nombreDesde = u => (u?.user_metadata?.username || u?.user_metadata?.nombre || (u?.email || "").split("@")[0] || "Cuenta");
+  function pintar(nombre, email, foto, inicial) {
+    all("[data-am-name]").forEach(el => el.textContent = nombre);
+    all("[data-mh-name]").forEach(el => el.textContent = nombre);
+    all("[data-mh-email]").forEach(el => el.textContent = email);
+    all("[data-am-initial]").forEach(el => { el.textContent = inicial; el.hidden = !!foto; });
+    all("[data-am-img]").forEach(img => {
+      if (foto) { img.src = foto; img.hidden = false; } else { img.hidden = true; }
+    });
+  }
 
-  sb.auth.getSession().then(({ data }) => {
+  sb.auth.getSession().then(async ({ data }) => {
     const u = data?.session?.user;
     if (!u) return;
-    document.querySelectorAll("[data-mh-name]").forEach(el => el.textContent = nombreDesde(u));
-    document.querySelectorAll("[data-mh-email]").forEach(el => el.textContent = u.email || "");
+    const { data: p } = await sb.from("profiles")
+      .select("username, avatar_path, updated_at")
+      .eq("id", u.id).maybeSingle();
+    const foto = p && p.avatar_path
+      ? sb.storage.from("avatars").getPublicUrl(p.avatar_path).data.publicUrl + "?v=" + encodeURIComponent(p.updated_at || "")
+      : "";
+    const nombre = (p && p.username) || "Sin nombre de usuario";
+    const inicial = ((p && p.username) || u.email).charAt(0).toUpperCase();
+    pintar(nombre, u.email || "", foto, inicial);
   });
 
-  document.querySelectorAll("#menu-logout").forEach(btn => btn.addEventListener("click", async () => {
+  all("#menu-logout").forEach(btn => btn.addEventListener("click", async () => {
     const original = document.getElementById("logout");
     if (original) return original.click();
     await sb.auth.signOut();
