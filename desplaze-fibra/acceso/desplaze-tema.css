@@ -486,3 +486,43 @@ body:has(#session-view:not([hidden])) #login-view { display: none !important; }
 }
 .nav-list a, .nav-item { display: flex !important; align-items: center; gap: 10px; }
 .nav-list { border: 1px solid var(--line) !important; }
+
+
+/* ==========================================================================
+   v7 · MENÚ UNIFICADO EN TODAS LAS PÁGINAS
+   ========================================================================== */
+.nav-list .dot { display: none !important; }            /* el punto lo dibuja ::before */
+.nav-list .out, .nav-list button.out {
+  color: var(--danger) !important;
+  border-top: 1px solid var(--line) !important;
+  margin-top: 4px; border-radius: 0 0 6px 6px !important;
+  display: flex !important; align-items: center; gap: 10px;
+  width: 100%; background: none; border-left: none !important; border-right: none !important; border-bottom: none !important;
+  font: inherit; font-size: 14px; font-weight: 500; padding: 10px 12px; cursor: pointer; text-align: left;
+}
+.nav-list button.out::before { background: var(--danger) !important; }
+.nav-list button.out:hover { background: #FEF3F2 !important; }
+.nav-list .mh { border-bottom: 1px solid var(--line); }
+
+/* Botón de menú: mismo estilo y texto en todas las páginas */
+.nav-btn, .menu-btn, .sn-btn {
+  display: inline-flex !important; align-items: center; gap: 8px;
+}
+
+/* Menú con <details> (sin JavaScript) */
+.menu-details { position: relative; display: inline-block; }
+.menu-details > summary { list-style: none; cursor: pointer; }
+.menu-details > summary::-webkit-details-marker { display: none; }
+.menu-details[open] .chev { transform: rotate(180deg); }
+.menu-details .nav-list {
+  position: absolute; right: 0; top: calc(100% + 10px); z-index: 60;
+  width: min(300px, 88vw); display: block;
+  background: #FFFFFF; border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: 0 14px 34px rgba(0,0,0,.2); padding: 6px;
+}
+.menu-details .nav-list a { display: flex; align-items: center; gap: 10px; color: #111 !important; padding: 10px 12px; border-radius: 6px; font-weight: 500; font-size: 14px; text-decoration: none; }
+.menu-details .nav-list a::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #111; flex: none; }
+.menu-details .nav-list a:hover { background: #F4F4F5; }
+
+/* Simulación: el correo y el botón de la barra ya están en el menú */
+#who { display: none !important; }
