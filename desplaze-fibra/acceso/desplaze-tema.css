@@ -356,9 +356,7 @@ header.ph, .ph {
 
 /* 1) El formulario de acceso se muestra si no hay sesión abierta.
    Cuando hay sesión, la vista de sesión tiene prioridad y el formulario se oculta. */
-body:not(:has(#session-view:not([hidden]))) #login-view {
-  display: block !important;
-}
+
 #login-view {
   width: 100%;
   max-width: 420px;
@@ -431,3 +429,60 @@ a { color: #1D4ED8; }
   #login-view { max-width: 100%; padding: 28px 22px 24px !important; }
   .brand h1 { font-size: 26px; }
 }
+
+
+/* ==========================================================================
+   v5 · GUÍA DE FUNCIONAMIENTO Y MENÚ UNIFICADO
+   ========================================================================== */
+
+/* Guía visible al entrar; se oculta al elegir Iniciar sesión o cuando hay sesión */
+.guia { width: 100%; max-width: 640px; }
+body.show-login #como-funciona,
+body:has(#session-view:not([hidden])) #como-funciona { display: none !important; }
+#login-view { display: none; }
+body.show-login #login-view { display: block !important; }
+body:has(#session-view:not([hidden])) #login-view { display: none !important; }
+
+.guia-kicker { text-transform: uppercase; letter-spacing: 1.2px; font-size: 12px; font-weight: 700; color: #2563EB; margin: 0 0 6px; }
+.guia h2 { font-size: 28px; font-weight: 800; color: #0A0A0A; margin: 0 0 8px; letter-spacing: -.02em; }
+.guia .sub { color: #4B5563 !important; margin: 0; font-size: 15px; }
+.guia-steps { list-style: none; padding: 0; margin: 26px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.paso {
+  background: #FFFFFF; border: 1px solid var(--line); border-radius: 12px;
+  overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column;
+  transition: box-shadow var(--ease), border-color var(--ease);
+}
+.paso:hover { box-shadow: var(--shadow); border-color: var(--line-strong); }
+.paso figure { margin: 0; background: #F4F4F5; border-bottom: 1px solid var(--line); }
+.paso img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top left; }
+.paso > div { padding: 18px 18px 20px; }
+.paso.sin-img { border-top: 3px solid #2563EB; }
+.paso .num {
+  display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: #0A0A0A; color: #FFFFFF; font-weight: 700; font-size: 13px;
+}
+.paso h3 { font-size: 16px; font-weight: 700; color: #111111; margin: 12px 0 6px; }
+.paso p { margin: 0; color: #4B5563 !important; font-size: 14px; line-height: 1.55; }
+@media (max-width: 1100px) { .guia-steps { grid-template-columns: 1fr; } }
+
+/* Menú de páginas sin JavaScript (mis desplazes, edición de usuario) */
+.menu-details { position: relative; display: inline-block; }
+.menu-details > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.menu-details > summary::-webkit-details-marker { display: none; }
+.menu-details[open] .chev { transform: rotate(180deg); }
+.menu-details .menu-list {
+  position: absolute; right: 0; top: calc(100% + 10px); z-index: 60;
+  width: min(300px, 88vw); display: block;
+  background: #FFFFFF; border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: 0 14px 34px rgba(0,0,0,.2); padding: 6px;
+}
+.menu-details .menu-list a { display: flex; align-items: center; gap: 10px; color: #111 !important; padding: 10px 12px; border-radius: 6px; font-weight: 500; font-size: 14px; text-decoration: none; }
+.menu-details .menu-list a::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #111; flex: none; }
+.menu-details .menu-list a:hover { background: #F4F4F5; }
+
+/* Mapa y simulación: mismos elementos que el menú de inicio */
+.nav-list a::before, .nav-item::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%; background: #111; flex: none;
+}
+.nav-list a, .nav-item { display: flex !important; align-items: center; gap: 10px; }
+.nav-list { border: 1px solid var(--line) !important; }
