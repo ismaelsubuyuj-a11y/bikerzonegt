@@ -44,7 +44,7 @@ h1, h2, h3, h4 { letter-spacing: -.015em; color: var(--text); }
    ========================================================================== */
 .site-nav,
 .topbar,
-header,
+body > header,
 .app-head {
   background: #0A0A0A !important;
   border: none !important;
@@ -57,7 +57,7 @@ header,
 .site-nav { position: sticky; top: 0; z-index: 50; padding: 14px clamp(16px,4vw,40px) !important; }
 
 /* Texto blanco dentro de la barra negra */
-.site-nav *, .topbar *, header *, .app-head * { color: #FFFFFF; }
+.site-nav *, .topbar *, body > header *, .app-head * { color: #FFFFFF; }
 .site-nav .sn-list *, .topbar .menu-list *, header .menu-list *, .nav-list * { color: #111111; }
 
 .sn-brand, .tb-brand, header .brand {
@@ -306,4 +306,128 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
 /* Movimiento reducido */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+/* ==========================================================================
+   CORRECCIONES FINALES
+   ========================================================================== */
+
+/* Encabezado de tarjeta de desplaze: fondo claro, código en negro */
+header.ph, .ph {
+  background: transparent !important;
+  color: #111111 !important;
+  border: none !important;
+  border-bottom: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+}
+.ph h4 { color: #111111 !important; font-size: 16px; font-weight: 700; }
+.pcod { color: #0A0A0A !important; font-weight: 700; font-size: 12px; letter-spacing: .5px; background: #F4F4F5; border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; display: inline-block; margin-bottom: 4px; }
+
+/* Encabezado de usuario dentro del desplegable: claro, no degradado */
+.menu-list .mh, .sn-list .mh, .mh {
+  background: #F4F4F5 !important;
+  color: #111111 !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--line) !important;
+  padding: 12px !important;
+  margin: 0 0 6px !important;
+}
+.mh b, .menu-list .mh b { color: #111111 !important; font-size: 15px; }
+.mh small, .menu-list .mh small { color: var(--muted) !important; opacity: 1 !important; }
+
+/* Simulación: encabezado negro con correo y botón legibles */
+.app-head #email, .app-head .hint { color: #B3B3B3 !important; }
+.app-head button.sec, .app-head .sec {
+  background: transparent !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255,255,255,.35) !important;
+  border-radius: 8px !important;
+  font-weight: 600;
+}
+.app-head button.sec:hover { background: rgba(255,255,255,.1) !important; }
+.app-head { border-radius: 0 !important; }
+
+/* ==========================================================================
+   v4 · PANTALLA DE ACCESO VISIBLE Y ACENTO CORPORATIVO
+   ========================================================================== */
+
+/* 1) El formulario de acceso se muestra si no hay sesión abierta.
+   Cuando hay sesión, la vista de sesión tiene prioridad y el formulario se oculta. */
+body:not(:has(#session-view:not([hidden]))) #login-view {
+  display: block !important;
+}
+#login-view {
+  width: 100%;
+  max-width: 420px;
+  border-top: 3px solid #2563EB !important;
+  padding: 40px 36px 32px !important;
+}
+#login-view h2 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+#login-view .sub { margin-bottom: 26px; }
+#login-view input { padding: 12px 14px !important; font-size: 15px !important; }
+#login-view .btn-primary { margin-top: 22px; padding: 13px !important; font-size: 15px !important; }
+
+/* Panel de la izquierda: más presencia */
+.brand { position: relative; overflow: hidden; }
+.brand::before {
+  content: "";
+  position: absolute; right: -120px; top: -120px;
+  width: 360px; height: 360px; border-radius: 50%;
+  border: 1px solid rgba(37,99,235,.35);
+  pointer-events: none;
+}
+.brand::after {
+  content: "";
+  position: absolute; right: -40px; top: -40px;
+  width: 200px; height: 200px; border-radius: 50%;
+  border: 1px solid rgba(37,99,235,.2);
+  pointer-events: none;
+}
+.brand > * { position: relative; z-index: 1; }
+.brand h1 { font-size: 34px; line-height: 1.18; letter-spacing: -.02em; }
+.brand .logo svg { stroke: #3B82F6; }
+.mv article { border-top: 2px solid #2563EB !important; }
+.mv h2 { color: #60A5FA !important; }
+
+/* Botones principales: azul corporativo */
+.btn-primary, .pbtn {
+  background: #1D4ED8 !important;
+  border-color: #1D4ED8 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 6px 16px rgba(29,78,216,.25);
+}
+.btn-primary:hover:not(:disabled), .pbtn:hover {
+  background: #1E40AF !important;
+  border-color: #1E40AF !important;
+}
+.btn-primary:disabled { opacity: .6; }
+
+/* Acento en tarjetas y KPI */
+.kpi { border-top: 3px solid #2563EB !important; }
+.kpi b { color: #0A0A0A !important; }
+.pcard::before { background: #2563EB !important; }
+.pcard.st-finalizado::before { background: #059669 !important; }
+.pcard.st-en_obra::before    { background: #D97706 !important; }
+.pcod { color: #1D4ED8 !important; background: #EFF6FF !important; border-color: #BFDBFE !important; }
+
+/* Anillos y barras de avance en azul corporativo */
+.ring {
+  background: conic-gradient(#2563EB calc(var(--p) * 1%), #E4E4E7 0) !important;
+}
+.bar i { background: linear-gradient(90deg, #2563EB, #60A5FA) !important; }
+
+/* Logotipo y acento de marca */
+.sn-logo, .tb-logo { background: #3B82F6 !important; box-shadow: 0 0 0 4px rgba(59,130,246,.2) !important; }
+
+/* Enlaces y foco */
+a { color: #1D4ED8; }
+:focus-visible { outline-color: #2563EB !important; }
+
+/* Pantalla de acceso en celular: formulario a ancho completo */
+@media (max-width: 899px) {
+  #login-view { max-width: 100%; padding: 28px 22px 24px !important; }
+  .brand h1 { font-size: 26px; }
 }
