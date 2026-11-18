@@ -11,7 +11,7 @@
 :root{--bg:#F4F6F9;--panel:#ffffff;--line:#D9DFE7;--text:#1F2933;--muted:#6B7785;--red:#0B2545;--ok:#067647;--warn:#B54708;--fail:#B42318}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 "Source Sans 3",system-ui,sans-serif}
-.wrap{max-width:1200px;margin:0 auto;padding:24px}
+.wrap{max-width:none;margin:0;padding:24px clamp(16px,3vw,40px)}
 h1{font-size:1.8rem;margin:0 0 4px}
 h2{font-size:1.1rem;margin:0 0 12px;font-weight:600}
 .lead,.hint{color:var(--muted)}
@@ -24,12 +24,12 @@ input,select{width:100%;background:var(--bg);color:var(--text);border:1px solid 
 button{font:inherit;font-weight:600;border-radius:4px;padding:10px 16px;border:1px solid var(--red);background:var(--red);color:#fff;cursor:pointer}
 button.sec{background:transparent;border-color:var(--line);color:var(--text)}
 :focus-visible{outline:2px solid var(--red);outline-offset:2px}
-.grid{display:grid;grid-template-columns:300px 1fr;gap:20px;margin-top:20px}
+.grid{display:grid;grid-template-columns:minmax(280px,380px) minmax(0,1fr);gap:24px;margin-top:20px;align-items:start}
 .stack{display:grid;gap:20px;align-content:start}
 svg.map{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:6px}
 .lk{fill:var(--text);font-size:12px;font-weight:600}
 .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-top:14px}
 .metric{border-top:2px solid var(--line);padding-top:8px}
 .metric span{display:block;color:var(--muted);font-size:.85rem}
 .metric b{font-size:1.4rem;font-variant-numeric:tabular-nums}
@@ -44,8 +44,15 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .log{max-height:240px;overflow:auto;font-size:.92rem}
 .log p{margin:0 0 8px;padding-left:10px;border-left:2px solid var(--red)}
 .err{color:var(--fail);min-height:1.4em}
-@media (max-width:900px){.grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}}
-.app-head{background:linear-gradient(160deg,#0B2545,#13315C);color:#fff;padding:12px 20px;margin:-24px -24px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-radius:0 0 12px 12px}
+@media (max-width:1100px){.grid{grid-template-columns:1fr}}
+@media (max-width:600px){.metrics{grid-template-columns:1fr 1fr}.wrap{padding:14px 12px}.metric b{font-size:1.2rem}}
+.nap-list{display:grid;gap:8px;margin-top:10px}
+.nap-row{display:grid;grid-template-columns:1fr 120px;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--bg)}
+.nap-row span{font-weight:600;font-size:.92rem}
+.nap-in{display:flex;align-items:center;gap:6px}
+.nap-in input{text-align:right;padding:6px 8px}
+.nap-in small{color:var(--muted);font-size:.85rem}
+.app-head{background:linear-gradient(160deg,#0B2545,#13315C);color:#fff;padding:12px 20px;margin:0 0 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-radius:0 0 12px 12px}
 .brand-app{font-weight:700}
 .nav{position:relative}
 .nav-btn{background:#fff;color:#0B2545;border:none;border-radius:999px;padding:8px 14px;font:inherit;font-weight:600;font-size:13px;display:flex;gap:8px;align-items:center;cursor:pointer}
@@ -107,7 +114,10 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 <label for="marg">Margen de seguridad (dB)</label>
 <input id="marg" type="number" step="0.5" min="0" value="3">
 </div>
-<p class="hint">La atenuación de cada tramo viene de fibra_tipos. Los divisores vienen del balanceador de cada NAP y del splitter de cada ODF. Cada empalme suma 0,05 dB y cada conector 0,3 dB.</p>
+<p class="hint">La atenuación de cada tramo viene de fibra_tipos. La pérdida de cada NAP se escribe manualmente abajo y la del splitter de cada ODF viene de su configuración. Cada empalme suma 0,05 dB y cada conector 0,3 dB.</p>
+<h2 style="margin-top:22px">Pérdida por caja NAP</h2>
+<p class="hint">Escriba la pérdida real de cada NAP según su divisor. Si un NAP queda vacío, se considera 0 dB.</p>
+<div id="napList" class="nap-list"></div>
 </aside>
 
 <section class="stack">
@@ -164,6 +174,7 @@ const ONT = {b:['Clase B, −28 dBm', -28], bp:['Clase B+, −30 dBm', -30], cp:
 
 let D = null, S = null, P = null;
 let running = false, pulses = [], count = 0, spawnT = -Infinity, rafId = 0;
+const NAP_LOSS = {};  // pérdida manual en dB por id de NAP (persiste entre desplazes)
 
 function fill(id, opts, def){
   $(id).innerHTML = opts.map(([v, l]) => `<option value="${v}"${v === def ? ' selected' : ''}>${l}</option>`).join('');
@@ -174,8 +185,18 @@ function nodeLoss(n){
   if(n.tipo === 'cliente') return CONN;
   let l = CONN;
   if(n.tipo === 'odf' && n.splitter) l += SPL[n.splitter] || 0;
-  if(n.tipo === 'nap' && n.balanceador) l += SPL[n.balanceador] || 0;
+  if(n.tipo === 'nap') l += NAP_LOSS[n.id] ?? 0;
   return l;
+}
+
+// Pérdida de una caja en la ruta.
+// Un NAP intermedio con hilo fusionado no divide la señal: solo cuentan los empalmes,
+// que ya se suman en cada tramo. Solo la caja donde se conecta el cliente aplica
+// su divisor (pérdida manual) y su conector.
+function lossAt(nodes, i){
+  const n = nodes[i], next = nodes[i + 1];
+  if(n.tipo === 'nap' && (!next || next.tipo !== 'cliente')) return 0;
+  return nodeLoss(n);
 }
 
 function statusInfo(rx, s, marg){
@@ -237,11 +258,27 @@ async function loadDesplaze(){
   const olt = p.data.find(x => x.tipo === 'olt');
   const clientes = p.data.filter(x => x.tipo === 'cliente').sort((a, b) => a.codigo.localeCompare(b.codigo));
   D = {byId, adj, olt, clientes, tramos: t.data};
+  renderNaps(p.data);
   $('cli').innerHTML = clientes.map(c => `<option value="${c.id}">${c.codigo}</option>`).join('');
   fitMap(puntos);
   $('log').innerHTML = '<p>Seleccione un cliente y pulse Ejecutar simulación.</p>';
   update();
 }
+
+function renderNaps(list){
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const naps = list.filter(x => x.tipo === 'nap').sort((a, b) => String(a.codigo).localeCompare(String(b.codigo)));
+  $('napList').innerHTML = naps.length
+    ? naps.map(n => `<div class="nap-row"><span>${esc(n.codigo)}</span><span class="nap-in"><input type="number" min="0" step="0.1" inputmode="decimal" data-nap="${n.id}" value="${NAP_LOSS[n.id] ?? ''}" placeholder="0.0" aria-label="Pérdida de ${esc(n.codigo)} en dB"><small>dB</small></span></div>`).join('')
+    : '<p class="hint">Este desplaze no tiene cajas NAP registradas.</p>';
+}
+$('napList').addEventListener('input', e => {
+  const i = e.target;
+  if(!i.dataset.nap) return;
+  if(i.value === '' || isNaN(Number(i.value))) delete NAP_LOSS[i.dataset.nap];
+  else NAP_LOSS[i.dataset.nap] = Math.max(0, Number(i.value));
+  update();
+});
 
 function fitMap(puntos){
   if(!puntos.length){ P = null; return; }
@@ -284,7 +321,7 @@ function calc(cid, tx, s, marg){
     p -= e.fib + SPLICE;
     len += e.len;
     const pin = p;
-    p -= nodeLoss(r.nodes[i]);
+    p -= lossAt(r.nodes, i);
     steps.push({node: r.nodes[i], pin, pout: p, fib: e.fib, len: e.len, tf: e.tf, ruta: e.ruta});
   }
   const rx = p;
@@ -362,7 +399,9 @@ function logNode(k){
   const last = k === S.steps.length - 1;
   addLog(last
     ? `<strong>${lbl}:</strong> señal recibida con ${st.pout.toFixed(1)} dBm.`
-    : `<strong>${lbl}:</strong> pérdida de ${(st.pin - st.pout).toFixed(2)} dB. Potencia de salida ${st.pout.toFixed(1)} dBm.`);
+    : (st.node.tipo === 'nap' && (st.pin - st.pout) < 0.001
+        ? `<strong>${lbl}:</strong> hilo fusionado, sin divisor en esta caja. Potencia de salida ${st.pout.toFixed(1)} dBm.`
+        : `<strong>${lbl}:</strong> pérdida de ${(st.pin - st.pout).toFixed(2)} dB. Potencia de salida ${st.pout.toFixed(1)} dBm.`));
 }
 
 function logFinal(){ addLog(`<strong>Resultado:</strong> ${S.st.t}`); }
