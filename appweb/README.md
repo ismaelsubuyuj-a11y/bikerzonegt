@@ -31,3 +31,11 @@ supabase.sql      Script de base de datos (ya aplicado en calculadora-login)
 ## Pendiente recomendado
 - En Supabase > Authentication > Settings, activa "Leaked password protection" y la confirmación de correo.
 - Para usar el sistema fuera de Guatemala o en equipos compartidos, cierra sesión al terminar.
+
+## Instalación como app (PWA)
+- En Android (Chrome): menú ⋮ > "Instalar aplicación" o "Añadir a pantalla de inicio".
+- En iPhone (Safari): botón Compartir > "Añadir a pantalla de inicio".
+- Funciona sin conexión para abrir la pantalla y ver lo último cargado. Los cambios se guardan cuando vuelve la conexión.
+
+## Actualizar la app
+Cuando cambies archivos, sube el número de `CACHE` en `sw.js` (por ejemplo, `sicap-v7`) para que los teléfonos carguen la versión nueva.

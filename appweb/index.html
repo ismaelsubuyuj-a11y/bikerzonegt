@@ -8,6 +8,11 @@
 <title>SICAP · Sistema Integral de Canalización y Presupuestos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#2F6DB5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SICAP">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="auth">
@@ -77,6 +82,7 @@
       <button class="avatar" id="userBtn" type="button" aria-haspopup="menu" aria-expanded="false" title="Cuenta"><span id="initials">··</span></button>
       <div class="menu off" id="userMenu" role="menu">
         <div class="menu-head"><span class="label-s">Sesión iniciada</span><b id="who"></b></div>
+        <button id="installBtn" role="menuitem" type="button" class="off">Instalar aplicación</button>
         <button id="ac" role="menuitem" type="button">Cambiar contraseña</button>
         <button id="out2" role="menuitem" type="button" class="danger">Cerrar sesión</button>
       </div>
@@ -98,6 +104,15 @@
 
     <!-- Presupuestos -->
     <div id="v-quo" class="stack">
+      <details class="card help">
+        <summary>¿Cómo usar esta sección?</summary>
+        <ul>
+          <li>Completa los datos del cliente. El nombre es obligatorio para generar el PDF.</li>
+          <li>Agrega partidas con descripción, cantidad y precio. Puedes duplicarlas o eliminarlas; si eliminas una, puedes deshacerlo.</li>
+          <li>Activa el IVA o el precio mayorista solo si los necesitas.</li>
+          <li>Presiona Ctrl+S (o ⌘S en Mac) para guardar el proyecto en cualquier momento.</li>
+        </ul>
+      </details>
       <section class="card">
         <div class="card-head"><h2>Datos del cliente</h2></div>
         <div class="grid">
@@ -161,6 +176,14 @@
 
     <!-- Cálculo -->
     <div id="v-calc" class="stack off">
+      <details class="card help">
+        <summary>¿Cómo usar esta sección?</summary>
+        <ul>
+          <li>Agrega un tramo por cada recorrido de cables. Cada tramo tiene su propia longitud, tubería, cables y curvas.</li>
+          <li>Los resultados se actualizan mientras escribes.</li>
+          <li>Ingresa los precios en el listado de materiales para obtener el total.</li>
+        </ul>
+      </details>
       <section class="card noprint">
         <div class="card-head">
           <div><h2>Proyectos</h2><p class="note">Tus cambios se guardan automáticamente.</p></div>
@@ -212,7 +235,9 @@
 <script src="js/calc.js"></script>
 <script src="js/pdf.js"></script>
 <script src="js/ambient.js"></script>
+<script src="js/toast.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/pwa.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
