@@ -1,5 +1,5 @@
 /* Service worker de SICAP. Al actualizar la app, sube el número de CACHE. */
-const CACHE = 'sicap-v6';
+const CACHE = 'sicap-v7';
 const CORE = ['./', './index.html', './css/styles.css', './js/calc.js', './js/pdf.js', './js/ambient.js',
   './js/toast.js', './js/ui.js', './js/pwa.js', './js/app.js', './logo.js', './config.js',
   './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
