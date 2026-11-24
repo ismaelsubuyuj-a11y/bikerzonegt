@@ -506,7 +506,7 @@
   document.querySelectorAll('img[data-logo]').forEach(i => i.src = window.LOGO || '');
   FO_set();
   function FO_set() { $('#fo').textContent = FO; }
-  setPage('c');
+  setPage('q');
   tick(); setInterval(tick, 30000);
   wx(); setInterval(wx, 600000);
   Qs = qNew(); qDraw();
