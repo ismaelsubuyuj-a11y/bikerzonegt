@@ -59,7 +59,11 @@
   $('#trs').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     const d = b.dataset;
-    if (d.del != null) { if (T_.length < 2) return; T_.splice(d.del, 1); }
+    if (d.del != null) {
+      if (T_.length < 2) { toast('Debe quedar al menos un tramo.', { type: 'warn' }); return; }
+      const at = +d.del, rm = T_.splice(at, 1)[0];
+      toast('Tramo eliminado.', { label: 'Deshacer', fn: () => { T_.splice(at, 0, rm); ed(); calc(); } });
+    }
     else if (d.dup != null) { const c = JSON.parse(JSON.stringify(T_[d.dup])); c.n += ' (copia)'; T_.splice(+d.dup + 1, 0, c); }
     else if (d.rm != null) { const [k, j] = d.rm.split('.'); if (T_[k].rows.length < 2) return; T_[k].rows.splice(j, 1); }
     else if (d.addr != null) T_[d.addr].rows.push({ i: 0, q: 1 });
@@ -213,13 +217,20 @@
   }
   document.addEventListener('input', e => { if (!e.target.closest('#ps,.auth-screen,#md,header')) queueSave(); }, true);
   $('#ps').addEventListener('change', e => { if (e.target.value) openP(e.target.value); });
+  document.addEventListener('cc:retry', queueSave);
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      if (sb && UID) { clearTimeout(saveT); save(); toast('Proyecto guardado.', { type: 'ok' }); }
+    }
+  });
   $('#pn').onclick = async () => { PID = null; aplicar({ pj: 'Proyecto nuevo' }); lastSaved = ''; await save(); };
   $('#pd').onclick = async () => {
     if (!PID || !confirm('¿Eliminar este proyecto? No se puede deshacer.')) return;
     await sb.from('proyectos').delete().eq('id', PID);
     PID = null; lastSaved = '';
     const l = await listP();
-    if (l && l.length) openP(l[0].id); else { aplicar({}); setSt('Proyecto eliminado.'); }
+    if (l && l.length) openP(l[0].id); else { aplicar({}); setSt('Proyecto eliminado.'); toast('Proyecto eliminado.'); }
   };
 
   /* ---------- Sesión ---------- */
@@ -350,12 +361,13 @@
     $('#qm').checked = Qs.may; $('#qk').checked = Qs.cost; $('#qv').checked = Qs.iva;
     $('#qn').textContent = qNum(Qs.numero); $('#qf').textContent = qDate(Qs.fecha);
     $('#qhead').innerHTML = `<tr><th>Descripción del producto o servicio</th><th class="n">Cant.</th><th class="n">P. unitario</th>${Qs.may ? '<th class="n">P. mayorista</th>' : ''}${Qs.cost ? '<th class="n">Costo</th>' : ''}<th class="n">Total</th><th></th></tr>`;
-    const num = (i, f, v) => `<td class="num"><input type="number" min="0" step="any" data-i="${i}" data-f="${f}" value="${esc(v)}"></td>`;
+    const LBL = { q: 'Cant.', pu: 'P. unitario', pm: 'P. mayorista', c: 'Costo' };
+    const num = (i, f, v) => `<td class="num" data-label="${LBL[f]}"><input type="number" min="0" step="any" inputmode="decimal" aria-label="${LBL[f]} de la partida ${i + 1}" data-i="${i}" data-f="${f}" value="${esc(v)}"></td>`;
     $('#qbody').innerHTML = Qs.it.map((it, i) => `<tr>
-      <td class="desc"><textarea data-i="${i}" data-f="d" rows="2" placeholder="Describe el producto o servicio. Arrastra la esquina para agrandar.">${esc(it.d)}</textarea></td>
+      <td class="desc" data-label="Descripción"><textarea aria-label="Descripción de la partida ${i + 1}" data-i="${i}" data-f="d" rows="2" placeholder="Describe el producto o servicio. Arrastra la esquina para agrandar.">${esc(it.d)}</textarea></td>
       ${num(i, 'q', it.q)}${num(i, 'pu', it.pu)}${Qs.may ? num(i, 'pm', it.pm) : ''}${Qs.cost ? num(i, 'c', it.c) : ''}
-      <td class="tot" id="ql${i}"></td>
-      <td><button class="btn icon sm" data-rm="${i}" type="button" aria-label="Quitar partida">×</button></td></tr>`).join('');
+      <td class="tot" id="ql${i}" data-label="Total"></td>
+      <td class="acts"><button class="btn icon sm" data-dup="${i}" type="button" aria-label="Duplicar partida ${i + 1}" title="Duplicar">⧉</button> <button class="btn icon sm" data-rm="${i}" type="button" aria-label="Eliminar partida ${i + 1}" title="Eliminar">×</button></td></tr>`).join('');
     qTot();
   }
   async function qHist() {
@@ -406,6 +418,9 @@
     im.onerror = () => res(null); im.src = src;
   });
   async function buildPdf() {
+    if (!Qs.c.trim()) { toast('Escribe el nombre del cliente antes de generar el PDF.', { type: 'warn' }); $('#qc').focus(); return null; }
+    if (!Qs.it.some(it => String(it.d || '').trim() && +it.pu > 0)) { toast('Agrega al menos una partida con descripción y precio.', { type: 'warn' }); return null; }
+    toast('Generando PDF…');
     if (!window.jspdf) { qMsg('No se cargó el generador de PDF. Revisa tu conexión.'); return null; }
     try { await qSave(); } catch (e) { qMsg('No se pudo guardar el presupuesto. Intenta de nuevo.'); return null; }
     const T = qTot();
@@ -446,16 +461,22 @@
   $('#v-quo').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     const d = b.dataset;
-    if (d.rm != null) { if (Qs.it.length > 1) { Qs.it.splice(d.rm, 1); qDraw(); } }
+    if (d.rm != null) {
+      const at = +d.rm, rm = Qs.it.splice(at, 1)[0];
+      if (!Qs.it.length) Qs.it.push({ d: '', q: 1, pu: '', pm: '', c: '' });
+      qDraw();
+      toast('Partida eliminada.', { label: 'Deshacer', fn: () => { Qs.it.splice(at, 0, rm); qDraw(); } });
+    }
+    else if (d.dup != null) { Qs.it.splice(+d.dup + 1, 0, { ...Qs.it[+d.dup] }); qDraw(); toast('Partida duplicada.'); }
     else if (b.id == 'qa') { Qs.it.push({ d: '', q: 1, pu: '', pm: '', c: '' }); qDraw(); }
     else if (d.open != null) qOpen(QH[d.open]);
   });
   $('#qgen').onclick = async () => {
     const r = await buildPdf(); if (!r) return;
     $('#qfr').src = r.doc.output('bloburl'); $('#qp').classList.remove('off');
-    qMsg('PDF generado: ' + qNum(Qs.numero) + '.');
+    qMsg('PDF generado: ' + qNum(Qs.numero) + '.'); toast('PDF listo para revisar.', { type: 'ok' });
   };
-  $('#qdl').onclick = async () => { const r = await buildPdf(); if (r) { r.doc.save(r.name); qMsg('PDF descargado: ' + qNum(Qs.numero) + '.'); } };
+  $('#qdl').onclick = async () => { const r = await buildPdf(); if (r) { r.doc.save(r.name); qMsg('PDF descargado: ' + qNum(Qs.numero) + '.'); toast('PDF descargado.', { type: 'ok' }); } };
   $('#qwa').onclick = () => qShare('w');
   $('#qma').onclick = () => qShare('m');
   $('#qnw').onclick = qReset;
